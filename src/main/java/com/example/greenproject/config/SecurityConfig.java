@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .requestMatchers(apiPrivate)
                         .hasAuthority("ADMIN")
                         .anyRequest()
-                        .authenticated()
+                        .permitAll()
                 )
                 .formLogin(AbstractHttpConfigurer::disable);
 
