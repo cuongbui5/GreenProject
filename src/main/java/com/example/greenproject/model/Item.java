@@ -17,8 +17,8 @@ public class Item extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "product_id",referencedColumnName = "id")
-    private Product product;
+    @JoinColumn(name = "product_item_id",referencedColumnName = "id")
+    private ProductItem productItem;
     @ManyToOne
     @JoinColumn(name = "cart_id",referencedColumnName = "id")
     private Cart cart;

@@ -3,6 +3,8 @@ package com.example.greenproject.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "_product")
 @NoArgsConstructor
@@ -15,8 +17,8 @@ public class Product extends BaseEntity{
     private Long id;
     private String name;
     private String description;
-    @OneToOne
-    private Image productImage;
+    @OneToMany
+    private List<Image> images;
     @ManyToOne
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
