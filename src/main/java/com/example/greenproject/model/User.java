@@ -25,6 +25,7 @@ public class User extends BaseEntity {
     @NotEmpty(message = Constants.MESSAGE_EMPTY)
     @Email(message = "Email should be valid")
     private String email;
+    private String username;
     private String password;
 
     @ManyToMany
