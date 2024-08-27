@@ -33,7 +33,6 @@ public class Voucher extends BaseEntity{
 
     private LocalDateTime endDate; // Ngày kết thúc hiệu lực
 
-    private String conditions; // Điều kiện áp dụng voucher
 
     private Boolean isActive;// Trạng thái của voucher (còn hiệu lực hay không)
 }
