@@ -1,4 +1,4 @@
-package com.example.greenproject.model;
+package com.example.greenproject.model.enums;
 
 public enum ItemStatus {
     CART_ITEM,

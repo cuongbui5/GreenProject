@@ -17,7 +17,7 @@ public class Product extends BaseEntity{
     private Long id;
     private String name;
     private String description;
-    @OneToMany
+    @OneToMany(mappedBy = "product")
     private List<Image> images;
     @ManyToOne
     @JoinColumn(name = "category_id",referencedColumnName = "id")

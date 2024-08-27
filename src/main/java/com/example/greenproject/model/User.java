@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.model.enums.UserType;
 import com.example.greenproject.utils.Constants;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -27,8 +28,12 @@ public class User extends BaseEntity {
     private String email;
     private String username;
     private String password;
+    private Integer points;
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
 
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "_user_role",
             joinColumns = @JoinColumn(name = "user_id",
                     referencedColumnName = "id"),

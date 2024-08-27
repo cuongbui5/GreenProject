@@ -13,6 +13,25 @@ import java.io.IOException;
 public class LazySecurityContextProviderFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+        String requestUrl = request.getRequestURL().toString();
+
+        System.out.println("Request URI: " + path);
+        System.out.println("Request URL: " + requestUrl);
+        System.out.println("Request Method: " + method);
+        /*if (path.startsWith("/oauth2") || path.startsWith("/login") || path.startsWith("/oauth2/authorization") || path.startsWith("/oauth2/callback")) {
+            // Bỏ qua filter JWT cho các URL OAuth2
+            filterChain.doFilter(request, response);
+            return;
+        }*/
+
+
+        if (path.contains("/api/auth")||path.contains("/test")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         var context = SecurityContextHolder.getContext();
         SecurityContextHolder.setContext(new LazyJwtSecurityContextProvider(request, response, context));
         filterChain.doFilter(request, response);

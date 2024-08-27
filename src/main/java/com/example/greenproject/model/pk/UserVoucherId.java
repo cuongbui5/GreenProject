@@ -2,24 +2,22 @@ package com.example.greenproject.model.pk;
 
 import com.example.greenproject.model.Product;
 import com.example.greenproject.model.User;
+import com.example.greenproject.model.Voucher;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.*;
-
-import java.io.Serializable;
-import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 
 @Embeddable
 @Setter
 @Getter
-public class ReviewId implements Serializable {
+public class UserVoucherId {
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private Product product;
+    @JoinColumn(name = "voucher_id", referencedColumnName = "id")
+    private Voucher voucher;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
 }

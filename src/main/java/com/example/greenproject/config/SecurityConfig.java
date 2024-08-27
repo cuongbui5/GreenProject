@@ -3,6 +3,7 @@ package com.example.greenproject.config;
 import com.example.greenproject.security.CustomAccessDeniedHandler;
 import com.example.greenproject.security.CustomAuthenticationEntryPoint;
 import com.example.greenproject.security.LazySecurityContextProviderFilter;
+import com.example.greenproject.security.oauth2.OAuth2LoginSuccessHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +30,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    LazySecurityContextProviderFilter lazySecurityContextProviderFilter,
                                                    CustomAccessDeniedHandler customAccessDeniedHandler,
-                                                   CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+                                                   CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                                                   OAuth2LoginSuccessHandler auth2LoginSuccessHandler) throws Exception {
         String[] apiPrivate={"/api/*/delete/**","/api/*/create/**","/api/*/update/**"};
 
 
@@ -38,12 +40,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> {
-                            a.requestMatchers("/secured/**").authenticated();
-                            a.requestMatchers("/admin/**").hasAuthority("ADMIN");
-                            a.anyRequest().permitAll();
+                            //a.requestMatchers("/admin/**").hasAuthority("ADMIN");
+                            a.requestMatchers("/api/auth/**", "/oauth2/**", "/login/**", "/oauth2/authorization/**", "/oauth2/callback/**").permitAll();
+                            a.anyRequest().authenticated();
                         }
                 )
-                //.oauth2Login(oauth2->oauth2.defaultSuccessUrl("/api/hello"))//localhost:3000
+                .oauth2Login(oauth2->oauth2.successHandler(auth2LoginSuccessHandler))//localhost:3000
                 //.formLogin(f->f.defaultSuccessUrl("/api/hello",true))
                 .addFilterAfter(lazySecurityContextProviderFilter, SessionManagementFilter.class)
                 .exceptionHandling(e->e

@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.model.enums.ItemStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

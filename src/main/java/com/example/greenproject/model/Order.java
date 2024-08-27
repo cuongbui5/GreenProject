@@ -3,6 +3,9 @@ package com.example.greenproject.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "_order")
 @NoArgsConstructor
@@ -19,5 +22,14 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "contact_id",referencedColumnName = "id")
     private Contact contact;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<Item> items=new ArrayList<>();
+    private boolean isPaid;
+    @OneToOne
+    @JoinColumn(name = "voucher_id",referencedColumnName = "id")
+    private Voucher voucher;
+    private Double shippingCost;
+    private Double totalCost;
+
 
 }

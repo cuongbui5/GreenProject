@@ -1,7 +1,7 @@
 package com.example.greenproject.controller;
 
-import com.example.greenproject.dto.FileUploadResponse;
-import com.example.greenproject.dto.MultipleFileUploadResponse;
+import com.example.greenproject.dto.res.FileUploadResponse;
+import com.example.greenproject.dto.res.MultipleFileUploadResponse;
 import com.example.greenproject.service.FileUploadService;
 import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;

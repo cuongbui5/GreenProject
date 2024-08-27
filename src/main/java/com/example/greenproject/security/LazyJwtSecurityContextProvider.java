@@ -47,7 +47,9 @@ public class LazyJwtSecurityContextProvider implements SecurityContext {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 securityCtx.setAuthentication(authToken);
             } catch (Exception e) {
+
                 System.out.println("catch exception");
+                e.printStackTrace();
                 Error res = new Error(e.getMessage());
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
