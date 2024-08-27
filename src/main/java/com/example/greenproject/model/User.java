@@ -28,6 +28,7 @@ public class User extends BaseEntity {
     private String email;
     private String username;
     private String password;
+    private String imgUrl;
     private Integer points;
     @Enumerated(EnumType.STRING)
     private UserType userType;

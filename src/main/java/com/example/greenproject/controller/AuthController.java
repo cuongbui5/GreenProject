@@ -28,8 +28,6 @@ public class AuthController {
                 new BaseResponse(HttpStatus.CREATED.value(), Constants.REGISTER_OK)
 
         );
-
-
     }
 
     @PostMapping("/login")
