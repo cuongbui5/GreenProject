@@ -22,7 +22,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "contact_id",referencedColumnName = "id")
     private Contact contact;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order",fetch = FetchType.EAGER)
     private List<Item> items=new ArrayList<>();
     private boolean isPaid;
     @OneToOne
