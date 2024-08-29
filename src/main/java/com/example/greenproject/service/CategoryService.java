@@ -92,80 +92,87 @@ public class CategoryService {
     }
 
     public Category addCategory(CreateCategoryRequest createCategoryRequest){
-        Category existOrNotCategoryParent = null;
+        Category parentCategory  = null;
         if(createCategoryRequest.getParentId() != null){
-            existOrNotCategoryParent = categoryRepository.findById(createCategoryRequest.getParentId()).orElseThrow();
+            parentCategory  = categoryRepository.findById(createCategoryRequest.getParentId()).orElseThrow();
         }
 
-        Category existOrNotCategory = categoryRepository.findByName(createCategoryRequest.getName())
+        Category category = categoryRepository.findByName(createCategoryRequest.getName())
                 .orElse(Category
                         .builder()
                         .name(createCategoryRequest.getName())
-                        .parent(existOrNotCategoryParent)
+                        .parent(parentCategory )
                         .build());
-        if(existOrNotCategory.getId() != null){
+        if(category.getId() != null){
             throw new RuntimeException("Already exist category");
         }
-        return categoryRepository.save(existOrNotCategory);
+        return categoryRepository.save(category);
     }
 
     public Category updateCategory(Long categoryId,UpdateCategoryRequest updateCategoryRequest){
         if(categoryId == null){
             throw new RuntimeException();
         }
-        Category existOrNotCategory = categoryRepository.findById(categoryId)
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
 
         if(updateCategoryRequest.getParentId() != null){
-            Category existOrNotCategoryParent = categoryRepository.findById(updateCategoryRequest.getParentId())
+            Category parentCategory = categoryRepository.findById(updateCategoryRequest.getParentId())
                     .orElseThrow(()->new CategoryNotFoundException("Not found parent category id " + updateCategoryRequest.getParentId()));
-            existOrNotCategory.setParent(existOrNotCategoryParent);
+            category.setParent(parentCategory);
         }
 
-        existOrNotCategory.setName(updateCategoryRequest.getName());
-        return categoryRepository.save(existOrNotCategory);
+        category.setName(updateCategoryRequest.getName());
+        return categoryRepository.save(category);
     }
 
     public void deleteCategory(Long id){
-        Category existOrNotCategory = categoryRepository.findById(id)
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(()->new CategoryNotFoundException("Not found category id " + id));
 
-        if(existOrNotCategory.getParent() != null){
-            existOrNotCategory.setParent(null);
+        if(category.getParent() != null){
+            category.setParent(null);
         }else{
             var categories = categoryRepository.findByParentId(id);
-            categories.forEach(category -> categoryRepository.deleteById(category.getId()));
+            categories.forEach(c -> {
+                c.setParent(null);
+                categoryRepository.save(c);
+            });
         }
         categoryRepository.deleteById(id);
     }
 
 
+    // ---------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------//
     public Variation addVariationInCategory(Long categoryId, Long variationId){
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
 
-        Variation existOrNotVariation = variationRepository.findById(variationId)
+        Variation variation = variationRepository.findById(variationId)
                 .orElseThrow();
 
-        Optional<Variation> alreadyExistVariation = existOrNotCategory.getVariations()
+        Optional<Variation> alreadyExistVariation = category.getVariations()
                 .stream()
-                .filter(variation -> variation.getId().equals(existOrNotVariation.getId()))
+                .filter(v -> v.getId().equals(variation.getId()))
                 .findFirst();
         if(alreadyExistVariation.isEmpty()){
-            existOrNotCategory.addVariation(existOrNotVariation);
-            Category saveCategory = categoryRepository.save(existOrNotCategory);
+            category.addVariation(variation);
+            Category saveCategory = categoryRepository.save(category);
             return saveCategory.getVariations()
                     .stream()
-                    .filter(variation -> variation.getId().equals(existOrNotVariation.getId()))
+                    .filter(v -> v.getId().equals(variation.getId()))
                     .findFirst()
                     .orElseThrow();
         }
-        throw new RuntimeException("Already exist variation " + existOrNotVariation.getName() + "in category " + alreadyExistVariation.get().getName());
+        throw new RuntimeException("Already exist variation " + variation.getName() + "in category " + alreadyExistVariation.get().getName());
     }
 
     public void deleteVariationFromCategory(Long variationId,Long categoryId){
-        Variation existOrNotVariation = variationRepository.findById(variationId).orElseThrow();
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
-        existOrNotCategory.removeVariation(existOrNotVariation);
-        categoryRepository.save(existOrNotCategory);
+        Variation variation = variationRepository.findById(variationId).orElseThrow();
+        Category category = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
+        category.removeVariation(variation);
+        categoryRepository.save(category);
     }
+    // ---------------------------------------------------------------------------------//
+    // ---------------------------------------------------------------------------------//
 }
