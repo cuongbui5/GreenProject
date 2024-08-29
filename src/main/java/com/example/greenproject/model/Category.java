@@ -41,8 +41,12 @@ public class Category extends BaseEntity{
     }
 
     public void removeVariation(Variation variation){
-        variations.remove(variation);
-        variation.getCategories().remove(this);
+        if(variations.contains(variation)){
+            variations.remove(variation);
+            variation.getCategories().remove(this);
+        }else{
+            throw new RuntimeException("Variation " + variation.getName() + " don't exist in category " + this.getName());
+        }
     }
 
     @Override

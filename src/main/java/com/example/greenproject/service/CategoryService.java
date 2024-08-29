@@ -4,6 +4,8 @@ import com.example.greenproject.dto.req.CategoryFilteringRequest;
 import com.example.greenproject.dto.req.CreateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateVariationRequest;
+import com.example.greenproject.dto.res.PaginatedResponse;
+import com.example.greenproject.exception.category_exception.CategoryNotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Variation;
 import com.example.greenproject.repository.CategoryRepository;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,16 +27,42 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final VariationRepository variationRepository;
 
-    public Page<Category> getAllCategories(Pageable pageable){
+    public Object getAllCategories(Integer pageNum, Integer pageSize){
+        var categories= (pageNum == null || pageSize == null) ? getAllCategoriesList() :
+                getAllCategoriesPagination(PageRequest.of(pageNum,pageSize));
+
+        if(categories instanceof Page<Category> temp) {
+            return new PaginatedResponse<>(
+                    temp.getContent(),
+                    temp.getTotalPages(),
+                    temp.getNumber(),
+                    temp.getTotalElements()
+            );
+        }
+        return categories;
+    }
+
+    private List<Category> getAllCategoriesList(){
+        return categoryRepository.findAll();
+    }
+
+    private Page<Category> getAllCategoriesPagination(Pageable pageable){
         return categoryRepository.findAll(pageable);
     }
 
-    public Page<Category> findByNameContaining(String name, Pageable pageable){
-        return categoryRepository.findByNameContaining(name,pageable);
+    public PaginatedResponse<Category> findByNameContaining(String name, Pageable pageable){
+        Page<Category> categories = categoryRepository.findByNameContaining(name,pageable);
+
+        return new PaginatedResponse<>(
+                categories.getContent(),
+                categories.getTotalPages(),
+                categories.getNumber(),
+                categories.getTotalElements()
+        );
     }
 
 
-    public Page<Category> filterCategory(CategoryFilteringRequest categoryFilteringRequest){
+    public PaginatedResponse<Category> filterCategory(CategoryFilteringRequest categoryFilteringRequest){
         String name = categoryFilteringRequest.getName();
         String sort = categoryFilteringRequest.getSortOption();
         int pageNum = categoryFilteringRequest.getPageNum();
@@ -44,7 +73,14 @@ public class CategoryService {
                 .filter(category -> category.getName().contains(name))
                 .sorted(sortOption(sort))
                 .toList();
-        return new PageImpl<>(filterCategories, PageRequest.of(pageNum,pageSize), filterCategories.size());
+        Page<Category> categories = new PageImpl<>(filterCategories, PageRequest.of(pageNum,pageSize), filterCategories.size());
+
+        return new PaginatedResponse<>(
+                categories.getContent(),
+                categories.getTotalPages(),
+                categories.getNumber(),
+                categories.getTotalElements()
+        );
     }
 
     private Comparator<Category> sortOption(String sort){
@@ -68,7 +104,7 @@ public class CategoryService {
                         .parent(existOrNotCategoryParent)
                         .build());
         if(existOrNotCategory.getId() != null){
-            return existOrNotCategory;
+            throw new RuntimeException("Already exist category");
         }
         return categoryRepository.save(existOrNotCategory);
     }
@@ -77,9 +113,12 @@ public class CategoryService {
         if(categoryId == null){
             throw new RuntimeException();
         }
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(categoryId)
+                .orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
+
         if(updateCategoryRequest.getParentId() != null){
-            Category existOrNotCategoryParent = categoryRepository.findById(updateCategoryRequest.getParentId()).orElseThrow();
+            Category existOrNotCategoryParent = categoryRepository.findById(updateCategoryRequest.getParentId())
+                    .orElseThrow(()->new CategoryNotFoundException("Not found parent category id " + updateCategoryRequest.getParentId()));
             existOrNotCategory.setParent(existOrNotCategoryParent);
         }
 
@@ -88,7 +127,8 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id){
-        Category existOrNotCategory = categoryRepository.findById(id).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(id)
+                .orElseThrow(()->new CategoryNotFoundException("Not found category id " + id));
 
         if(existOrNotCategory.getParent() != null){
             existOrNotCategory.setParent(null);
@@ -101,7 +141,7 @@ public class CategoryService {
 
 
     public Variation addVariationInCategory(Long categoryId, Long variationId){
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
 
         Variation existOrNotVariation = variationRepository.findById(variationId)
                 .orElseThrow();
@@ -124,7 +164,7 @@ public class CategoryService {
 
     public void deleteVariationFromCategory(Long variationId,Long categoryId){
         Variation existOrNotVariation = variationRepository.findById(variationId).orElseThrow();
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
         existOrNotCategory.removeVariation(existOrNotVariation);
         categoryRepository.save(existOrNotCategory);
     }
