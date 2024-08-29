@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> {
                             //a.requestMatchers("/admin/**").hasAuthority("ADMIN");
                             a.requestMatchers("/api/auth/**", "/oauth2/**", "/login/**", "/oauth2/authorization/**", "/oauth2/callback/**").permitAll();
-                            a.anyRequest().authenticated();
+                            a.anyRequest().permitAll();
                         }
                 )
                 .oauth2Login(oauth2->oauth2.successHandler(auth2LoginSuccessHandler))//localhost:3000

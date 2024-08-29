@@ -17,4 +17,7 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
 
     @Query(nativeQuery = true,value = "SELECT * FROM _category c WHERE c.parent_id = :id")
     List<Category> findByParentId(@Param("id") Long id);
+
+    @Query(nativeQuery = true,value = "SELECT * FROM _category c WHERE c.parent_id IS NULL")
+    List<Category> getAllParentCategory();
 }

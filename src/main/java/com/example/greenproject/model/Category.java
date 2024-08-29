@@ -1,6 +1,8 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.utils.Constants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -10,6 +12,7 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Table(name = "_category")
 @Entity
@@ -26,10 +29,16 @@ public class Category extends BaseEntity{
     private String name;
     @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "parent_id",referencedColumnName = "id")
+    @JsonBackReference("parent_child")
     private Category parent;
+
+    @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
+    @JsonManagedReference("parent_child")
+    private List<Category> children;
 
     @ManyToMany(mappedBy = "categories",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     @JsonManagedReference("category_variation")
+    @JsonIgnore
     private List<Variation> variations;
 
     public void addVariation(Variation variation){

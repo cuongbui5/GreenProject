@@ -50,6 +50,10 @@ public class CategoryService {
         return categoryRepository.findAll(pageable);
     }
 
+    public List<Category> getAllCategoriesParent(){
+        return categoryRepository.getAllParentCategory();
+    }
+
     public PaginatedResponse<Category> findByNameContaining(String name, Pageable pageable){
         Page<Category> categories = categoryRepository.findByNameContaining(name,pageable);
 
@@ -93,11 +97,15 @@ public class CategoryService {
 
     public Category addCategory(CreateCategoryRequest createCategoryRequest){
         Category parentCategory  = null;
+        Category category = null;
         if(createCategoryRequest.getParentId() != null){
-            parentCategory  = categoryRepository.findById(createCategoryRequest.getParentId()).orElseThrow();
+            parentCategory  = categoryRepository.findById(createCategoryRequest.getParentId())
+                    .orElseThrow(()->new CategoryNotFoundException("Not found parent category id " + createCategoryRequest.getParentId()));
+
+            parentCategory.getChildren().add(category);
         }
 
-        Category category = categoryRepository.findByName(createCategoryRequest.getName())
+         category = categoryRepository.findByName(createCategoryRequest.getName())
                 .orElse(Category
                         .builder()
                         .name(createCategoryRequest.getName())

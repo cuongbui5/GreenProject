@@ -34,6 +34,20 @@ public class CategoryController {
                         categories));
     }
 
+
+    @GetMapping("/parent")
+    public ResponseEntity<?> getAllCategoriesParent(){
+
+        Object categories= categoryService.getAllCategoriesParent();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        "Successfully retrieved category list",
+                        categories));
+    }
+
+
     @PostMapping("/create")
     public ResponseEntity<?> addCategory(@RequestBody CreateCategoryRequest createCategoryRequest){
         Category saveCategory = categoryService.addCategory(createCategoryRequest);

@@ -26,14 +26,20 @@ public class LazySecurityContextProviderFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }*/
+        filterChain.doFilter(request, response);
+        //return;
 
 
-        if (path.contains("/api/auth")||path.contains("/test")) {
+
+
+
+
+        /*if (path.contains("/api/auth")||path.contains("/test")) {
             filterChain.doFilter(request, response);
             return;
         }
         var context = SecurityContextHolder.getContext();
         SecurityContextHolder.setContext(new LazyJwtSecurityContextProvider(request, response, context));
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);*/
     }
 }
