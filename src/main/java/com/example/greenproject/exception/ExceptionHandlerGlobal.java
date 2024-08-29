@@ -1,5 +1,6 @@
 package com.example.greenproject.exception;
 
+import com.example.greenproject.exception.category_exception.CategoryNotFoundException;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,6 +14,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ExceptionHandlerGlobal {
+
+    @ResponseBody
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<?> handleException(CategoryNotFoundException exc){
+
+        return new ResponseEntity<>(exc.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ResponseBody
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<?> handlerIllegalStateException(IllegalStateException e){
@@ -42,9 +51,6 @@ public class ExceptionHandlerGlobal {
     public String handleHttpMediaTypeNotAcceptableException() {
         return "acceptable MIME type:" + MediaType.APPLICATION_JSON_VALUE;
     }
-
-
-
 
 
 }

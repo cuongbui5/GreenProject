@@ -4,6 +4,7 @@ import com.example.greenproject.dto.req.CategoryFilteringRequest;
 import com.example.greenproject.dto.req.CreateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateVariationRequest;
+import com.example.greenproject.exception.category_exception.CategoryNotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Variation;
 import com.example.greenproject.repository.CategoryRepository;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,6 +25,10 @@ import java.util.Optional;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final VariationRepository variationRepository;
+
+    public List<Category> getAllCategories(){
+        return categoryRepository.findAll();
+    }
 
     public Page<Category> getAllCategories(Pageable pageable){
         return categoryRepository.findAll(pageable);
@@ -77,9 +83,12 @@ public class CategoryService {
         if(categoryId == null){
             throw new RuntimeException();
         }
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(categoryId)
+                .orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
+
         if(updateCategoryRequest.getParentId() != null){
-            Category existOrNotCategoryParent = categoryRepository.findById(updateCategoryRequest.getParentId()).orElseThrow();
+            Category existOrNotCategoryParent = categoryRepository.findById(updateCategoryRequest.getParentId())
+                    .orElseThrow(()->new CategoryNotFoundException("Not found parent category id " + updateCategoryRequest.getParentId()));
             existOrNotCategory.setParent(existOrNotCategoryParent);
         }
 
@@ -88,7 +97,8 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id){
-        Category existOrNotCategory = categoryRepository.findById(id).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(id)
+                .orElseThrow(()->new CategoryNotFoundException("Not found category id " + id));
 
         if(existOrNotCategory.getParent() != null){
             existOrNotCategory.setParent(null);
@@ -101,7 +111,7 @@ public class CategoryService {
 
 
     public Variation addVariationInCategory(Long categoryId, Long variationId){
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
 
         Variation existOrNotVariation = variationRepository.findById(variationId)
                 .orElseThrow();
@@ -124,7 +134,7 @@ public class CategoryService {
 
     public void deleteVariationFromCategory(Long variationId,Long categoryId){
         Variation existOrNotVariation = variationRepository.findById(variationId).orElseThrow();
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow();
+        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
         existOrNotCategory.removeVariation(existOrNotVariation);
         categoryRepository.save(existOrNotCategory);
     }
