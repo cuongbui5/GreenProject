@@ -22,11 +22,11 @@ public class FileUploadController {
     private final FileUploadService fileUploadService;
     @PostMapping("/image")
     public ResponseEntity<?> uploadImage( @RequestPart("image") final MultipartFile file) throws IOException {
-        String url= fileUploadService.uploadFile(file);
+        String url = fileUploadService.uploadFile(file);
         if(!url.isBlank()) {
-            return ResponseEntity.ok(new FileUploadResponse(Constants.STATUS_OK,url));
+            return ResponseEntity.ok(new FileUploadResponse(Constants.SUCCESS_MESSAGE,url));
         }else {
-            return ResponseEntity.ok(new FileUploadResponse(Constants.STATUS_FAIL,url));
+            return ResponseEntity.ok(new FileUploadResponse(Constants.FAILED_MESSAGE,url));
         }
 
 
@@ -35,9 +35,9 @@ public class FileUploadController {
     public ResponseEntity<?> uploadImages(@RequestPart("images") final MultipartFile[] files) throws IOException {
         List<String> urls= fileUploadService.uploadFiles(files);
         if(!urls.isEmpty()) {
-            return ResponseEntity.ok(new MultipleFileUploadResponse(Constants.STATUS_OK,urls));
+            return ResponseEntity.ok(new MultipleFileUploadResponse(Constants.SUCCESS_MESSAGE,urls));
         }else {
-            return ResponseEntity.ok(new MultipleFileUploadResponse(Constants.STATUS_FAIL,urls));
+            return ResponseEntity.ok(new MultipleFileUploadResponse(Constants.FAILED_MESSAGE,urls));
         }
 
 
