@@ -29,13 +29,13 @@ public class CategoryService {
 
     public Object getAllCategories(Integer pageNum, Integer pageSize){
         var categories= (pageNum == null || pageSize == null) ? getAllCategoriesList() :
-                getAllCategoriesPagination(PageRequest.of(pageNum,pageSize));
+                getAllCategoriesPagination(PageRequest.of(pageNum-1,pageSize));
 
         if(categories instanceof Page<Category> temp) {
             return new PaginatedResponse<>(
                     temp.getContent(),
                     temp.getTotalPages(),
-                    temp.getNumber(),
+                    temp.getNumber()+1,
                     temp.getTotalElements()
             );
         }
