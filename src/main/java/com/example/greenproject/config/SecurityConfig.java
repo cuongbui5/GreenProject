@@ -35,7 +35,7 @@ public class SecurityConfig {
         String[] apiPrivate={"/api/*/delete/**","/api/*/create/**","/api/*/update/**"};
 
 
-        //http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

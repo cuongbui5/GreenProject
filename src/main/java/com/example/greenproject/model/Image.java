@@ -1,10 +1,7 @@
 package com.example.greenproject.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "_image")
@@ -12,6 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Image extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

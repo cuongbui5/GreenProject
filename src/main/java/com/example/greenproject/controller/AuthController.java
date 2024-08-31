@@ -20,16 +20,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @PostMapping( "/register")
     public ResponseEntity<BaseResponse> register(@RequestBody @Valid RegisterRequest registerRequest){
         authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 new BaseResponse(HttpStatus.CREATED.value(), Constants.REGISTER_OK)
 
         );
-
-
     }
 
     @PostMapping("/login")

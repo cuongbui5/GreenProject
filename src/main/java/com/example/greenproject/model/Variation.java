@@ -26,6 +26,13 @@ public class Variation extends BaseEntity {
     private Set<Category> categories;
     private String name;
 
+    @OneToMany(mappedBy = "variation")
+    private Set<VariationOption> variationOptions;
+
+//    public void removeVariationOption(VariationOption variationOption){
+//        variationOptions.removeIf(option -> option.getValue().equals(variationOption.getValue()));
+//    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

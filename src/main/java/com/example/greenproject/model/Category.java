@@ -1,6 +1,8 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.CategoryDto;
 import com.example.greenproject.utils.Constants;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,24 +28,22 @@ public class Category extends BaseEntity{
     private String name;
     @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "parent_id",referencedColumnName = "id")
+    @JsonBackReference("parent_child")
     private Category parent;
+    @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
+    @JsonManagedReference("parent_child")
+    private List<Category> children=new ArrayList<>();
 
-    @ManyToMany(mappedBy = "categories",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
-    @JsonManagedReference("category_variation")
-    private List<Variation> variations;
-
-    public void addVariation(Variation variation){
-        if(variations == null){
-            variations = new ArrayList<>();
-        }
-        variation.getCategories().add(this);
-        variations.add(variation);
+    public CategoryDto mapToCategoryDto(){
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(id);
+        categoryDto.setName(name);
+        categoryDto.setParent(new CategoryDto(parent.getId(),parent.getName()));
+        return categoryDto;
     }
 
-    public void removeVariation(Variation variation){
-        variations.remove(variation);
-        variation.getCategories().remove(this);
-    }
+
+
 
     @Override
     public boolean equals(Object o) {
