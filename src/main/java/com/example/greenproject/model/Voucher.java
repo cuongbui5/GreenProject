@@ -23,6 +23,8 @@ public class Voucher extends BaseEntity{
     private String description;
     private Integer quantity;
     private Integer pointsRequired;
+    @Version
+    private Long version;
 
     @Enumerated(EnumType.STRING)
     private VoucherType type; // Loại voucher (FREE_SHIP, DISCOUNT_PERCENTAGE, ...)
