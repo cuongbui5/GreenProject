@@ -17,7 +17,7 @@ public class ExceptionHandlerGlobal {
 
     @ResponseBody
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<?> handleNotFoundException(NotFoundException e){
+    public ResponseEntity<?> handlerNotFoundException(NotFoundException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
         );
@@ -32,7 +32,7 @@ public class ExceptionHandlerGlobal {
     }
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<?> handlerMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         // Lấy message từ lỗi đầu tiên
         FieldError fieldError = e.getBindingResult().getFieldError();
         String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : "Invalid input";
