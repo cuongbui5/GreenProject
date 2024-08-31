@@ -38,7 +38,10 @@ public class Category extends BaseEntity{
         CategoryDto categoryDto = new CategoryDto();
         categoryDto.setId(id);
         categoryDto.setName(name);
-        categoryDto.setParent(new CategoryDto(parent.getId(),parent.getName()));
+        if(parent != null){
+            categoryDto.setParent(new CategoryDto(parent.getId(),parent.getName()));
+        }
+
         return categoryDto;
     }
 
