@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
 public class HomeController {
 
     @GetMapping
-    String signing(){
+    String signing() throws IOException {
         List<String> authorities = new ArrayList<>();
         authorities.add("ADMIN");
 

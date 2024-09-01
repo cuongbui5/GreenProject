@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -15,6 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
@@ -36,26 +38,64 @@ public class SecurityUtils {
     private static final Algorithm ALGORITHM = Algorithm.HMAC256(SECRET_KEY);
 
 
-    @SneakyThrows
+
     public static String createToken(UserInfo userDetails) {
-        var builder = JWT.create();
-        var tokenJson = OBJECT_MAPPER.writeValueAsString(userDetails);
-        builder.withClaim(USER_CLAIM, tokenJson);
-        return builder
-                .withIssuedAt(new Date())
-                .withIssuer(ISSUER)
-                .withExpiresAt(new Date(System.currentTimeMillis() + SIX_HOURS_MILLISECOND))//  + SIX_HOURS_MILLISECOND
-                .sign(ALGORITHM);
+        try{
+            System.out.println("createToken");
+            var builder = JWT.create();
+            var tokenJson = OBJECT_MAPPER.writeValueAsString(userDetails);
+            builder.withClaim(USER_CLAIM, tokenJson);
+            return builder
+                    .withIssuedAt(new Date())
+                    .withIssuer(ISSUER)
+                    .withExpiresAt(new Date(System.currentTimeMillis() + SIX_HOURS_MILLISECOND))//  + SIX_HOURS_MILLISECOND
+                    .sign(ALGORITHM);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+
     }
 
-    public static void setJwtToClient(UserInfo userDetails){
-        var token = createToken(userDetails);
-        var cookie = new Cookie(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + token);
+    public static void setJwtToClient(UserInfo userInfo) throws IOException {
+        System.out.println("setJwtToClient");
+
+        String token = createToken(userInfo);
+        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + token);
         cookie.setMaxAge(SIX_HOURS);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        var attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        Objects.requireNonNull(Objects.requireNonNull(attributes).getResponse()).addCookie(cookie);
+
+        Cookie loginStatusCookie = new Cookie("isLoggedIn", "true");
+        loginStatusCookie.setMaxAge(SIX_HOURS);
+        loginStatusCookie.setPath("/");
+
+        Cookie roleCookie = new Cookie("role", userInfo.getAuthorities().get(0));
+        roleCookie.setMaxAge(SIX_HOURS);
+        roleCookie.setPath("/");
+
+
+
+
+
+
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        System.out.println(attributes);
+        if(attributes != null){
+            HttpServletResponse response= attributes.getResponse();
+            System.out.println("rés:"+response);
+            response.addCookie(cookie);
+            response.addCookie(loginStatusCookie);
+            response.addCookie(roleCookie);
+
+
+
+
+        }
+
+
+
     }
 
     @SneakyThrows

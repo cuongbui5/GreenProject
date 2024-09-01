@@ -17,6 +17,7 @@ import org.apache.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -43,6 +44,8 @@ public class AuthService {
         user.setEmail(registerRequest.getEmail());
         if(Objects.equals(registerRequest.getUserType(), UserType.GITHUB.name())){
             user.setUserType(UserType.GITHUB);
+        }else if(Objects.equals(registerRequest.getUserType(), UserType.GOOGLE.name())){
+            user.setUserType(UserType.GOOGLE);
         }else {
             user.setUserType(UserType.NONE);
         }
@@ -65,7 +68,7 @@ public class AuthService {
 
 
 
-    public UserInfo login(LoginRequest loginRequest) {
+    public UserInfo login(LoginRequest loginRequest) throws IOException {
         String username=loginRequest.getUsername();
         Optional<User> userOptional=userRepository.findByUsername(username);
         if(userOptional.isPresent()&&passwordEncoder.matches(loginRequest.getPassword(),userOptional.get().getPassword())){

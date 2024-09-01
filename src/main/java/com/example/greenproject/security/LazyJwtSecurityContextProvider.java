@@ -33,6 +33,7 @@ public class LazyJwtSecurityContextProvider implements SecurityContext {
             try {
                 System.out.println("Check token");
                 var jwtToken = SecurityUtils.getToken(this.request);
+                System.out.println(jwtToken);
                 var decodedJWT = SecurityUtils.validate(jwtToken);
                 UserInfo userInfo = SecurityUtils.getValueObject(decodedJWT);
                 if(userInfo == null) {

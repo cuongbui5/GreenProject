@@ -41,11 +41,16 @@ public class SecurityConfig {
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> {
                             //a.requestMatchers("/admin/**").hasAuthority("ADMIN");
-                            a.requestMatchers("/api/auth/**", "/oauth2/**", "/login/**", "/oauth2/authorization/**", "/oauth2/callback/**").permitAll();
+                            a.requestMatchers("/api/auth/**").permitAll();
                             a.anyRequest().authenticated();
                         }
                 )
-                .oauth2Login(oauth2->oauth2.successHandler(auth2LoginSuccessHandler))//localhost:3000
+                .oauth2Login(o->o.successHandler(auth2LoginSuccessHandler).failureHandler((request, response, exception) -> {
+                    System.out.println("Error gg");
+                    System.out.println(exception.getMessage());
+                    // Log or handle failure
+                }))
+                //.oauth2Login(oauth2->oauth2.successHandler(auth2LoginSuccessHandler).defaultSuccessUrl("http://localhost:3000/home"))//localhost:3000
                 //.formLogin(f->f.defaultSuccessUrl("/api/hello",true))
                 .addFilterAfter(lazySecurityContextProviderFilter, SessionManagementFilter.class)
                 .exceptionHandling(e->e

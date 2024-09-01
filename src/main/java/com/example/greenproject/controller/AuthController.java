@@ -10,10 +10,13 @@ import com.example.greenproject.service.AuthService;
 import com.example.greenproject.utils.Constants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,8 +34,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserInfo> login(@RequestBody @Valid LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) throws IOException {
+        authService.login(loginRequest);
         return ResponseEntity.ok()
-                .body(authService.login(loginRequest));
+                .body(new BaseResponse(HttpStatus.OK.value(), "Đăng nhập thành công!"));
     }
 }
