@@ -78,7 +78,7 @@ public class AuthService {
             userInfo.setEmail(user.getEmail());
             userInfo.setId(user.getId());
             userInfo.setRoles(user.getRoles());
-            SecurityUtils.setJwtToClient(userInfo);
+
             return userInfo;
 
         }

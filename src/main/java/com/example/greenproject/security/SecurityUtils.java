@@ -64,37 +64,24 @@ public class SecurityUtils {
         String token = createToken(userInfo);
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + token);
         cookie.setMaxAge(SIX_HOURS);
-        cookie.setHttpOnly(true);
+        //cookie.setHttpOnly(true);
         cookie.setPath("/");
-
         Cookie loginStatusCookie = new Cookie("isLoggedIn", "true");
         loginStatusCookie.setMaxAge(SIX_HOURS);
         loginStatusCookie.setPath("/");
-
         Cookie roleCookie = new Cookie("role", userInfo.getAuthorities().get(0));
         roleCookie.setMaxAge(SIX_HOURS);
         roleCookie.setPath("/");
-
-
-
-
-
-
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        System.out.println(attributes);
-        if(attributes != null){
-            HttpServletResponse response= attributes.getResponse();
-            System.out.println("rés:"+response);
-            response.addCookie(cookie);
-            response.addCookie(loginStatusCookie);
-            response.addCookie(roleCookie);
+        assert attributes != null;
+        HttpServletResponse response= attributes.getResponse();
+        assert response != null;
 
+        cookie.setDomain("localhost");
 
-
-
-        }
-
-
+        response.addCookie(cookie);
+        response.addCookie(loginStatusCookie);
+        response.addCookie(roleCookie);
 
     }
 
@@ -112,9 +99,9 @@ public class SecurityUtils {
         try{
 
             String userClaim = decodedJWT.getClaims().get(USER_CLAIM).asString();
-            UserInfo userDetails= OBJECT_MAPPER.readValue(userClaim, UserInfo.class);
-            System.out.println("User:"+userDetails);
-            return userDetails;
+            UserInfo userInfo= OBJECT_MAPPER.readValue(userClaim, UserInfo.class);
+            System.out.println("User:"+userInfo);
+            return userInfo;
 
         }catch (Exception e){
             e.printStackTrace();

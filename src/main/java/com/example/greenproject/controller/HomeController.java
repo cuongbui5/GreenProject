@@ -1,8 +1,10 @@
 package com.example.greenproject.controller;
 
+import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.security.SecurityUtils;
 import com.example.greenproject.security.UserInfo;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +18,15 @@ import java.util.List;
 
 @RestController
 public class HomeController {
+
+    @GetMapping("/api/user-info")
+    public ResponseEntity<?> getUserInfo() {
+        var session = SecurityUtils.getSession();
+        System.out.println(session);
+
+        return ResponseEntity.ok()
+                .body(new DataResponse(HttpStatus.OK.value(), "Đăng nhập thành công!",null));
+    }
 
     @GetMapping
     String signing() throws IOException {

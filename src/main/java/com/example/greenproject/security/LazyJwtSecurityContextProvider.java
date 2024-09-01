@@ -11,12 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 
@@ -39,7 +42,7 @@ public class LazyJwtSecurityContextProvider implements SecurityContext {
                 if(userInfo == null) {
                     throw new RuntimeException("Invalid token");
                 }
-                var authToken = new PreAuthenticatedAuthenticationToken(userInfo, null, userInfo.getAllAuthorities());
+                var authToken = new PreAuthenticatedAuthenticationToken(userInfo, null, getAllAuthorities(userInfo.getAuthorities()));
 
                 if(decodedJWT.getExpiresAt().before(new Date(System.currentTimeMillis() + ONE_HOUR_MILLIS))){
                     System.out.println("Refresh token");
@@ -63,6 +66,11 @@ public class LazyJwtSecurityContextProvider implements SecurityContext {
         }
 
         return securityCtx.getAuthentication();
+    }
+
+    public List<GrantedAuthority> getAllAuthorities(List<String> authorities) {
+        if (authorities == null) return new ArrayList<>();
+        return authorities.stream().map(s -> (GrantedAuthority) () -> s).toList();
     }
 
     @Override
