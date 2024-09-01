@@ -19,7 +19,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class VariationService {
     private final VariationRepository variationRepository;
-    private final CategoryRepository categoryRepository;
     private final VariationOptionRepository variationOptionRepository;
 
     public List<Variation> getAllVariation(){
@@ -52,24 +51,6 @@ public class VariationService {
 
 
 
-    public VariationOption addVariationOptionToVariation(Long variationId, CreateVariationOptionRequest createVariationOptionRequest){
-        Variation variation = variationRepository.findById(variationId).orElseThrow();
 
-        String variationOptionValue = createVariationOptionRequest.getValue();
-        VariationOption existOrNotVariationOption = variationOptionRepository.findByValue(variationOptionValue)
-                .orElse(VariationOption
-                        .builder()
-                        .value(variationOptionValue)
-                        .variation(variation)
-                        .build());
-        if(existOrNotVariationOption.getId() == null){
-            variation.getVariationOptions().add(existOrNotVariationOption);
-            Variation saveVariation = variationRepository.save(variation);
-            return saveVariation.getVariationOptions().stream()
-                    .filter(variationOption -> variationOption.getValue().equals(variationOptionValue))
-                    .findFirst().orElseThrow();
-        }
-        throw new RuntimeException();
-    }
 
 }
