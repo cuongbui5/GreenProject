@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.CategoryDto;
 import com.example.greenproject.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,26 +37,17 @@ public class Category extends BaseEntity{
     @JsonManagedReference("parent_child")
     private List<Category> children;
 
-    @ManyToMany(mappedBy = "categories",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
-    @JsonManagedReference("category_variation")
-    @JsonIgnore
-    private List<Variation> variations;
 
-    public void addVariation(Variation variation){
-        if(variations == null){
-            variations = new ArrayList<>();
-        }
-        variation.getCategories().add(this);
-        variations.add(variation);
-    }
-
-    public void removeVariation(Variation variation){
-        if(variations.contains(variation)){
-            variations.remove(variation);
-            variation.getCategories().remove(this);
+    public CategoryDto mapToCategoryDto(){
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(id);
+        categoryDto.setName(name);
+        if(parent != null){
+            categoryDto.setParent(new CategoryDto(parent.getId(),parent.getName()));
         }else{
-            throw new RuntimeException("Variation " + variation.getName() + " don't exist in category " + this.getName());
+            categoryDto.setParent(null);
         }
+        return categoryDto;
     }
 
     @Override

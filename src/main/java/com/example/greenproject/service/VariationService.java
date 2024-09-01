@@ -3,6 +3,7 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateVariationOptionRequest;
 import com.example.greenproject.dto.req.CreateVariationRequest;
 import com.example.greenproject.dto.req.UpdateVariationRequest;
+import com.example.greenproject.exception.category_exception.CategoryNotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Variation;
 import com.example.greenproject.model.VariationOption;
@@ -11,9 +12,7 @@ import com.example.greenproject.repository.VariationOptionRepository;
 import com.example.greenproject.repository.VariationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,33 +31,49 @@ public class VariationService {
 
     public Variation createVariation(CreateVariationRequest createVariationRequest){
         String variationName = createVariationRequest.getName();
-        Variation existOrNotVariation = variationRepository.findByName(variationName)
+        Long categoryId = createVariationRequest.getCategoryId();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
+
+        Variation variation = variationRepository.findByName(variationName)
                 .orElse(Variation
                         .builder()
                         .name(variationName)
                         .build());
-        if(existOrNotVariation.getId() == null){
-            return variationRepository.save(existOrNotVariation);
+        if(variation.getId() == null){
+            variation.addCategory(category);
+            return variationRepository.save(variation);
         }
         throw new RuntimeException("Already exist variation");
     }
 
 
     public Variation updateVariation(Long variationId, UpdateVariationRequest updateVariationRequest){
-        Variation existOrNotVariation = variationRepository.findById(variationId).orElseThrow();
-        existOrNotVariation.setName(updateVariationRequest.getName());
-        return variationRepository.save(existOrNotVariation);
+        Variation variation = variationRepository.findById(variationId).orElseThrow();
+        variation.setName(updateVariationRequest.getName());
+        return variationRepository.save(variation);
     }
 
+    public Variation addCategoryToVariation(Long variationId, Long categoryId){
+        Variation variation = variationRepository.findById(variationId).orElseThrow();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(()->new CategoryNotFoundException("Not found category id " + categoryId));
+        variation.addCategory(category);
+        return variationRepository.save(variation);
+    }
 
     public void deleteVariation(Long id){
         Variation variation = variationRepository.findById(id).orElseThrow();
-        variation.getCategories().forEach(category ->
-        {
-            category.removeVariation(variation);
-            categoryRepository.save(category);
-        });
+        variation.setCategories(null);
         variationRepository.delete(variation);
+    }
+
+    public void removeCategoryFromVariation(Long variationId, Long categoryId){
+        Variation variation = variationRepository.findById(variationId).orElseThrow();
+        Category category = categoryRepository.findById(categoryId).orElseThrow();
+        variation.removeCategory(category);
+        variationRepository.save(variation);
     }
 
     public VariationOption addVariationOptionToVariation(Long variationId, CreateVariationOptionRequest createVariationOptionRequest){

@@ -1,5 +1,6 @@
 package com.example.greenproject.exception;
 
+import com.example.greenproject.dto.res.ErrorResponse;
 import com.example.greenproject.exception.category_exception.CategoryNotFoundException;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.http.HttpStatus;
@@ -17,39 +18,37 @@ public class ExceptionHandlerGlobal {
 
     @ResponseBody
     @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<?> handleException(CategoryNotFoundException exc){
+    public ResponseEntity<?> handleException(CategoryNotFoundException e){
 
-        return new ResponseEntity<>(exc.getMessage(), HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
+        );
     }
 
     @ResponseBody
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<?> handlerIllegalStateException(IllegalStateException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                e.getMessage()
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
         );
     }
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<?> handlerMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         // Lấy message từ lỗi đầu tiên
         FieldError fieldError = e.getBindingResult().getFieldError();
         String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : "Invalid input";
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(),errorMessage)
+        );
     }
     @ResponseBody
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handlerRuntimeException(RuntimeException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                e.getMessage()
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
         );
-    }
-
-    @ResponseBody
-    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-    public String handleHttpMediaTypeNotAcceptableException() {
-        return "acceptable MIME type:" + MediaType.APPLICATION_JSON_VALUE;
     }
 
 

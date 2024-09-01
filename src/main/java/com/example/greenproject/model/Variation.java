@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -22,16 +24,27 @@ public class Variation extends BaseEntity {
     @JoinTable(name = "_variation_category",
             joinColumns = @JoinColumn(name = "variation_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
-    @JsonBackReference("category_variation")
     private Set<Category> categories;
     private String name;
 
     @OneToMany(mappedBy = "variation")
     private Set<VariationOption> variationOptions;
 
-//    public void removeVariationOption(VariationOption variationOption){
-//        variationOptions.removeIf(option -> option.getValue().equals(variationOption.getValue()));
-//    }
+    public void addCategory(Category category){
+        if(categories == null){
+            categories = new HashSet<>();
+        }
+        categories.add(category);
+    }
+
+    public void removeCategory(Category category){
+        if(categories.contains(category)){
+            categories.remove(category);
+        }else{
+            throw new RuntimeException("Category " + category.getName() + " don't exist in variation " + this.getName());
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {
