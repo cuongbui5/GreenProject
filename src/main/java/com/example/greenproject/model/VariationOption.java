@@ -1,5 +1,7 @@
 package com.example.greenproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +18,7 @@ public class VariationOption extends BaseEntity{
     private Long id;
     @ManyToOne
     @JoinColumn(name = "variation_id",referencedColumnName = "id")
+    @JsonBackReference("variation_variationOption")
     private Variation variation;
     private String value;
 }

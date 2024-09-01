@@ -2,10 +2,7 @@ package com.example.greenproject.model;
 
 import com.example.greenproject.model.enums.VoucherType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Voucher extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +21,8 @@ public class Voucher extends BaseEntity{
     private String description;
     private Integer quantity;
     private Integer pointsRequired;
+    @Version
+    private Long version;
 
     @Enumerated(EnumType.STRING)
     private VoucherType type; // Loại voucher (FREE_SHIP, DISCOUNT_PERCENTAGE, ...)

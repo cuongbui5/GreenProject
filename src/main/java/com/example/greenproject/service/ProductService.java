@@ -3,6 +3,7 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateProductRequest;
 import com.example.greenproject.dto.req.FilteringProductRequest;
 import com.example.greenproject.dto.req.UpdateProductRequest;
+import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Image;
 import com.example.greenproject.model.Product;
@@ -24,33 +25,66 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public Page<Product> getAllProduct(Pageable pageable){
+    public Object getAllProduct(Integer pageNum, Integer pageSize){
+        var products= (pageNum == null || pageSize == null) ? getAllProductList() :
+                getAllProductPagination(PageRequest.of(pageNum-1,pageSize));
+
+        if(products instanceof Page<Product> temp) {
+            return new PaginatedResponse<>(
+                    temp.getContent(),
+                    temp.getTotalPages(),
+                    temp.getNumber()+1,
+                    temp.getTotalElements()
+            );
+        }
+        return products;
+    }
+
+    private List<Product> getAllProductList(){
+        return productRepository.findAll();
+    }
+
+    private Page<Product> getAllProductPagination(Pageable pageable){
         return productRepository.findAll(pageable);
     }
 
-    public Page<Product> findByNameContaining(String keyword, Pageable pageable){
-        return productRepository.findByNameContaining(keyword,pageable);
+    public PaginatedResponse<Product> findByNameContaining(String keyword, Pageable pageable){
+         Page<Product> products = productRepository.findByNameContaining(keyword,pageable);
+
+        return new PaginatedResponse<>(
+                products.getContent(),
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
     }
 
     public Product findProductById(Long id){
         return productRepository.findById(id).orElseThrow();
     }
 
-    public Page<Product> filteringProduct(FilteringProductRequest filteringProductRequest){
+    public PaginatedResponse<Product> filteringProduct(FilteringProductRequest filteringProductRequest){
         int pageNum = filteringProductRequest.getPageNum();
         int pageSize = filteringProductRequest.getPageSize();
-        String name = filteringProductRequest.getName();
+        String name = filteringProductRequest.getName().toLowerCase();
         Long categoryId = filteringProductRequest.getCategoryId();
 
         List<Product> productList = productRepository
                 .findAll()
                 .stream()
-                .filter(product -> product.getName().contains(name))
+                .filter(product -> product.getName().toLowerCase().contains(name))
                 .filter(product ->product.getCategory().getId().equals(categoryId) ||
                         (product.getCategory().getParent() != null && product.getCategory().getParent().getId().equals(categoryId)))
                 .toList();
 
-        return new PageImpl<>(productList, PageRequest.of(pageNum,pageSize),productList.size());
+        Page<Product> products = new PageImpl<>(productList, PageRequest.of(pageNum,pageSize),productList.size());
+
+        return new PaginatedResponse<>(
+                products.getContent(),
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
     }
 
     public Product createProduct(CreateProductRequest createProductRequest){
