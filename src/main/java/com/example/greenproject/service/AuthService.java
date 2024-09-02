@@ -2,18 +2,18 @@ package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.LoginRequest;
 import com.example.greenproject.dto.req.RegisterRequest;
-import com.example.greenproject.dto.res.BaseResponse;
-import com.example.greenproject.dto.res.LoginResponse;
 import com.example.greenproject.model.Role;
 import com.example.greenproject.model.User;
 import com.example.greenproject.model.enums.UserType;
 import com.example.greenproject.repository.RoleRepository;
 import com.example.greenproject.repository.UserRepository;
-import com.example.greenproject.security.SecurityUtils;
 import com.example.greenproject.security.UserInfo;
 import com.example.greenproject.utils.Constants;
+import com.example.greenproject.utils.Utils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,6 +85,11 @@ public class AuthService {
 
         throw new RuntimeException("Username or password incorrect!");
 
+
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        Utils.removeAllCookies(request,response);
 
     }
 }

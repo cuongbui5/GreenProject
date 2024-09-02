@@ -62,28 +62,25 @@ public class SecurityUtils {
         System.out.println("setJwtToClient");
 
         String token = createToken(userInfo);
-        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + token);
-        cookie.setMaxAge(SIX_HOURS);
-        //cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        Cookie loginStatusCookie = new Cookie("isLoggedIn", "true");
-        loginStatusCookie.setMaxAge(SIX_HOURS);
-        loginStatusCookie.setPath("/");
-        Cookie roleCookie = new Cookie("role", userInfo.getAuthorities().get(0));
-        roleCookie.setMaxAge(SIX_HOURS);
-        roleCookie.setPath("/");
+        Cookie tokenCookie = new Cookie(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + token);
+        //tokenCookie.setMaxAge(SIX_HOURS);
+        tokenCookie.setMaxAge(10);
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setPath("/");
+
+        Cookie userInfoCookie = new Cookie("Authority", userInfo.getAuthorities().get(0));
+        userInfoCookie.setMaxAge(SIX_HOURS);
+        userInfoCookie.setPath("/");
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert attributes != null;
         HttpServletResponse response= attributes.getResponse();
         assert response != null;
-
-        cookie.setDomain("localhost");
-
-        response.addCookie(cookie);
-        response.addCookie(loginStatusCookie);
-        response.addCookie(roleCookie);
+        response.addCookie(tokenCookie);
+        response.addCookie(userInfoCookie);
 
     }
+
+
 
     @SneakyThrows
     public static DecodedJWT validate(String token) {

@@ -35,13 +35,22 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest,HttpServletRequest request,HttpServletResponse response) throws IOException, ServletException {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) throws IOException {
         UserInfo userInfo= authService.login(loginRequest);
         SecurityUtils.setJwtToClient(userInfo);
 
         return ResponseEntity.ok().body(new DataResponse(HttpStatus.OK.value(), "success",userInfo));
 
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        authService.logout(request,response);
+        return ResponseEntity.ok().body(new BaseResponse(HttpStatus.OK.value(), "success"));
+
+    }
+
+
 
 
 }

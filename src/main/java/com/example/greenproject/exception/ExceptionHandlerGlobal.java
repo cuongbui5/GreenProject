@@ -24,7 +24,7 @@ public class ExceptionHandlerGlobal {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handlerNotFoundException(NotFoundException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(),"NotFoundException:" +e.getMessage())
         );
     }
 
@@ -32,7 +32,7 @@ public class ExceptionHandlerGlobal {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<?> handlerIllegalStateException(IllegalStateException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(),"IllegalStateException:"+ e.getMessage())
         );
     }
     @ResponseBody
@@ -49,7 +49,7 @@ public class ExceptionHandlerGlobal {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handlerRuntimeException(RuntimeException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(),"RuntimeException:"+ e.getMessage())
         );
     }
 

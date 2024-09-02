@@ -1,6 +1,7 @@
 package com.example.greenproject.security;
 
 import com.example.greenproject.dto.res.ErrorResponse;
+import com.example.greenproject.utils.Utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,7 +53,8 @@ public class LazyJwtSecurityContextProvider implements SecurityContext {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 securityCtx.setAuthentication(authToken);
             } catch (Exception e) {
-                ErrorResponse res = new ErrorResponse(HttpStatus.FORBIDDEN.value(),e.getMessage());
+                Utils.removeAllCookies(request, response);
+                ErrorResponse res = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),e.getMessage());
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 OutputStream responseStream = response.getOutputStream();

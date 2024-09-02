@@ -45,13 +45,12 @@ public class SecurityConfig {
                             a.anyRequest().authenticated();
                         }
                 )
-                .oauth2Login(o->o.successHandler(auth2LoginSuccessHandler).failureHandler((request, response, exception) -> {
-                    System.out.println("Error gg");
-                    System.out.println(exception.getMessage());
-                    // Log or handle failure
+                .oauth2Login(o->o.successHandler(auth2LoginSuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                    System.out.println("Error oauth2:"+exception.getMessage());
+
+
                 }))
-                //.oauth2Login(oauth2->oauth2.successHandler(auth2LoginSuccessHandler).defaultSuccessUrl("http://localhost:3000/home"))//localhost:3000
-                //.formLogin(f->f.defaultSuccessUrl("/api/hello",true))
                 .addFilterAfter(lazySecurityContextProviderFilter, SessionManagementFilter.class)
                 .exceptionHandling(e->e
                         .accessDeniedHandler(customAccessDeniedHandler)
