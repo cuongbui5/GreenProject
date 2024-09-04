@@ -25,25 +25,27 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-
+    private final static int PAGE_SIZE=5;
 
     public Object getAllCategories(Integer pageNum, Integer pageSize){
-        var categories= (pageNum == null || pageSize == null) ? getAllCategoriesList() :
-                getAllCategoriesPagination(PageRequest.of(pageNum-1,pageSize));
-
-        if(categories instanceof Page<Category> temp) {
-            return new PaginatedResponse<>(
-                    temp.getContent(),
-                    temp.getTotalPages(),
-                    temp.getNumber()+1,
-                    temp.getTotalElements()
-            );
+        if(pageNum==null || pageSize==null){
+            return getAllCategoriesList();
         }
-        return categories;
+
+        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
+        Page<Category> categories = categoryRepository.findAll(pageable);
+        List<CategoryDto> categoryDtos= categories.getContent().stream().map(Category::mapToCategoryDto).toList();
+        return new PaginatedResponse<>(
+                categoryDtos,
+                categories.getTotalPages(),
+                categories.getNumber()+1,
+                categories.getTotalElements()
+        );
+
     }
 
-    private List<Category> getAllCategoriesList(){
-        return categoryRepository.findAll();
+    private List<CategoryDto> getAllCategoriesList(){
+        return categoryRepository.findAll().stream().map(Category::mapToCategoryDto).toList();
     }
 
     public List<Category> getAllParents(){

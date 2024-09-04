@@ -63,8 +63,8 @@ public class SecurityUtils {
 
         String token = createToken(userInfo);
         Cookie tokenCookie = new Cookie(AUTHORIZATION_HEADER, AUTHORIZATION_PREFIX + token);
-        //tokenCookie.setMaxAge(SIX_HOURS);
-        tokenCookie.setMaxAge(10);
+        tokenCookie.setMaxAge(SIX_HOURS);
+        //tokenCookie.setMaxAge(10);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
 
