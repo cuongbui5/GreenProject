@@ -49,7 +49,7 @@ public class ExceptionHandlerGlobal {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handlerRuntimeException(RuntimeException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ErrorResponse(HttpStatus.BAD_REQUEST.value(),"RuntimeException:"+ e.getMessage())
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage())
         );
     }
 

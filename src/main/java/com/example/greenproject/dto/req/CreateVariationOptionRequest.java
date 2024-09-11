@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CreateVariationOptionRequest {
-    private Variation variation;
-    private String value;
+    private Long variationId;
+    private String values;
 }

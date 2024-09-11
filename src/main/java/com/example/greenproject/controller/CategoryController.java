@@ -66,6 +66,8 @@ public class CategoryController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateCategory(@PathVariable("id") Long categoryId,@RequestBody UpdateCategoryRequest updateCategoryRequest){
+        System.out.println(categoryId);
+        System.out.println(updateCategoryRequest);
         Category updateCategory = categoryService.updateCategoryById(categoryId,updateCategoryRequest);
         return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
                 HttpStatus.OK.value(),

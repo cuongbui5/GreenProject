@@ -1,9 +1,13 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.dto.res.VariationOptionDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -40,8 +44,19 @@ public class Variation extends BaseEntity {
         return Objects.equals(id, variation.id) && Objects.equals(name, variation.name);
     }
 
+
+
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
     }
+
+    public VariationDto mapToVariationDto() {
+        VariationDto variationDto = new VariationDto();
+        variationDto.setId(id);
+        variationDto.setName(name);
+        variationDto.setValues(variationOptions.stream().map(VariationOption::mapToVariationOptionDto).toList());
+        return variationDto;
+    }
+
 }

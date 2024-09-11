@@ -4,8 +4,6 @@ import com.example.greenproject.dto.req.LoginRequest;
 import com.example.greenproject.dto.req.RegisterRequest;
 import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
-import com.example.greenproject.security.SecurityUtils;
-import com.example.greenproject.security.UserInfo;
 import com.example.greenproject.service.AuthService;
 import com.example.greenproject.utils.Constants;
 import jakarta.servlet.ServletException;
@@ -29,24 +27,34 @@ public class AuthController {
     public ResponseEntity<BaseResponse> register(@RequestBody @Valid RegisterRequest registerRequest){
         authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new BaseResponse(HttpStatus.CREATED.value(), Constants.REGISTER_OK)
+                        new BaseResponse(
+                        HttpStatus.CREATED.value(),
+                        Constants.REGISTER_OK
+                )
 
         );
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) throws IOException {
-        UserInfo userInfo= authService.login(loginRequest);
-        SecurityUtils.setJwtToClient(userInfo);
-
-        return ResponseEntity.ok().body(new DataResponse(HttpStatus.OK.value(), "success",userInfo));
+        return ResponseEntity.ok().body(
+                new DataResponse(
+                HttpStatus.OK.value(),
+                Constants.SUCCESS_MESSAGE,
+                authService.login(loginRequest)
+                )
+        );
 
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         authService.logout(request,response);
-        return ResponseEntity.ok().body(new BaseResponse(HttpStatus.OK.value(), "success"));
+        return ResponseEntity.ok().body(
+                new BaseResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE)
+        );
 
     }
 

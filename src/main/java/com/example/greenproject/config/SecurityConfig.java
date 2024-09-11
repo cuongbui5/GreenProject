@@ -45,7 +45,7 @@ public class SecurityConfig {
                             a.anyRequest().authenticated();
                         }
                 )
-                .oauth2Login(o->o.successHandler(auth2LoginSuccessHandler)
+                .oauth2Login(oauth2->oauth2.successHandler(auth2LoginSuccessHandler)
                         .failureHandler((request, response, exception) -> {
                     System.out.println("Error oauth2:"+exception.getMessage());
 

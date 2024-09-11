@@ -7,6 +7,7 @@ import com.example.greenproject.model.User;
 import com.example.greenproject.model.enums.UserType;
 import com.example.greenproject.repository.RoleRepository;
 import com.example.greenproject.repository.UserRepository;
+import com.example.greenproject.security.SecurityUtils;
 import com.example.greenproject.security.UserInfo;
 import com.example.greenproject.utils.Constants;
 import com.example.greenproject.utils.Utils;
@@ -78,6 +79,7 @@ public class AuthService {
             userInfo.setEmail(user.getEmail());
             userInfo.setId(user.getId());
             userInfo.setRoles(user.getRoles());
+            SecurityUtils.setJwtToClient(userInfo);
 
             return userInfo;
 
