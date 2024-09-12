@@ -1,23 +1,19 @@
 package com.example.greenproject.service;
 
-import com.example.greenproject.dto.req.CategoryFilteringRequest;
 import com.example.greenproject.dto.req.CreateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateCategoryRequest;
-import com.example.greenproject.dto.res.CategoryDto;
+import com.example.greenproject.dto.res.CategoryDtoWithChild;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
-import com.example.greenproject.model.Variation;
 import com.example.greenproject.repository.CategoryRepository;
-import com.example.greenproject.repository.VariationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,16 +24,25 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final static int PAGE_SIZE=5;
 
-    public Object getAllCategories(Integer pageNum, Integer pageSize){
+    public Object getAllCategories(Integer pageNum, Integer pageSize,String search){
         if(pageNum==null || pageSize==null){
+
             return getAllCategoriesList();
         }
-
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<Category> categories = categoryRepository.findAll(pageable);
-        List<CategoryDto> categoryDtos= categories.getContent().stream().map(Category::mapToCategoryDto).toList();
+        Page<Category> categories;
+
+        if(search!=null){
+
+            categories= searchCategory(search,pageable);
+        }else {
+
+            categories = categoryRepository.findAll(pageable);
+        }
+
+        List<CategoryDtoWithParent> categoryDtoWithParents = categories.getContent().stream().map(Category::mapToCategoryDtoWithParent).toList();
         return new PaginatedResponse<>(
-                categoryDtos,
+                categoryDtoWithParents,
                 categories.getTotalPages(),
                 categories.getNumber()+1,
                 categories.getTotalElements()
@@ -45,12 +50,16 @@ public class CategoryService {
 
     }
 
-    private List<CategoryDto> getAllCategoriesList(){
-        return categoryRepository.findAll().stream().map(Category::mapToCategoryDto).toList();
+    private Page<Category> searchCategory(String search,Pageable pageable){
+        return categoryRepository.findByNameContainingIgnoreCase(search,pageable);
     }
 
-    public List<Category> getAllParents(){
-        return categoryRepository.getCategoriesByParentIsNull();
+    private List<CategoryDtoWithParent> getAllCategoriesList(){
+        return categoryRepository.findAll().stream().map(Category::mapToCategoryDtoWithParent).toList();
+    }
+
+    public List<CategoryDtoWithChild> getAllParents(){
+        return categoryRepository.getCategoriesByParentIsNull().stream().map(Category::mapToCategoryDtoWithChild).toList();
     }
 
     private Page<Category> getAllCategoriesPagination(Pageable pageable){
@@ -130,8 +139,8 @@ public class CategoryService {
         return categoryRepository.findById(id).orElseThrow(()->new NotFoundException("Không tìm thấy danh mục với id : " + id));
     }
 
-    public CategoryDto getCategoryById(Long id) {
+    public CategoryDtoWithParent getCategoryById(Long id) {
         Category category= categoryRepository.findById(id).orElseThrow(()->new NotFoundException("Không tìm thấy danh mục với id : " + id));
-        return category.mapToCategoryDto();
+        return category.mapToCategoryDtoWithParent();
     }
 }

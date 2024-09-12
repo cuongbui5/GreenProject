@@ -24,9 +24,10 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<?> getAllCategories(@RequestParam(value = "pageNum",required = false) Integer pageNum,
-                                              @RequestParam(value = "pageSize",required = false) Integer pageSize){
+                                              @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                              @RequestParam(value = "search",required = false) String search){
 
-        Object categories= categoryService.getAllCategories(pageNum,pageSize);
+        Object categories= categoryService.getAllCategories(pageNum,pageSize,search);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(

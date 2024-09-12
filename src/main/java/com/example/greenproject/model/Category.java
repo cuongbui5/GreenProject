@@ -1,12 +1,12 @@
 package com.example.greenproject.model;
 
-import com.example.greenproject.dto.res.CategoryDto;
+import com.example.greenproject.dto.res.CategoryDtoWithChild;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.utils.Constants;
+import com.example.greenproject.utils.Utils;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -35,15 +35,34 @@ public class Category extends BaseEntity{
     @JsonBackReference("parent_child")
     private List<Category> children=new ArrayList<>();
 
-    public CategoryDto mapToCategoryDto(){
-        CategoryDto categoryDto = new CategoryDto();
-        categoryDto.setId(id);
-        categoryDto.setName(name);
+    public CategoryDtoWithParent mapToCategoryDtoWithParent(){
+        CategoryDtoWithParent categoryDtoWithParent = new CategoryDtoWithParent();
+        categoryDtoWithParent.setId(id);
+        categoryDtoWithParent.setName(name);
+        categoryDtoWithParent.setCreatedAt(Utils.zonedDateTimeToDate(getCreatedAt().toString()));
+        categoryDtoWithParent.setUpdatedAt(Utils.zonedDateTimeToDate(getUpdatedAt().toString()));
         if(parent != null){
-            categoryDto.setParent(new CategoryDto(parent.getId(),parent.getName()));
+            CategoryDtoWithParent parentDto=new CategoryDtoWithParent();
+            parentDto.setId(parent.getId());
+            parentDto.setName(parent.getName());
+            parentDto.setCreatedAt(Utils.zonedDateTimeToDate(parent.getCreatedAt().toString()));
+            parentDto.setUpdatedAt(Utils.zonedDateTimeToDate(parent.getUpdatedAt().toString()));
+            categoryDtoWithParent.setParent(parentDto);
         }
 
-        return categoryDto;
+        return categoryDtoWithParent;
+    }
+    public CategoryDtoWithChild mapToCategoryDtoWithChild(){
+        CategoryDtoWithChild categoryDtoWithChild = new CategoryDtoWithChild();
+        categoryDtoWithChild.setId(id);
+        categoryDtoWithChild.setName(name);
+        if(children.isEmpty()){
+            categoryDtoWithChild.setChildren(null);
+        }else {
+            categoryDtoWithChild.setChildren(children.stream().map(Category::mapToCategoryDtoWithChild).toList());
+        }
+
+        return categoryDtoWithChild;
     }
 
 
