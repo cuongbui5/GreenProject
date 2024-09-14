@@ -8,4 +8,5 @@ import lombok.Setter;
 @Setter
 public class UpdateVariationRequest {
     private String name;
+    private Long categoryId;
 }

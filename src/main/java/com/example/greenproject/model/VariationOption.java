@@ -25,6 +25,11 @@ public class VariationOption extends BaseEntity{
         VariationOptionDto dto = new VariationOptionDto();
         dto.setId(id);
         dto.setValue(value);
+        dto.setCreatedAt(getCreatedAt());
+        dto.setUpdatedAt(getUpdatedAt());
+        if(variation != null) {
+            dto.setVariation(variation.mapToVariationDto());
+        }
         return dto;
     }
 }

@@ -3,6 +3,10 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateProductRequest;
 import com.example.greenproject.dto.req.FilteringProductRequest;
 import com.example.greenproject.dto.req.UpdateProductRequest;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
+import com.example.greenproject.dto.res.PaginatedResponse;
+import com.example.greenproject.dto.res.ProductDto;
+import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Image;
 import com.example.greenproject.model.Product;
@@ -23,81 +27,89 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    public Object getAllProduct(Integer pageNum, Integer pageSize, String search) {
+        if(pageNum==null || pageSize==null){
+            return getAllProduct();
+        }
+        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
+        Page<Product> products;
 
-    public Page<Product> getAllProduct(Pageable pageable){
-        return productRepository.findAll(pageable);
-    }
+        if(search!=null){
+            products= searchProduct(search,pageable);
+        }else {
 
-    public Page<Product> findByNameContaining(String keyword, Pageable pageable){
-        return productRepository.findByNameContaining(keyword,pageable);
-    }
-
-    public Product findProductById(Long id){
-        return productRepository.findById(id).orElseThrow();
-    }
-
-    public Page<Product> filteringProduct(FilteringProductRequest filteringProductRequest){
-        int pageNum = filteringProductRequest.getPageNum();
-        int pageSize = filteringProductRequest.getPageSize();
-        String name = filteringProductRequest.getName();
-        Long categoryId = filteringProductRequest.getCategoryId();
-
-        List<Product> productList = productRepository
-                .findAll()
-                .stream()
-                .filter(product -> product.getName().contains(name))
-                .filter(product ->product.getCategory().getId().equals(categoryId) ||
-                        (product.getCategory().getParent() != null && product.getCategory().getParent().getId().equals(categoryId)))
-                .toList();
-
-        return new PageImpl<>(productList, PageRequest.of(pageNum,pageSize),productList.size());
-    }
-
-    public Product createProduct(CreateProductRequest createProductRequest){
-        Optional<Product> existOrNotProduct = productRepository.findByName(createProductRequest.getName());
-        if(existOrNotProduct.isPresent()){
-            return null;
+            products = productRepository.findAll(pageable);
         }
 
-        Long categoryId = createProductRequest.getCategoryId();
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new RuntimeException("Not found category"));
-        List<Image> convertImageList = createProductRequest.getImagesUrl()
-                .stream()
-                .map((image)-> Image.
-                        builder()
-                        .url(image)
-                        .build())
-                .toList();
+        List<ProductDto> productDtos = products.getContent().stream().map(Product::mapToProductDto).toList();
+        return new PaginatedResponse<>(
+                productDtos,
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
+    }
+
+    private Page<Product> searchProduct(String search, Pageable pageable) {
+        return productRepository.findByNameContainingIgnoreCase(search, pageable);
+    }
 
 
-        Product tempProduct = Product
+    public List<Product> getAllProduct(){
+        return productRepository.findAll();
+    }
+
+
+
+    public Product findProductById(Long id){
+        return productRepository.findById(id).orElseThrow(()->new RuntimeException("Không tìm thấy sản phẩm với id: "+id));
+    }
+
+
+
+    public Product createProduct(CreateProductRequest createProductRequest){
+        Optional<Product> product = productRepository.findByName(createProductRequest.getName());
+        if(product.isPresent()){
+            throw new RuntimeException("Sản phẩm đã tồn tại!");
+        }
+        Category category=null;
+        if(createProductRequest.getCategoryId()!=null){
+            category = categoryRepository
+                    .findById(createProductRequest.getCategoryId())
+                    .orElseThrow(()-> new NotFoundException("Not found category"));
+        }
+
+        Product newProduct = Product
                 .builder()
                 .name(createProductRequest.getName())
                 .description(createProductRequest.getDescription())
-                .category(existOrNotCategory)
+                .category(category)
                 .build();
-        tempProduct.addImage(convertImageList);
-        return productRepository.save(tempProduct);
+
+        return productRepository.save(newProduct);
     }
 
     public Product updateProduct(Long productId,UpdateProductRequest updateProductRequest){
-        Product existOrNotProduct = productRepository.findById(productId).orElseThrow();
-        if(updateProductRequest.getName() != null && !existOrNotProduct.getName().equals(updateProductRequest.getName())){
-            existOrNotProduct.setName(updateProductRequest.getName());
+        Product product = productRepository.findById(productId).orElseThrow();
+        if(updateProductRequest.getName() != null && !product.getName().equals(updateProductRequest.getName())){
+            product.setName(updateProductRequest.getName());
         }
-        if(updateProductRequest.getDescription() != null && !existOrNotProduct.getDescription().equals(updateProductRequest.getDescription())){
-            existOrNotProduct.setDescription(updateProductRequest.getDescription());
+        if(updateProductRequest.getDescription() != null && !product.getDescription().equals(updateProductRequest.getDescription())){
+            product.setDescription(updateProductRequest.getDescription());
         }
-        if(updateProductRequest.getCategoryId() != null  && !existOrNotProduct.getCategory().getId().equals(updateProductRequest.getCategoryId())){
-            Category existOrNotCategory = categoryRepository.findById(updateProductRequest.getCategoryId()).orElseThrow();
-            existOrNotProduct.setCategory(existOrNotCategory);
+        if(updateProductRequest.getCategoryId() != null  && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
+            Category category = categoryRepository.findById(updateProductRequest.getCategoryId())
+                    .orElseThrow(()->
+                            new RuntimeException("Không tìm thấy danh mục với id:"+updateProductRequest.getCategoryId())
+                    );
+            product.setCategory(category);
         }
-        return productRepository.save(existOrNotProduct);
+        return productRepository.save(product);
     }
 
     public void deleteProduct(Long id){
-        Product existOrNotProduct = productRepository.findById(id).orElseThrow();
-        existOrNotProduct.setCategory(null);
-        productRepository.delete(existOrNotProduct);
+       productRepository.deleteById(id);
     }
+
+
 }

@@ -3,6 +3,7 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateVariationOptionRequest;
 import com.example.greenproject.dto.req.CreateVariationRequest;
 import com.example.greenproject.dto.req.UpdateVariationRequest;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.VariationDto;
 import com.example.greenproject.exception.NotFoundException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -28,17 +30,25 @@ public class VariationService {
     private final VariationRepository variationRepository;
     private final CategoryRepository categoryRepository;
 
-    public Object getAllVariation(Integer pageNum,Integer pageSize){
+    public Object getAllVariations(Integer pageNum,Integer pageSize,String search){
         if(pageNum == null || pageSize ==null){
             return variationRepository.findAll().stream().map(Variation::mapToVariationDto).toList();
         }
-        Page<Variation> variationPage=variationRepository.findAll(PageRequest.of(pageNum,pageSize));
-        List<VariationDto> data=variationPage.getContent().stream().map(Variation::mapToVariationDto).toList();
+        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
+        Page<Variation> variations;
+        if(search!=null){
+            variations = searchVariation(search,pageable);
+        }else {
+
+            variations = variationRepository.findAll(pageable);
+        }
+
+        List<VariationDto> variationDtos = variations.getContent().stream().map(Variation::mapToVariationDto).toList();
         return new PaginatedResponse<>(
-                data,
-                variationPage.getTotalPages(),
-                variationPage.getNumber()+1,
-                variationPage.getTotalElements()
+                variationDtos,
+                variations.getTotalPages(),
+                variations.getNumber()+1,
+                variations.getTotalElements()
         );
 
 
@@ -46,22 +56,26 @@ public class VariationService {
 
     }
 
+    private Page<Variation> searchVariation(String search, Pageable pageable) {
+        return variationRepository.findByNameContainingIgnoreCase(search,pageable);
+    }
+
 
     public Variation createVariation(CreateVariationRequest createVariationRequest){
-        String variationName = createVariationRequest.getName();
-        Optional<Category> category=categoryRepository.findById(createVariationRequest.getCategoryId());
-        if(category.isEmpty()){
-            throw new NotFoundException("Không tìm thấy danh mục có id :"+createVariationRequest.getCategoryId());
+        Category category=null;
+        if(createVariationRequest.getCategoryId()!=null){
+            category = categoryRepository
+                    .findById(createVariationRequest.getCategoryId())
+                    .orElseThrow(()->new NotFoundException("Category not found"));
         }
-        Optional<Variation> variation = variationRepository.findByName(variationName);
+
+        Optional<Variation> variation = variationRepository.findByName(createVariationRequest.getName());
         if(variation.isPresent()){
             throw new RuntimeException("Biến thể đã tồn tại!");
         }else {
-            HashSet<Category> categories = new HashSet<>();
-            categories.add(category.get());
             Variation newVariation = new Variation();
             newVariation.setName(createVariationRequest.getName());
-            newVariation.setCategories(categories);
+            newVariation.setCategory(category);
             return variationRepository.save(newVariation);
         }
 
@@ -69,16 +83,30 @@ public class VariationService {
     }
 
 
-    public Variation updateVariationById(Long variationId, UpdateVariationRequest updateVariationRequest){
+    public VariationDto updateVariationById(Long variationId, UpdateVariationRequest updateVariationRequest) {
         Optional<Variation> variationOptional = variationRepository.findById(variationId);
-        if(variationOptional.isEmpty()){
-            throw new NotFoundException("Không tìm thấy biến thể với id: "+variationId);
+        if (variationOptional.isEmpty()) {
+            throw new NotFoundException("Không tìm thấy biến thể với id: " + variationId);
         }
-        Variation variation=variationOptional.get();
-        System.out.println("name:"+updateVariationRequest.getName());
-        variation.setName(updateVariationRequest.getName());
-        return variationRepository.save(variation);
+
+        Variation variation = variationOptional.get();
+
+        if (!variation.getName().equals(updateVariationRequest.getName())) {
+            variation.setName(updateVariationRequest.getName());
+        }
+
+
+        if (variation.getCategory() == null || !variation.getCategory().getId().equals(updateVariationRequest.getCategoryId())) {
+            Optional<Category> category = categoryRepository.findById(updateVariationRequest.getCategoryId());
+            if (category.isEmpty()) {
+                throw new NotFoundException("Không tìm thấy danh muc với id: " + updateVariationRequest.getCategoryId());
+            }
+            variation.setCategory(category.get());
+        }
+
+        return variationRepository.save(variation).mapToVariationDto();
     }
+
 
 
     public List<VariationDto> getAllVariationByCategoryId(Long categoryId) {

@@ -2,6 +2,7 @@ package com.example.greenproject.dto.res;
 
 import lombok.*;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -12,8 +13,8 @@ public class CategoryDtoWithParent {
     private Long id;
     private String name;
     private CategoryDtoWithParent parent;
-    private Date createdAt;
-    private Date updatedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
 
 
 

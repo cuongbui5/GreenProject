@@ -10,5 +10,5 @@ import lombok.Setter;
 @Builder
 public class CreateVariationOptionRequest {
     private Long variationId;
-    private String values;
+    private String value;
 }

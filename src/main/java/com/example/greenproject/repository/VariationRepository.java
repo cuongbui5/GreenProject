@@ -16,4 +16,6 @@ public interface VariationRepository extends JpaRepository<Variation,Long> {
     List<Variation> getAllVariationByCategoryId(@Param("id")Long id);
 
     Optional<Variation> findByName(String name);
+
+    Page<Variation> findByNameContainingIgnoreCase(String search, Pageable pageable);
 }

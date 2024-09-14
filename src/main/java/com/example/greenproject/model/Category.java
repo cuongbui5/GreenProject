@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.CategoryDto;
 import com.example.greenproject.dto.res.CategoryDtoWithChild;
 import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.utils.Constants;
@@ -35,18 +36,22 @@ public class Category extends BaseEntity{
     @JsonBackReference("parent_child")
     private List<Category> children=new ArrayList<>();
 
+    public CategoryDto mapToCategoryDto(){
+        return new CategoryDto(id,name);
+    }
+
     public CategoryDtoWithParent mapToCategoryDtoWithParent(){
         CategoryDtoWithParent categoryDtoWithParent = new CategoryDtoWithParent();
         categoryDtoWithParent.setId(id);
         categoryDtoWithParent.setName(name);
-        categoryDtoWithParent.setCreatedAt(Utils.zonedDateTimeToDate(getCreatedAt().toString()));
-        categoryDtoWithParent.setUpdatedAt(Utils.zonedDateTimeToDate(getUpdatedAt().toString()));
+        categoryDtoWithParent.setCreatedAt(getCreatedAt());
+        categoryDtoWithParent.setUpdatedAt(getUpdatedAt());
         if(parent != null){
             CategoryDtoWithParent parentDto=new CategoryDtoWithParent();
             parentDto.setId(parent.getId());
             parentDto.setName(parent.getName());
-            parentDto.setCreatedAt(Utils.zonedDateTimeToDate(parent.getCreatedAt().toString()));
-            parentDto.setUpdatedAt(Utils.zonedDateTimeToDate(parent.getUpdatedAt().toString()));
+            parentDto.setCreatedAt(parent.getCreatedAt());
+            parentDto.setUpdatedAt(parent.getUpdatedAt());
             categoryDtoWithParent.setParent(parentDto);
         }
 

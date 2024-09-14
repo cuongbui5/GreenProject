@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.ImageDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,4 +20,7 @@ public class Image extends BaseEntity{
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;
 
+    public ImageDto mapToImageDto() {
+        return new ImageDto(id,url);
+    }
 }

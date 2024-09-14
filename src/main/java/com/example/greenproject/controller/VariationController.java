@@ -31,16 +31,15 @@ public class VariationController {
                 ));
     }
 
-    @GetMapping()
-    public ResponseEntity<?> getAllVariation(@RequestParam(value = "pageNum",required = false) Integer pageNum,
-                                             @RequestParam(value = "pageSize",required = false) Integer pageSize){
-        return ResponseEntity
-                .status(HttpStatus.OK)
+    @GetMapping
+    public ResponseEntity<?> getAllVariations(@RequestParam(value = "pageNum",required = false) Integer pageNum,
+                                              @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                              @RequestParam(value = "search",required = false) String search){
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        variationService.getAllVariation(pageNum,pageSize)
-                ));
+                        variationService.getAllVariations(pageNum,pageSize,search)));
     }
 
 

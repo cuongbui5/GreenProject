@@ -1,20 +1,23 @@
 package com.example.greenproject.dto.res;
 
-import lombok.Getter;
+import com.example.greenproject.model.Category;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
-@Getter
-@Setter
+
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
-public class VariationDto {
+public class ProductDto {
     private Long id;
     private String name;
+    private String description;
     private CategoryDto category;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
-    private List<VariationOptionDto> values;
+
 }
