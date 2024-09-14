@@ -6,6 +6,7 @@ import com.example.greenproject.dto.req.UpdateVariationRequest;
 import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.dto.res.VariationDtoWithOptions;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Variation;
@@ -20,9 +21,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +64,7 @@ public class VariationService {
     }
 
 
-    public Variation createVariation(CreateVariationRequest createVariationRequest){
+    public VariationDto createVariation(CreateVariationRequest createVariationRequest){
         Category category=null;
         if(createVariationRequest.getCategoryId()!=null){
             category = categoryRepository
@@ -76,7 +79,7 @@ public class VariationService {
             Variation newVariation = new Variation();
             newVariation.setName(createVariationRequest.getName());
             newVariation.setCategory(category);
-            return variationRepository.save(newVariation);
+            return variationRepository.save(newVariation).mapToVariationDto();
         }
 
 
@@ -109,9 +112,35 @@ public class VariationService {
 
 
 
-    public List<VariationDto> getAllVariationByCategoryId(Long categoryId) {
-        return variationRepository.getAllVariationByCategoryId(categoryId).stream().map(Variation::mapToVariationDto).toList();
+
+
+    public List<VariationDtoWithOptions> getAllVariationByCategoryId(Long categoryId) {
+        // Tạo danh sách để chứa các VariationDto từ các danh mục cha và con
+        List<VariationDtoWithOptions> VariationDtoWithOptions = new ArrayList<>();
+
+        // Tìm danh mục theo categoryId
+        Category category = categoryRepository
+                .findById(categoryId)
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+
+        // Nếu danh mục có danh mục cha, đệ quy để lấy VariationDto từ danh mục cha
+        if (category.getParent() != null) {
+            List<VariationDtoWithOptions> parentVariations = getAllVariationByCategoryId(category.getParent().getId());
+            VariationDtoWithOptions.addAll(parentVariations);
+        }
+
+        // Lấy các Variation từ danh mục hiện tại và thêm vào danh sách
+        List<VariationDtoWithOptions> currentVariations = variationRepository.getAllVariationByCategoryId(categoryId)
+                .stream()
+                .map(Variation::mapToVariationDtoWithOptions)
+                .toList();
+
+        VariationDtoWithOptions.addAll(currentVariations);
+
+        // Trả về danh sách kết hợp giữa các variation của danh mục cha và hiện tại
+        return VariationDtoWithOptions;
     }
+
 
     public void deleteVariation(Long id) {
          variationRepository.deleteById(id);

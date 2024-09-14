@@ -1,7 +1,9 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.dto.res.VariationDtoWithOptions;
 import com.example.greenproject.dto.res.VariationOptionDto;
+import com.example.greenproject.dto.res.VariationOptionLazy;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +32,19 @@ public class Variation extends BaseEntity {
     @OneToMany(mappedBy = "variation")
     private Set<VariationOption> variationOptions;
 
+    public VariationDtoWithOptions mapToVariationDtoWithOptions(){
+        VariationDtoWithOptions dto = new VariationDtoWithOptions();
+        dto.setId(id);
+        dto.setName(name);
+        if(variationOptions != null){
+            List<VariationOptionLazy> options = new ArrayList<>();
+            variationOptions.forEach(option -> {options.add(option.mapToVariationOptionLazy());});
+            dto.setValues(options);
+
+        }
+        return dto;
+    }
+
     public VariationDto mapToVariationDto() {
         VariationDto variationDto=new VariationDto();
         variationDto.setId(id);
@@ -44,19 +59,7 @@ public class Variation extends BaseEntity {
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Variation variation)) return false;
-        return Objects.equals(id, variation.id) && Objects.equals(name, variation.name);
-    }
 
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
 
 
 

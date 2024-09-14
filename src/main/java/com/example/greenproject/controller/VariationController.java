@@ -5,7 +5,9 @@ import com.example.greenproject.dto.req.UpdateVariationRequest;
 import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.model.Product;
 import com.example.greenproject.model.Variation;
+import com.example.greenproject.service.ProductService;
 import com.example.greenproject.service.VariationService;
 import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +22,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VariationController {
     private final VariationService variationService;
+    private final ProductService productService;
 
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<?> getAllVariationByCategoryId(@PathVariable Long categoryId){
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getAllVariationByProductId(@PathVariable Long productId){
+        Product product = productService.findProductById(productId);
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        variationService.getAllVariationByCategoryId(categoryId)
+                        variationService.getAllVariationByCategoryId(product.getCategory().getId())
                 ));
     }
+
+
 
     @GetMapping
     public ResponseEntity<?> getAllVariations(@RequestParam(value = "pageNum",required = false) Integer pageNum,

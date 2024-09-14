@@ -32,9 +32,9 @@ public class Category extends BaseEntity{
     @JsonBackReference("parent_child")
     private Category parent;
     @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
-
     @JsonBackReference("parent_child")
     private List<Category> children=new ArrayList<>();
+
 
     public CategoryDto mapToCategoryDto(){
         return new CategoryDto(id,name);

@@ -55,8 +55,8 @@ public class ProductService {
     }
 
 
-    public List<Product> getAllProduct(){
-        return productRepository.findAll();
+    public List<ProductDto> getAllProduct(){
+        return productRepository.findAll().stream().map(Product::mapToProductDto).toList();
     }
 
 
@@ -67,7 +67,7 @@ public class ProductService {
 
 
 
-    public Product createProduct(CreateProductRequest createProductRequest){
+    public ProductDto createProduct(CreateProductRequest createProductRequest){
         Optional<Product> product = productRepository.findByName(createProductRequest.getName());
         if(product.isPresent()){
             throw new RuntimeException("Sản phẩm đã tồn tại!");
@@ -86,7 +86,7 @@ public class ProductService {
                 .category(category)
                 .build();
 
-        return productRepository.save(newProduct);
+        return productRepository.save(newProduct).mapToProductDto();
     }
 
     public Product updateProduct(Long productId,UpdateProductRequest updateProductRequest){

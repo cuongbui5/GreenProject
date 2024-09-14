@@ -29,6 +29,8 @@ public class Product extends BaseEntity{
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
 
+
+
     public ProductDto mapToProductDto() {
         CategoryDto categoryDto=null;
         if(category!=null){

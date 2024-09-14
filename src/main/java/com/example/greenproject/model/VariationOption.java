@@ -1,7 +1,9 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.dto.res.VariationDtoWithOptions;
 import com.example.greenproject.dto.res.VariationOptionDto;
+import com.example.greenproject.dto.res.VariationOptionLazy;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +22,10 @@ public class VariationOption extends BaseEntity{
     @JoinColumn(name = "variation_id",referencedColumnName = "id")
     private Variation variation;
     private String value;
+
+    public VariationOptionLazy mapToVariationOptionLazy(){
+        return new VariationOptionLazy(id,value);
+    }
 
     public VariationOptionDto mapToVariationOptionDto() {
         VariationOptionDto dto = new VariationOptionDto();
