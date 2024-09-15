@@ -92,7 +92,7 @@ public class VoucherService {
         Voucher voucher = voucherRepository.findById(voucherId).orElseThrow(()-> new RuntimeException("Không tìm thấy voucher id " + voucherId));
 
         //TODO: tạo 1 abstract class cho createRequest và updateRequest
-        helpingSetVoucherData(voucher,updateVoucherRequest);
+          helpingSetVoucherData(voucher,updateVoucherRequest);
         return voucherRepository.save(voucher);
     }
 
