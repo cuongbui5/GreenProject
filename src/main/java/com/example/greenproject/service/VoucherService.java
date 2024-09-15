@@ -1,26 +1,19 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.CreateVoucherRequest;
-import com.example.greenproject.dto.req.FilteringVoucherRequest;
 import com.example.greenproject.dto.req.UpdateVoucherRequest;
-import com.example.greenproject.dto.req_abstract.AbstractVoucherRequest;
-import com.example.greenproject.dto.res.CategoryDtoWithParent;
+import com.example.greenproject.dto.req_abstract.VoucherRequestInterface;
 import com.example.greenproject.dto.res.PaginatedResponse;
-import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Voucher;
-import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.VoucherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -109,11 +102,11 @@ public class VoucherService {
         voucherRepository.delete(voucher);
     }
 
-    private Voucher helpingSetVoucherData(AbstractVoucherRequest request){
+    private Voucher helpingSetVoucherData(VoucherRequestInterface request){
         return helpingSetVoucherData(new Voucher(),request);
     }
 
-    private Voucher helpingSetVoucherData(Voucher voucher, AbstractVoucherRequest request){
+    private Voucher helpingSetVoucherData(Voucher voucher, VoucherRequestInterface request){
         voucher.setName(request.getName());
         voucher.setDescription(request.getDescription());
         voucher.setQuantity(request.getQuantity());
@@ -128,4 +121,5 @@ public class VoucherService {
         voucher.setIsActive(isActive);
         return voucher;
     }
+
 }

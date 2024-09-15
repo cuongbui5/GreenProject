@@ -6,6 +6,7 @@ import com.example.greenproject.dto.req.UpdateVoucherRequest;
 import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.model.Voucher;
 import com.example.greenproject.service.VoucherService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class VoucherController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createVoucher(@RequestBody CreateVoucherRequest createVoucherRequest){
+    public ResponseEntity<?> createVoucher(@Valid @RequestBody CreateVoucherRequest createVoucherRequest){
         Voucher saveVoucher = voucherService.createVoucher(createVoucherRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -44,7 +45,7 @@ public class VoucherController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateVoucher(@PathVariable("id") Long id,@RequestBody UpdateVoucherRequest updateVoucherRequest){
+    public ResponseEntity<?> updateVoucher(@PathVariable("id") Long id,@Valid @RequestBody UpdateVoucherRequest updateVoucherRequest){
         Voucher updateVoucher = voucherService.updateVoucher(id,updateVoucherRequest);
         return ResponseEntity
                 .status(HttpStatus.OK)
