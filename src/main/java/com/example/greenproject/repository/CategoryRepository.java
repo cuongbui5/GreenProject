@@ -11,13 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category,Long> {
-    Optional<Category> findByName(String name);
+    Optional<Category> findByNameIgnoreCase(String name);
 
-    Page<Category> findByNameContaining(String name, Pageable pageable);
+    //List<Category> findCategoriesByParentId(Long id);
+    Page<Category> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    @Query(nativeQuery = true,value = "SELECT * FROM _category c WHERE c.parent_id = :id")
-    List<Category> findByParentId(@Param("id") Long id);
-
-    @Query(nativeQuery = true,value = "SELECT * FROM _category c WHERE c.parent_id IS NULL")
-    List<Category> getAllParentCategory();
+    List<Category> getCategoriesByParentIsNull();
+    int countAllByNameIgnoreCaseAndIdNot(String name, Long id);
 }

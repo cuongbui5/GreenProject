@@ -18,36 +18,16 @@ import org.springframework.web.bind.annotation.*;
 public class VoucherController {
     private final VoucherService voucherService;
 
-    @GetMapping("/page={pageNum}")
-    public ResponseEntity<?> getAllVouchers(@PathVariable("pageNum") int pageNum){
+    @GetMapping
+    public ResponseEntity<?> getAllVouchers(@RequestParam(value = "pageNum",required = false) Integer pageNum,
+                                            @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                            @RequestParam(value = "search",required = false) String search){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         "Successfully retrieved vouchers list",
-                        voucherService.getAllVouchers(pageNum,10)
-                ));
-    }
-
-    @GetMapping("/available/page={pageNum}")
-    public ResponseEntity<?> getAllVouchersAvailable(@PathVariable("pageNum") int pageNum){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new DataResponse(
-                        HttpStatus.OK.value(),
-                        "Successfully retrieved vouchers available",
-                        voucherService.getAllVoucherAvailable(pageNum,10)
-                ));
-    }
-
-    @GetMapping("/filtering/page={pageNum}")
-    public ResponseEntity<?> getVoucherFilter(@PathVariable("pageNum") int pageNum,@RequestBody FilteringVoucherRequest filteringVoucherRequest){
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new DataResponse(
-                        HttpStatus.OK.value(),
-                        "Successfully retrieved vouchers list",
-                        voucherService.filteringVoucher(pageNum,10,filteringVoucherRequest)
+                        voucherService.getAllVouchers(pageNum,pageSize,search)
                 ));
     }
 

@@ -4,7 +4,9 @@ import com.example.greenproject.dto.req.CreateVoucherRequest;
 import com.example.greenproject.dto.req.FilteringVoucherRequest;
 import com.example.greenproject.dto.req.UpdateVoucherRequest;
 import com.example.greenproject.dto.req_abstract.AbstractVoucherRequest;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
+import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Voucher;
 import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.VoucherRepository;
@@ -25,9 +27,20 @@ import java.util.function.Consumer;
 public class VoucherService {
     private final VoucherRepository voucherRepository;
 
-    public PaginatedResponse<Voucher> getAllVouchers(int pageNum, int pageSize){
+    public Object getAllVouchers(Integer pageNum, Integer pageSize,String search){
+
+        if(pageNum==null || pageSize==null){
+
+            return getAllVouchersList();
+        }
+
         Pageable pageable = PageRequest.of(pageNum,pageSize);
-        Page<Voucher> vouchers = voucherRepository.findAll(pageable);
+        Page<Voucher> vouchers;
+        if(search!=null){
+            vouchers= searchVoucher(search,pageable);
+        }else {
+            vouchers = voucherRepository.findAll(pageable);
+        }
         return new PaginatedResponse<>(
                 vouchers.getContent(),
                 vouchers.getTotalPages(),
@@ -36,26 +49,14 @@ public class VoucherService {
         );
     }
 
-    public PaginatedResponse<Voucher> getAllVoucherAvailable(int pageNum, int pageSize){
-        List<Voucher> vouchersList = voucherRepository.findAll();
-        Pageable pageable = PageRequest.of(pageNum,pageSize);
-
-        //TODO: sẽ cho vouchers hiển thị nếu isActive = true và startDate <= Date.now() <= endDate
-        List<Voucher> filterVouchers = vouchersList.stream()
-                .filter(Voucher::getIsActive)
-                .filter(voucher -> voucher.getStartDate().isBefore(LocalDateTime.now())
-                        && voucher.getEndDate().isAfter(LocalDateTime.now()))
-                .toList();
-
-        Page<Voucher> voucherPage = new PageImpl<>(filterVouchers,pageable,filterVouchers.size());
-
-        return new PaginatedResponse<>(
-                voucherPage.getContent(),
-                voucherPage.getTotalPages(),
-                voucherPage.getNumber(),
-                voucherPage.getTotalElements()
-        );
+    private List<Voucher> getAllVouchersList(){
+        return voucherRepository.findAll();
     }
+
+    private Page<Voucher> searchVoucher(String search,Pageable pageable){
+        return voucherRepository.findByNameContainingIgnoreCase(search,pageable);
+    }
+
 
     public Voucher createVoucher(CreateVoucherRequest createVoucherRequest){
         Voucher createVoucher = helpingSetVoucherData(createVoucherRequest);
@@ -108,53 +109,23 @@ public class VoucherService {
         voucherRepository.delete(voucher);
     }
 
-    public PaginatedResponse<Voucher> filteringVoucher(int pageSize, int pageNum,FilteringVoucherRequest filteringVoucherRequest){
-        String name = filteringVoucherRequest.getName();
-        VoucherType type = filteringVoucherRequest.getType();
-        Boolean isActive = filteringVoucherRequest.getIsActive();
-        Pageable pageable = PageRequest.of(pageSize,pageNum);
-
-        List<Voucher> vouchers = voucherRepository.findAll();
-        List<Voucher> filteringVoucher = vouchers.stream()
-                .filter(voucher -> voucher.getName() == null || voucher.getName().contains(name))
-                .filter(voucher -> type == null || voucher.getType().equals(type))
-                .filter(voucher -> isActive == null || voucher.getIsActive().equals(isActive))
-                .toList();
-
-        Page<Voucher> voucherPage = new PageImpl<>(filteringVoucher,pageable,filteringVoucher.size());
-
-        return new PaginatedResponse<>(
-                voucherPage.getContent(),
-                voucherPage.getTotalPages(),
-                voucherPage.getNumber(),
-                voucherPage.getTotalElements()
-        );
-    }
-
     private Voucher helpingSetVoucherData(AbstractVoucherRequest request){
         return helpingSetVoucherData(new Voucher(),request);
     }
 
     private Voucher helpingSetVoucherData(Voucher voucher, AbstractVoucherRequest request){
-        checkNullAndSetData(request.getName(), voucher::setName);
-        checkNullAndSetData(request.getDescription(),voucher::setDescription);
-        checkNullAndSetData(request.getQuantity(),voucher::setQuantity);
-        checkNullAndSetData(request.getPointsRequired(),voucher::setPointsRequired);
-        checkNullAndSetData(request.getVersion(),voucher::setVersion);
-        checkNullAndSetData(request.getType(),voucher::setType);
-        checkNullAndSetData(request.getValue(),voucher::setValue);
-        checkNullAndSetData(request.getStartDate(),voucher::setStartDate);
-        checkNullAndSetData(request.getEndDate(),(endDate)->{
-            voucher.setEndDate(endDate);
-            boolean isActive = endDate.isAfter(LocalDateTime.now());
-            voucher.setIsActive(isActive);
-        });
-        return voucher;
-    }
+        voucher.setName(request.getName());
+        voucher.setDescription(request.getDescription());
+        voucher.setQuantity(request.getQuantity());
+        voucher.setPointsRequired(request.getPointsRequired());
+        voucher.setVersion(request.getVersion());
+        voucher.setType(request.getType());
+        voucher.setValue(request.getValue());
+        voucher.setStartDate(request.getStartDate());
+        voucher.setEndDate(request.getEndDate());
 
-    private <T> void checkNullAndSetData(T data, Consumer<T> consumer){
-        if(data != null) {
-            consumer.accept(data);
-        }
+        boolean isActive = request.getEndDate().isAfter(LocalDateTime.now());
+        voucher.setIsActive(isActive);
+        return voucher;
     }
 }

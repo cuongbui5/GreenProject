@@ -1,7 +1,6 @@
 package com.example.greenproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.greenproject.dto.res.ImageDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +18,9 @@ public class Image extends BaseEntity{
     private String url;
     @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
-    @JsonBackReference("product_image")
     private Product product;
 
+    public ImageDto mapToImageDto() {
+        return new ImageDto(id,url);
+    }
 }

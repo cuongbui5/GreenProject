@@ -2,9 +2,14 @@ package com.example.greenproject.controller;
 
 import com.example.greenproject.dto.req.CreateVariationRequest;
 import com.example.greenproject.dto.req.UpdateVariationRequest;
+import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
+import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.model.Product;
 import com.example.greenproject.model.Variation;
+import com.example.greenproject.service.ProductService;
 import com.example.greenproject.service.VariationService;
+import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,67 +22,62 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VariationController {
     private final VariationService variationService;
+    private final ProductService productService;
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getAllVariationByProductId(@PathVariable Long productId){
+        Product product = productService.findProductById(productId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        variationService.getAllVariationByCategoryId(product.getCategory().getId())
+                ));
+    }
+
+
 
     @GetMapping
-    public ResponseEntity<?> getAllVariation(){
-        List<Variation> variations = variationService.getAllVariation();
-        return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
-                HttpStatus.OK.value(),
-                "Successfully retrieved variation list ",
-                variations));
+    public ResponseEntity<?> getAllVariations(@RequestParam(value = "pageNum",required = false) Integer pageNum,
+                                              @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                              @RequestParam(value = "search",required = false) String search){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        variationService.getAllVariations(pageNum,pageSize,search)));
     }
 
-    @GetMapping("/categories/{id}")
-    public ResponseEntity<?> getVariationByCategoryId(@PathVariable("id") Long id){
-        List<Variation> variations = variationService.getVariationByCategoryId(id);
-        return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
-                HttpStatus.OK.value(),
-                "Successfully retrieved variation by category id " + id,
-                variations));
-    }
+
 
     @PostMapping("/create")
     public ResponseEntity<?> createVariation(@RequestBody CreateVariationRequest createVariationRequest){
-        Variation variation = variationService.createVariation(createVariationRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new DataResponse(
-                HttpStatus.CREATED.value(),
-                "Successfully create new variation",
-                variation));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new DataResponse(
+                        HttpStatus.CREATED.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        variationService.createVariation(createVariationRequest)));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateVariationById(@PathVariable("id") Long variationId,@RequestBody UpdateVariationRequest updateVariationRequest){
-        Variation updateVariation = variationService.updateVariationById(variationId,updateVariationRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
-                HttpStatus.OK.value(),
-                "Successfully update variation",
-                updateVariation));
+    public ResponseEntity<?> updateVariation(@PathVariable("id") Long variationId,@RequestBody UpdateVariationRequest updateVariationRequest){
+
+        return ResponseEntity.status(HttpStatus.OK).
+                body(new DataResponse(
+                        HttpStatus.OK.value()
+                        ,Constants.SUCCESS_MESSAGE
+                        ,variationService.updateVariationById(variationId,updateVariationRequest)
+                ));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteVariationById(@PathVariable("id") Long id){
-        variationService.deleteVariationById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
-                HttpStatus.OK.value(),
-                "Successfully delete variation id " + id,
-                null));
-    }
-
-    @PostMapping("/{variationId}/remove/categories/{categoryId}")
-    public ResponseEntity<?> removeCategoryFromVariation(@PathVariable("variationId") Long variationId,@PathVariable("categoryId") Long categoryId){
-        variationService.removeCategoryFromVariation(variationId,categoryId);
-        return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
-                HttpStatus.OK.value(),
-                "Successfully remove variation id " + variationId +" from category id " + categoryId,
-                null));
-    }
-
-    @PostMapping("/{variationId}/add/categories/{categoryId}")
-    public ResponseEntity<?> addCategoryToVariation(@PathVariable("variationId") Long variationId,@PathVariable("categoryId") Long categoryId){
-        Variation addVariation = variationService.addCategoryToVariation(variationId,categoryId);
-        return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
-                HttpStatus.OK.value(),
-                "Successfully add variation id " + variationId +" to category id " + categoryId,
-                addVariation));
+    public ResponseEntity<?> deleteVariation(@PathVariable("id") Long id){
+        variationService.deleteVariation(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new BaseResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE
+                ));
     }
 }

@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class UpdateVariationOptionRequest {
     private Long variationId;
     private String value;
