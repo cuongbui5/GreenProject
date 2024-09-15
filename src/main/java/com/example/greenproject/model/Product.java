@@ -28,6 +28,8 @@ public class Product extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
+    @OneToMany(mappedBy = "product")
+    private List<ProductItem> productItems;
 
 
 

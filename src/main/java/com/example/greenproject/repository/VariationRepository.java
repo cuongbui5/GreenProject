@@ -12,8 +12,7 @@ import java.util.Optional;
 
 public interface VariationRepository extends JpaRepository<Variation,Long> {
 
-    @Query(nativeQuery = true,value = "SELECT * FROM _variation v JOIN _variation_category vc ON v.id = vc.variation_id WHERE vc.category_id =:id")
-    List<Variation> getAllVariationByCategoryId(@Param("id")Long id);
+    List<Variation> findAllByCategoryId(Long categoryId);
 
     Optional<Variation> findByName(String name);
 

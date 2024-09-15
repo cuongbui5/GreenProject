@@ -1,7 +1,7 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.CreateProductRequest;
-import com.example.greenproject.dto.req.FilteringProductRequest;
+
 import com.example.greenproject.dto.req.UpdateProductRequest;
 import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
@@ -91,19 +91,27 @@ public class ProductService {
 
     public Product updateProduct(Long productId,UpdateProductRequest updateProductRequest){
         Product product = productRepository.findById(productId).orElseThrow();
-        if(updateProductRequest.getName() != null && !product.getName().equals(updateProductRequest.getName())){
-            product.setName(updateProductRequest.getName());
-        }
-        if(updateProductRequest.getDescription() != null && !product.getDescription().equals(updateProductRequest.getDescription())){
-            product.setDescription(updateProductRequest.getDescription());
-        }
-        if(updateProductRequest.getCategoryId() != null  && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
+        if(updateProductRequest.getCategoryId() != null && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
+            if(!product.getProductItems().isEmpty()){
+                throw new RuntimeException("Sản phẩm này đã có chi tiết sản phẩm việc cập nhật danh mục là sai logic hệ thống!");
+            }
+
+
             Category category = categoryRepository.findById(updateProductRequest.getCategoryId())
                     .orElseThrow(()->
                             new RuntimeException("Không tìm thấy danh mục với id:"+updateProductRequest.getCategoryId())
                     );
             product.setCategory(category);
         }
+
+
+        if(updateProductRequest.getName() != null && !product.getName().equals(updateProductRequest.getName())){
+            product.setName(updateProductRequest.getName());
+        }
+        if(updateProductRequest.getDescription() != null && !product.getDescription().equals(updateProductRequest.getDescription())){
+            product.setDescription(updateProductRequest.getDescription());
+        }
+
         return productRepository.save(product);
     }
 

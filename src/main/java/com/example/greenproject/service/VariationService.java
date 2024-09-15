@@ -130,7 +130,7 @@ public class VariationService {
         }
 
         // Lấy các Variation từ danh mục hiện tại và thêm vào danh sách
-        List<VariationDtoWithOptions> currentVariations = variationRepository.getAllVariationByCategoryId(categoryId)
+        List<VariationDtoWithOptions> currentVariations = variationRepository.findAllByCategoryId(categoryId)
                 .stream()
                 .map(Variation::mapToVariationDtoWithOptions)
                 .toList();
