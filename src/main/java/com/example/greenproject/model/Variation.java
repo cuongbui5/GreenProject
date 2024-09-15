@@ -1,12 +1,15 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.dto.res.VariationDtoWithOptions;
+import com.example.greenproject.dto.res.VariationOptionDto;
+import com.example.greenproject.dto.res.VariationOptionLazy;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,42 +24,43 @@ public class Variation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToMany
-    @JoinTable(name = "_variation_category",
-            joinColumns = @JoinColumn(name = "variation_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<Category> categories;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",referencedColumnName = "id")
+    private Category category;
     private String name;
 
     @OneToMany(mappedBy = "variation")
-    @JsonManagedReference("variation_variationOption")
     private Set<VariationOption> variationOptions;
 
-    public void addCategory(Category category){
-        if(categories == null){
-            categories = new HashSet<>();
+    public VariationDtoWithOptions mapToVariationDtoWithOptions(){
+        VariationDtoWithOptions dto = new VariationDtoWithOptions();
+        dto.setId(id);
+        dto.setName(name);
+        if(variationOptions != null){
+            List<VariationOptionLazy> options = new ArrayList<>();
+            variationOptions.forEach(option -> {options.add(option.mapToVariationOptionLazy());});
+            dto.setValues(options);
+
         }
-        categories.add(category);
+        return dto;
     }
 
-    public void removeCategory(Category category){
-        if(categories.contains(category)){
-            categories.remove(category);
-        }else{
-            throw new RuntimeException("Category " + category.getName() + " don't exist in variation " + this.getName());
+    public VariationDto mapToVariationDto() {
+        VariationDto variationDto=new VariationDto();
+        variationDto.setId(id);
+        variationDto.setName(name);
+        variationDto.setCreatedAt(getCreatedAt());
+        variationDto.setUpdatedAt(getUpdatedAt());
+        if(category!=null){
+            variationDto.setCategory(category.mapToCategoryDto());
         }
+
+        return variationDto;
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Variation variation)) return false;
-        return Objects.equals(id, variation.id) && Objects.equals(name, variation.name);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
+
+
+
 }

@@ -3,7 +3,10 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateProductRequest;
 import com.example.greenproject.dto.req.FilteringProductRequest;
 import com.example.greenproject.dto.req.UpdateProductRequest;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
+import com.example.greenproject.dto.res.ProductDto;
+import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Image;
 import com.example.greenproject.model.Product;
@@ -24,114 +27,89 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-
-    public Object getAllProduct(Integer pageNum, Integer pageSize){
-        var products= (pageNum == null || pageSize == null) ? getAllProductList() :
-                getAllProductPagination(PageRequest.of(pageNum-1,pageSize));
-
-        if(products instanceof Page<Product> temp) {
-            return new PaginatedResponse<>(
-                    temp.getContent(),
-                    temp.getTotalPages(),
-                    temp.getNumber()+1,
-                    temp.getTotalElements()
-            );
+    public Object getAllProduct(Integer pageNum, Integer pageSize, String search) {
+        if(pageNum==null || pageSize==null){
+            return getAllProduct();
         }
-        return products;
-    }
+        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
+        Page<Product> products;
 
-    private List<Product> getAllProductList(){
-        return productRepository.findAll();
-    }
+        if(search!=null){
+            products= searchProduct(search,pageable);
+        }else {
 
-    private Page<Product> getAllProductPagination(Pageable pageable){
-        return productRepository.findAll(pageable);
-    }
+            products = productRepository.findAll(pageable);
+        }
 
-    public PaginatedResponse<Product> findByNameContaining(String keyword, Pageable pageable){
-         Page<Product> products = productRepository.findByNameContaining(keyword,pageable);
-
+        List<ProductDto> productDtos = products.getContent().stream().map(Product::mapToProductDto).toList();
         return new PaginatedResponse<>(
-                products.getContent(),
+                productDtos,
                 products.getTotalPages(),
                 products.getNumber()+1,
                 products.getTotalElements()
         );
     }
+
+    private Page<Product> searchProduct(String search, Pageable pageable) {
+        return productRepository.findByNameContainingIgnoreCase(search, pageable);
+    }
+
+
+    public List<ProductDto> getAllProduct(){
+        return productRepository.findAll().stream().map(Product::mapToProductDto).toList();
+    }
+
+
 
     public Product findProductById(Long id){
-        return productRepository.findById(id).orElseThrow();
+        return productRepository.findById(id).orElseThrow(()->new RuntimeException("Không tìm thấy sản phẩm với id: "+id));
     }
 
-    public PaginatedResponse<Product> filteringProduct(FilteringProductRequest filteringProductRequest){
-        int pageNum = filteringProductRequest.getPageNum();
-        int pageSize = filteringProductRequest.getPageSize();
-        String name = filteringProductRequest.getName().toLowerCase();
-        Long categoryId = filteringProductRequest.getCategoryId();
 
-        List<Product> productList = productRepository
-                .findAll()
-                .stream()
-                .filter(product -> product.getName().toLowerCase().contains(name))
-                .filter(product ->product.getCategory().getId().equals(categoryId) ||
-                        (product.getCategory().getParent() != null && product.getCategory().getParent().getId().equals(categoryId)))
-                .toList();
 
-        Page<Product> products = new PageImpl<>(productList, PageRequest.of(pageNum,pageSize),productList.size());
-
-        return new PaginatedResponse<>(
-                products.getContent(),
-                products.getTotalPages(),
-                products.getNumber()+1,
-                products.getTotalElements()
-        );
-    }
-
-    public Product createProduct(CreateProductRequest createProductRequest){
-        Optional<Product> existOrNotProduct = productRepository.findByName(createProductRequest.getName());
-        if(existOrNotProduct.isPresent()){
-            return null;
+    public ProductDto createProduct(CreateProductRequest createProductRequest){
+        Optional<Product> product = productRepository.findByName(createProductRequest.getName());
+        if(product.isPresent()){
+            throw new RuntimeException("Sản phẩm đã tồn tại!");
+        }
+        Category category=null;
+        if(createProductRequest.getCategoryId()!=null){
+            category = categoryRepository
+                    .findById(createProductRequest.getCategoryId())
+                    .orElseThrow(()-> new NotFoundException("Not found category"));
         }
 
-        Long categoryId = createProductRequest.getCategoryId();
-        Category existOrNotCategory = categoryRepository.findById(categoryId).orElseThrow(()->new RuntimeException("Not found category"));
-        List<Image> convertImageList = createProductRequest.getImagesUrl()
-                .stream()
-                .map((image)-> Image.
-                        builder()
-                        .url(image)
-                        .build())
-                .toList();
-
-
-        Product tempProduct = Product
+        Product newProduct = Product
                 .builder()
                 .name(createProductRequest.getName())
                 .description(createProductRequest.getDescription())
-                .category(existOrNotCategory)
+                .category(category)
                 .build();
-        tempProduct.addImage(convertImageList);
-        return productRepository.save(tempProduct);
+
+        return productRepository.save(newProduct).mapToProductDto();
     }
 
     public Product updateProduct(Long productId,UpdateProductRequest updateProductRequest){
-        Product existOrNotProduct = productRepository.findById(productId).orElseThrow();
-        if(updateProductRequest.getName() != null && !existOrNotProduct.getName().equals(updateProductRequest.getName())){
-            existOrNotProduct.setName(updateProductRequest.getName());
+        Product product = productRepository.findById(productId).orElseThrow();
+        if(updateProductRequest.getName() != null && !product.getName().equals(updateProductRequest.getName())){
+            product.setName(updateProductRequest.getName());
         }
-        if(updateProductRequest.getDescription() != null && !existOrNotProduct.getDescription().equals(updateProductRequest.getDescription())){
-            existOrNotProduct.setDescription(updateProductRequest.getDescription());
+        if(updateProductRequest.getDescription() != null && !product.getDescription().equals(updateProductRequest.getDescription())){
+            product.setDescription(updateProductRequest.getDescription());
         }
-        if(updateProductRequest.getCategoryId() != null  && !existOrNotProduct.getCategory().getId().equals(updateProductRequest.getCategoryId())){
-            Category existOrNotCategory = categoryRepository.findById(updateProductRequest.getCategoryId()).orElseThrow();
-            existOrNotProduct.setCategory(existOrNotCategory);
+        if(updateProductRequest.getCategoryId() != null  && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
+            Category category = categoryRepository.findById(updateProductRequest.getCategoryId())
+                    .orElseThrow(()->
+                            new RuntimeException("Không tìm thấy danh mục với id:"+updateProductRequest.getCategoryId())
+                    );
+            product.setCategory(category);
         }
-        return productRepository.save(existOrNotProduct);
+        return productRepository.save(product);
     }
 
     public void deleteProduct(Long id){
-        Product existOrNotProduct = productRepository.findById(id).orElseThrow();
-        existOrNotProduct.setCategory(null);
-        productRepository.delete(existOrNotProduct);
+       productRepository.deleteById(id);
     }
+
+
 }

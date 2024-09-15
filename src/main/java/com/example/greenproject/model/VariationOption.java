@@ -1,7 +1,9 @@
 package com.example.greenproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.dto.res.VariationDtoWithOptions;
+import com.example.greenproject.dto.res.VariationOptionDto;
+import com.example.greenproject.dto.res.VariationOptionLazy;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +20,22 @@ public class VariationOption extends BaseEntity{
     private Long id;
     @ManyToOne
     @JoinColumn(name = "variation_id",referencedColumnName = "id")
-    @JsonBackReference("variation_variationOption")
     private Variation variation;
     private String value;
+
+    public VariationOptionLazy mapToVariationOptionLazy(){
+        return new VariationOptionLazy(id,value);
+    }
+
+    public VariationOptionDto mapToVariationOptionDto() {
+        VariationOptionDto dto = new VariationOptionDto();
+        dto.setId(id);
+        dto.setValue(value);
+        dto.setCreatedAt(getCreatedAt());
+        dto.setUpdatedAt(getUpdatedAt());
+        if(variation != null) {
+            dto.setVariation(variation.mapToVariationDto());
+        }
+        return dto;
+    }
 }

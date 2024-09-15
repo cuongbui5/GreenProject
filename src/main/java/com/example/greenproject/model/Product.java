@@ -1,6 +1,8 @@
 package com.example.greenproject.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.example.greenproject.dto.res.CategoryDto;
+import com.example.greenproject.dto.res.ProductDto;
+import com.example.greenproject.utils.Utils;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,32 +23,31 @@ public class Product extends BaseEntity{
     private String name;
     @Column(length = 1000)
     private String description;
-    @OneToMany(mappedBy = "product",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-    @JsonManagedReference("product_image")
+    @OneToMany(mappedBy = "product")
     private List<Image> images;
     @ManyToOne
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
 
-    public void addImage(Image image){
-        if(images == null){
-            images = new ArrayList<>();
+
+
+    public ProductDto mapToProductDto() {
+        CategoryDto categoryDto=null;
+        if(category!=null){
+            categoryDto=new CategoryDto(category.getId(),category.getName());
         }
-        image.setProduct(this);
-        images.add(image);
+        ProductDto productDto=new ProductDto();
+        productDto.setCategory(categoryDto);
+        productDto.setId(id);
+        productDto.setName(name);
+        productDto.setDescription(description);
+        productDto.setCreatedAt(getCreatedAt());
+        productDto.setUpdatedAt(getUpdatedAt());
+        return productDto;
     }
 
-    public void addImage(List<Image> images){
-        if(this.images == null){
-            this.images = new ArrayList<>();
-        }
-        for(var image:images){
-            image.setProduct(this);
-            this.images.add(image);
-        }
-    }
 
-    public void deleteImage(Long id){
-        images.removeIf(image -> image.getId().equals(id));
-    }
+
+
+
 }

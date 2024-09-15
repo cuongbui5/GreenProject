@@ -1,19 +1,18 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.CategoryDto;
+import com.example.greenproject.dto.res.CategoryDtoWithChild;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.utils.Constants;
+import com.example.greenproject.utils.Utils;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Table(name = "_category")
 @Entity
@@ -32,23 +31,47 @@ public class Category extends BaseEntity{
     @JoinColumn(name = "parent_id",referencedColumnName = "id")
     @JsonBackReference("parent_child")
     private Category parent;
-
     @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
-    @JsonManagedReference("parent_child")
-    private List<Category> children;
+    @JsonBackReference("parent_child")
+    private List<Category> children=new ArrayList<>();
 
 
     public CategoryDto mapToCategoryDto(){
-        CategoryDto categoryDto = new CategoryDto();
-        categoryDto.setId(id);
-        categoryDto.setName(name);
-        if(parent != null){
-            categoryDto.setParent(new CategoryDto(parent.getId(),parent.getName()));
-        }else{
-            categoryDto.setParent(null);
-        }
-        return categoryDto;
+        return new CategoryDto(id,name);
     }
+
+    public CategoryDtoWithParent mapToCategoryDtoWithParent(){
+        CategoryDtoWithParent categoryDtoWithParent = new CategoryDtoWithParent();
+        categoryDtoWithParent.setId(id);
+        categoryDtoWithParent.setName(name);
+        categoryDtoWithParent.setCreatedAt(getCreatedAt());
+        categoryDtoWithParent.setUpdatedAt(getUpdatedAt());
+        if(parent != null){
+            CategoryDtoWithParent parentDto=new CategoryDtoWithParent();
+            parentDto.setId(parent.getId());
+            parentDto.setName(parent.getName());
+            parentDto.setCreatedAt(parent.getCreatedAt());
+            parentDto.setUpdatedAt(parent.getUpdatedAt());
+            categoryDtoWithParent.setParent(parentDto);
+        }
+
+        return categoryDtoWithParent;
+    }
+    public CategoryDtoWithChild mapToCategoryDtoWithChild(){
+        CategoryDtoWithChild categoryDtoWithChild = new CategoryDtoWithChild();
+        categoryDtoWithChild.setId(id);
+        categoryDtoWithChild.setName(name);
+        if(children.isEmpty()){
+            categoryDtoWithChild.setChildren(null);
+        }else {
+            categoryDtoWithChild.setChildren(children.stream().map(Category::mapToCategoryDtoWithChild).toList());
+        }
+
+        return categoryDtoWithChild;
+    }
+
+
+
 
     @Override
     public boolean equals(Object o) {

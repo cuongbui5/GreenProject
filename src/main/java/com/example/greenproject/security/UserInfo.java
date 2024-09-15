@@ -36,10 +36,6 @@ public class UserInfo {
     }
 
 
-    List<GrantedAuthority> getAllAuthorities() {
-        if (authorities == null) return new ArrayList<>();
-        return authorities.stream().map(s -> (GrantedAuthority) () -> s).toList();
-    }
 
 
 }

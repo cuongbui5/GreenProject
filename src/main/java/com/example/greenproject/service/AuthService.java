@@ -2,8 +2,6 @@ package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.LoginRequest;
 import com.example.greenproject.dto.req.RegisterRequest;
-import com.example.greenproject.dto.res.BaseResponse;
-import com.example.greenproject.dto.res.LoginResponse;
 import com.example.greenproject.model.Role;
 import com.example.greenproject.model.User;
 import com.example.greenproject.model.enums.UserType;
@@ -12,11 +10,15 @@ import com.example.greenproject.repository.UserRepository;
 import com.example.greenproject.security.SecurityUtils;
 import com.example.greenproject.security.UserInfo;
 import com.example.greenproject.utils.Constants;
+import com.example.greenproject.utils.Utils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -43,6 +45,8 @@ public class AuthService {
         user.setEmail(registerRequest.getEmail());
         if(Objects.equals(registerRequest.getUserType(), UserType.GITHUB.name())){
             user.setUserType(UserType.GITHUB);
+        }else if(Objects.equals(registerRequest.getUserType(), UserType.GOOGLE.name())){
+            user.setUserType(UserType.GOOGLE);
         }else {
             user.setUserType(UserType.NONE);
         }
@@ -65,7 +69,7 @@ public class AuthService {
 
 
 
-    public UserInfo login(LoginRequest loginRequest) {
+    public UserInfo login(LoginRequest loginRequest) throws IOException {
         String username=loginRequest.getUsername();
         Optional<User> userOptional=userRepository.findByUsername(username);
         if(userOptional.isPresent()&&passwordEncoder.matches(loginRequest.getPassword(),userOptional.get().getPassword())){
@@ -76,12 +80,18 @@ public class AuthService {
             userInfo.setId(user.getId());
             userInfo.setRoles(user.getRoles());
             SecurityUtils.setJwtToClient(userInfo);
+
             return userInfo;
 
         }
 
         throw new RuntimeException("Username or password incorrect!");
 
+
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        Utils.removeAllCookies(request,response);
 
     }
 }

@@ -21,6 +21,8 @@ public class ProductItem extends BaseEntity{
     private Product product;
     private int quantity;
     private Double price;
+    @Version
+    private Long version;
     @ManyToMany
     @JoinTable(name = "_product_configuration",
             joinColumns = @JoinColumn(name = "product_item_id",

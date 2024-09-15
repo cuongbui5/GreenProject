@@ -1,14 +1,14 @@
 package com.example.greenproject.dto.req;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+@Data
 @Getter
-@Setter
-@AllArgsConstructor
-public class CreateImageRequest {
+public class CreateImagesRequest {
     private Long productId;
-    private String url;
+    private List<String> images;
 }

@@ -10,9 +10,7 @@ import java.util.List;
 @Setter
 @Builder
 public class CreateProductRequest {
-    private Long id;
     private String name;
     private String description;
-    private List<String> imagesUrl;
     private Long categoryId;
 }

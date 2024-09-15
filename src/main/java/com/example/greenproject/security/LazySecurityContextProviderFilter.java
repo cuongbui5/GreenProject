@@ -21,25 +21,14 @@ public class LazySecurityContextProviderFilter extends OncePerRequestFilter {
         System.out.println("Request URI: " + path);
         System.out.println("Request URL: " + requestUrl);
         System.out.println("Request Method: " + method);
-        /*if (path.startsWith("/oauth2") || path.startsWith("/login") || path.startsWith("/oauth2/authorization") || path.startsWith("/oauth2/callback")) {
-            // Bỏ qua filter JWT cho các URL OAuth2
-            filterChain.doFilter(request, response);
-            return;
-        }*/
-        filterChain.doFilter(request, response);
-        //return;
 
 
-
-
-
-
-        /*if (path.contains("/api/auth")||path.contains("/test")) {
+        if (path.contains("/api/auth")||path.contains("/api/usr-info")) {
             filterChain.doFilter(request, response);
             return;
         }
         var context = SecurityContextHolder.getContext();
         SecurityContextHolder.setContext(new LazyJwtSecurityContextProvider(request, response, context));
-        filterChain.doFilter(request, response);*/
+        filterChain.doFilter(request, response);
     }
 }
