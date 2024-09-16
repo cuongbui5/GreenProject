@@ -33,6 +33,8 @@ public class VoucherController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherRequest voucherRequest){
+        System.out.println("createVoucher");
+        System.out.println(voucherRequest);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

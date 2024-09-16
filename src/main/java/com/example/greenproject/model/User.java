@@ -34,6 +34,7 @@ public class User extends BaseEntity {
     private UserType userType;
 
 
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "_user_role",
             joinColumns = @JoinColumn(name = "user_id",
@@ -42,4 +43,12 @@ public class User extends BaseEntity {
                     referencedColumnName = "id")
     )
     private Set<Role> roles=new HashSet<>();
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.username = this.username.trim();
+        this.email = this.email.trim();
+
+
+    }
 }

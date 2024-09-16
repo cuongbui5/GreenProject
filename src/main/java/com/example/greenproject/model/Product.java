@@ -50,6 +50,14 @@ public class Product extends BaseEntity{
         return productDto;
     }
 
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.name = this.name.trim();
+
+
+    }
+
 
 
 

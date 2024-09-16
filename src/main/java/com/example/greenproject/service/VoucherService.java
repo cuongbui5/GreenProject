@@ -23,25 +23,26 @@ public class VoucherService {
     private final VoucherRepository voucherRepository;
 
     public Object getAllVouchers(Integer pageNum, Integer pageSize,String search){
-
+        System.out.println("getAllVouchers");
         if(pageNum==null || pageSize==null){
 
             return getAllVouchersList();
         }
 
-        Pageable pageable = PageRequest.of(pageNum,pageSize);
+        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
         Page<Voucher> vouchers;
         if(search!=null){
             vouchers= searchVoucher(search,pageable);
         }else {
             vouchers = voucherRepository.findAll(pageable);
+
         }
 
         List<VoucherDto> voucherDtos=vouchers.getContent().stream().map(Voucher::mapToVoucherDto).toList();
         return new PaginatedResponse<>(
                 voucherDtos,
                 vouchers.getTotalPages(),
-                vouchers.getNumber(),
+                vouchers.getNumber()+1,
                 vouchers.getTotalElements()
         );
     }

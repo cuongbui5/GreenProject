@@ -29,6 +29,14 @@ public class VariationOption extends BaseEntity{
         return new VariationOptionLazy(id,value);
     }
 
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.value = this.value.trim();
+
+
+    }
+
     public VariationOptionDto mapToVariationOptionDto() {
         VariationOptionDto dto = new VariationOptionDto();
         dto.setId(id);

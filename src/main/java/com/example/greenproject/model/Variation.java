@@ -34,6 +34,14 @@ public class Variation extends BaseEntity {
     @OneToMany(mappedBy = "variation")
     private Set<VariationOption> variationOptions;
 
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.name = this.name.trim();
+
+
+    }
+
     public VariationDtoWithOptions mapToVariationDtoWithOptions(){
         VariationDtoWithOptions dto = new VariationDtoWithOptions();
         dto.setId(id);

@@ -55,6 +55,14 @@ public class Voucher extends BaseEntity{
         return dto;
     }
 
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.name = this.name.trim();
+
+
+    }
+
 
 
 }
