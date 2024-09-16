@@ -14,7 +14,9 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "_variation")
+@Table(name = "_variation", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

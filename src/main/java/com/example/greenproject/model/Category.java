@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Table(name = "_category")
+@Table(name = "_category",  uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor

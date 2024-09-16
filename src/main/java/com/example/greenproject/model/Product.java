@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "_product")
+@Table(name = "_product",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

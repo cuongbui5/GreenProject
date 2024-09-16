@@ -68,10 +68,6 @@ public class ProductService {
 
 
     public ProductDto createProduct(CreateProductRequest createProductRequest){
-        Optional<Product> product = productRepository.findByName(createProductRequest.getName());
-        if(product.isPresent()){
-            throw new RuntimeException("Sản phẩm đã tồn tại!");
-        }
         Category category=null;
         if(createProductRequest.getCategoryId()!=null){
             category = categoryRepository
@@ -90,7 +86,7 @@ public class ProductService {
     }
 
     public Product updateProduct(Long productId,UpdateProductRequest updateProductRequest){
-        Product product = productRepository.findById(productId).orElseThrow();
+        Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException("Khong tim thay san pham"));
         if(updateProductRequest.getCategoryId() != null && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
             if(!product.getProductItems().isEmpty()){
                 throw new RuntimeException("Sản phẩm này đã có chi tiết sản phẩm việc cập nhật danh mục là sai logic hệ thống!");
@@ -104,13 +100,8 @@ public class ProductService {
             product.setCategory(category);
         }
 
-
-        if(updateProductRequest.getName() != null && !product.getName().equals(updateProductRequest.getName())){
-            product.setName(updateProductRequest.getName());
-        }
-        if(updateProductRequest.getDescription() != null && !product.getDescription().equals(updateProductRequest.getDescription())){
-            product.setDescription(updateProductRequest.getDescription());
-        }
+        product.setName(updateProductRequest.getName());
+        product.setDescription(updateProductRequest.getDescription());
 
         return productRepository.save(product);
     }

@@ -2,6 +2,7 @@ package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.CreateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateCategoryRequest;
+import com.example.greenproject.dto.res.CategoryDto;
 import com.example.greenproject.dto.res.CategoryDtoWithChild;
 import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
@@ -68,28 +69,22 @@ public class CategoryService {
 
 
 
-    public Category createCategory(CreateCategoryRequest createCategoryRequest){
+    public CategoryDto createCategory(CreateCategoryRequest createCategoryRequest){
         Category parentCategory  = null;
         if(createCategoryRequest.getParentId() != null){
             parentCategory  = findCategoryById(createCategoryRequest.getParentId());
         }
 
-        Optional<Category> category = categoryRepository.findByNameIgnoreCase(createCategoryRequest.getName());
-        if (category.isEmpty()){
-            return categoryRepository.save(Category
-                    .builder()
-                    .name(createCategoryRequest.getName())
-                    .parent(parentCategory )
-                    .build());
-
-        }else {
-            throw new RuntimeException("Danh mục đã tồn tại!");
-        }
+        return categoryRepository.save(Category
+                .builder()
+                .name(createCategoryRequest.getName())
+                .parent(parentCategory )
+                .build()).mapToCategoryDto();
 
 
     }
 
-    public Category updateCategoryById(Long categoryId,UpdateCategoryRequest updateCategoryRequest){
+    public CategoryDto updateCategoryById(Long categoryId, UpdateCategoryRequest updateCategoryRequest){
         if(categoryId == null){
             throw new RuntimeException("Id danh mục rỗng!");
         }
@@ -105,9 +100,6 @@ public class CategoryService {
         }
 
 
-        if(categoryRepository.countAllByNameIgnoreCaseAndIdNot(updateCategoryRequest.getName(),categoryId) == 1){
-            throw new RuntimeException("Tên danh mục đã được sử dụng!");
-        }
 
         if(updateCategoryRequest.getParentId() != null ){
             if((category.getParent()==null||!category.getParent().getId().equals(updateCategoryRequest.getParentId()))){
@@ -121,7 +113,7 @@ public class CategoryService {
         }
 
         category.setName(updateCategoryRequest.getName());
-        return categoryRepository.save(category);
+        return categoryRepository.save(category).mapToCategoryDto();
 
 
 
