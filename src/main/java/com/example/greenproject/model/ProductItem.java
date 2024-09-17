@@ -33,7 +33,7 @@ public class ProductItem extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "variation_option_id",
                     referencedColumnName = "id")
     )
-    private List<VariationOption> variationOptions=new ArrayList<>();
+    private Set<VariationOption> variationOptions=new HashSet<>();
 
     public ProductItemDto mapToProductItemDto(){
         ProductItemDto dto=new ProductItemDto();

@@ -81,7 +81,7 @@ public class ProductItemService {
         productItem.setQuantity(createProductItemRequest.getQuantity());
         productItem.setPrice(createProductItemRequest.getPrice());
         if(!createProductItemRequest.getProductConfig().isEmpty()){
-            List<VariationOption> variationOptions=new ArrayList<>();
+            Set<VariationOption> variationOptions=new HashSet<>();
             createProductItemRequest.getProductConfig().forEach(i->{
                 VariationOption variationOption=variationOptionRepository.findById(i)
                         .orElseThrow(()->new NotFoundException("Khong tim thay option id:"+i));
@@ -106,16 +106,17 @@ public class ProductItemService {
         if(updateProductItemRequest.getQuantity() != null && !Objects.equals(productItem.getQuantity(), updateProductItemRequest.getQuantity())){
             productItem.setQuantity(updateProductItemRequest.getQuantity());
         }
+        Set<VariationOption> variationOptions= productItem.getVariationOptions();
+        variationOptions.clear();
 
         for (int i=0;i<=updateProductItemRequest.getProductConfig().size()-1;i++){
             Long optionId=updateProductItemRequest.getProductConfig().get(i);
-            VariationOption variationOption= productItem.getVariationOptions().get(i);
-            if(!variationOption.getId().equals(optionId)){
-                VariationOption v=variationOptionRepository
-                        .findById(optionId)
-                        .orElseThrow(()->new NotFoundException("Khong tim thay option"));
-                productItem.getVariationOptions().set(i, v);
-            }
+
+            VariationOption v=variationOptionRepository
+                    .findById(optionId)
+                    .orElseThrow(()->new NotFoundException("Khong tim thay option"));
+            variationOptions.add(v);
+
         }
 
 
