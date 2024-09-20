@@ -9,7 +9,6 @@ import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Variation;
 import com.example.greenproject.service.CategoryService;
 import com.example.greenproject.utils.Constants;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,23 +57,22 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> addCategory(@Valid @RequestBody CreateCategoryRequest createCategoryRequest){
-        Category saveCategory = categoryService.createCategory(createCategoryRequest);
+    public ResponseEntity<?> addCategory(@RequestBody CreateCategoryRequest createCategoryRequest){
+
         return ResponseEntity.status(HttpStatus.CREATED).body(new DataResponse(
                 HttpStatus.CREATED.value(),
                 Constants.SUCCESS_MESSAGE,
-                saveCategory));
+                categoryService.createCategory(createCategoryRequest)));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable("id") Long categoryId,@Valid @RequestBody UpdateCategoryRequest updateCategoryRequest){
-        System.out.println(categoryId);
-        System.out.println(updateCategoryRequest);
-        Category updateCategory = categoryService.updateCategoryById(categoryId,updateCategoryRequest);
+    public ResponseEntity<?> updateCategory(@PathVariable("id") Long categoryId,@RequestBody UpdateCategoryRequest updateCategoryRequest){
+
+
         return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
                 HttpStatus.OK.value(),
                 Constants.SUCCESS_MESSAGE,
-                updateCategory));
+                categoryService.updateCategoryById(categoryId,updateCategoryRequest)));
     }
 
     @DeleteMapping("/delete/{id}")

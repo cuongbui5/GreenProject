@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "_product")
+@Table(name = "_product",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -28,6 +30,8 @@ public class Product extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
+    @OneToMany(mappedBy = "product")
+    private List<ProductItem> productItems;
 
 
 
@@ -44,6 +48,14 @@ public class Product extends BaseEntity{
         productDto.setCreatedAt(getCreatedAt());
         productDto.setUpdatedAt(getUpdatedAt());
         return productDto;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.name = this.name.trim();
+
+
     }
 
 

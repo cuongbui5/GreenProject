@@ -1,16 +1,20 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.CreateProductRequest;
+
 import com.example.greenproject.dto.req.UpdateProductRequest;
+import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.ProductDto;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
+import com.example.greenproject.model.Image;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.repository.CategoryRepository;
 import com.example.greenproject.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -64,10 +68,6 @@ public class ProductService {
 
 
     public ProductDto createProduct(CreateProductRequest createProductRequest){
-        Optional<Product> product = productRepository.findByName(createProductRequest.getName());
-        if(product.isPresent()){
-            throw new RuntimeException("Sản phẩm đã tồn tại!");
-        }
         Category category=null;
         if(createProductRequest.getCategoryId()!=null){
             category = categoryRepository
@@ -86,20 +86,23 @@ public class ProductService {
     }
 
     public Product updateProduct(Long productId,UpdateProductRequest updateProductRequest){
-        Product product = productRepository.findById(productId).orElseThrow();
-        if(updateProductRequest.getName() != null && !product.getName().equals(updateProductRequest.getName())){
-            product.setName(updateProductRequest.getName());
-        }
-        if(updateProductRequest.getDescription() != null && !product.getDescription().equals(updateProductRequest.getDescription())){
-            product.setDescription(updateProductRequest.getDescription());
-        }
-        if(updateProductRequest.getCategoryId() != null  && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
+        Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException("Khong tim thay san pham"));
+        if(updateProductRequest.getCategoryId() != null && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
+            if(!product.getProductItems().isEmpty()){
+                throw new RuntimeException("Sản phẩm này đã có chi tiết sản phẩm việc cập nhật danh mục là sai logic hệ thống!");
+            }
+
+
             Category category = categoryRepository.findById(updateProductRequest.getCategoryId())
                     .orElseThrow(()->
                             new RuntimeException("Không tìm thấy danh mục với id:"+updateProductRequest.getCategoryId())
                     );
             product.setCategory(category);
         }
+
+        product.setName(updateProductRequest.getName());
+        product.setDescription(updateProductRequest.getDescription());
+
         return productRepository.save(product);
     }
 

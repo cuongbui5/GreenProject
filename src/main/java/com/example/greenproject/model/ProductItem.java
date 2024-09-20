@@ -1,8 +1,12 @@
 package com.example.greenproject.model;
+import com.example.greenproject.dto.res.ProductItemDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,7 +23,7 @@ public class ProductItem extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;
-    private int quantity;
+    private Integer quantity;
     private Double price;
     @Version
     private Long version;
@@ -31,6 +35,23 @@ public class ProductItem extends BaseEntity{
                     referencedColumnName = "id")
     )
     private Set<VariationOption> variationOptions=new HashSet<>();
+
+    public ProductItemDto mapToProductItemDto(){
+        ProductItemDto dto=new ProductItemDto();
+        dto.setId(id);
+        dto.setQuantity(quantity);
+        dto.setPrice(price);
+        dto.setCreatedAt(getCreatedAt());
+        dto.setUpdatedAt(getUpdatedAt());
+        if(product!=null){
+            dto.setProduct(product.mapToProductDto());
+        }
+        if(variationOptions!=null){
+            dto.setVariationOptions(variationOptions.stream().map(VariationOption::mapToVariationOptionDto).toList());
+        }
+        return dto;
+
+    }
 
 
 }

@@ -8,7 +8,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "_variation_option")
+@Table(name = "_variation_option", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"value"})
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -25,6 +27,14 @@ public class VariationOption extends BaseEntity{
 
     public VariationOptionLazy mapToVariationOptionLazy(){
         return new VariationOptionLazy(id,value);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.value = this.value.trim();
+
+
     }
 
     public VariationOptionDto mapToVariationOptionDto() {

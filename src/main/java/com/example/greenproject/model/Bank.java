@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "_bank")
+@Table(name = "_bank",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

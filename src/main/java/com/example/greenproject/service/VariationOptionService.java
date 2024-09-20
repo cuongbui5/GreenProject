@@ -39,9 +39,6 @@ public class VariationOptionService {
         if(values.contains(",")){
             String[] valueArray = values.split(",");
             for (String s : valueArray) {
-                if(variationOptionRepository.findByValue(s).isPresent()){
-                    throw new RuntimeException("Đã có value rồi");
-                }
                 VariationOption variationOption = new VariationOption();
                 variationOption.setValue(s);
                 variationOption.setVariation(variation);
@@ -97,9 +94,7 @@ public class VariationOptionService {
 
         VariationOption variationOption = variationOptionOptional.get();
 
-        if (!variationOption.getValue().equals(updateVariationOptionRequest.getValue())) {
-            variationOption.setValue(updateVariationOptionRequest.getValue());
-        }
+
 
 
         if (variationOption.getVariation() == null || !variationOption.getVariation().getId().equals(updateVariationOptionRequest.getVariationId())) {
@@ -109,6 +104,7 @@ public class VariationOptionService {
             }
             variationOption.setVariation(variation.get());
         }
+        variationOption.setValue(updateVariationOptionRequest.getValue());
 
         return variationOptionRepository.save(variationOption).mapToVariationOptionDto();
     }

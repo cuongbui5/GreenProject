@@ -28,12 +28,9 @@ public class SecurityUtils {
     private static final String AUTHORIZATION_PREFIX = "Bearer_";
     private static final int SIX_HOURS_MILLISECOND = 1000 * 60 * 60 * 6;
     private static final int SIX_HOURS = 3600 * 6;
-
     private static final String USER_CLAIM = "user";
     private static final String ISSUER = "auth0";
-
-
-    private static String SECRET_KEY = "iloveu3000";
+    private static final String SECRET_KEY = "DCAWFLEFUWQDAJGDSIDHADUGADAJSGDYSAFCHOAFYCFOE";
 
     private static final Algorithm ALGORITHM = Algorithm.HMAC256(SECRET_KEY);
 

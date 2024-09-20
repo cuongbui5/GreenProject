@@ -72,15 +72,10 @@ public class VariationService {
                     .orElseThrow(()->new NotFoundException("Category not found"));
         }
 
-        Optional<Variation> variation = variationRepository.findByName(createVariationRequest.getName());
-        if(variation.isPresent()){
-            throw new RuntimeException("Biến thể đã tồn tại!");
-        }else {
-            Variation newVariation = new Variation();
-            newVariation.setName(createVariationRequest.getName());
-            newVariation.setCategory(category);
-            return variationRepository.save(newVariation).mapToVariationDto();
-        }
+        Variation newVariation = new Variation();
+        newVariation.setName(createVariationRequest.getName());
+        newVariation.setCategory(category);
+        return variationRepository.save(newVariation).mapToVariationDto();
 
 
     }
@@ -94,11 +89,6 @@ public class VariationService {
 
         Variation variation = variationOptional.get();
 
-        if (!variation.getName().equals(updateVariationRequest.getName())) {
-            variation.setName(updateVariationRequest.getName());
-        }
-
-
         if (variation.getCategory() == null || !variation.getCategory().getId().equals(updateVariationRequest.getCategoryId())) {
             Optional<Category> category = categoryRepository.findById(updateVariationRequest.getCategoryId());
             if (category.isEmpty()) {
@@ -106,6 +96,7 @@ public class VariationService {
             }
             variation.setCategory(category.get());
         }
+        variation.setName(updateVariationRequest.getName());
 
         return variationRepository.save(variation).mapToVariationDto();
     }
@@ -115,29 +106,22 @@ public class VariationService {
 
 
     public List<VariationDtoWithOptions> getAllVariationByCategoryId(Long categoryId) {
-        // Tạo danh sách để chứa các VariationDto từ các danh mục cha và con
         List<VariationDtoWithOptions> VariationDtoWithOptions = new ArrayList<>();
-
-        // Tìm danh mục theo categoryId
         Category category = categoryRepository
                 .findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
-        // Nếu danh mục có danh mục cha, đệ quy để lấy VariationDto từ danh mục cha
         if (category.getParent() != null) {
             List<VariationDtoWithOptions> parentVariations = getAllVariationByCategoryId(category.getParent().getId());
             VariationDtoWithOptions.addAll(parentVariations);
         }
-
-        // Lấy các Variation từ danh mục hiện tại và thêm vào danh sách
-        List<VariationDtoWithOptions> currentVariations = variationRepository.getAllVariationByCategoryId(categoryId)
+        List<VariationDtoWithOptions> currentVariations = variationRepository.findAllByCategoryId(categoryId)
                 .stream()
                 .map(Variation::mapToVariationDtoWithOptions)
                 .toList();
 
         VariationDtoWithOptions.addAll(currentVariations);
 
-        // Trả về danh sách kết hợp giữa các variation của danh mục cha và hiện tại
         return VariationDtoWithOptions;
     }
 

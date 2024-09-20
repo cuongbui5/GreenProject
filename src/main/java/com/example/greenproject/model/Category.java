@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Table(name = "_category")
+@Table(name = "_category",  uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,6 +36,13 @@ public class Category extends BaseEntity{
     @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
     @JsonBackReference("parent_child")
     private List<Category> children=new ArrayList<>();
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.name = this.name.trim();
+
+
+    }
 
 
     public CategoryDto mapToCategoryDto(){

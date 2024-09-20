@@ -14,7 +14,9 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "_variation")
+@Table(name = "_variation", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -31,6 +33,14 @@ public class Variation extends BaseEntity {
 
     @OneToMany(mappedBy = "variation")
     private Set<VariationOption> variationOptions;
+
+    @PrePersist
+    @PreUpdate
+    public void trimData() {
+        this.name = this.name.trim();
+
+
+    }
 
     public VariationDtoWithOptions mapToVariationDtoWithOptions(){
         VariationDtoWithOptions dto = new VariationDtoWithOptions();

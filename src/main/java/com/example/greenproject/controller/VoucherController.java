@@ -1,20 +1,19 @@
 package com.example.greenproject.controller;
 
-import com.example.greenproject.dto.req.CreateVoucherRequest;
-import com.example.greenproject.dto.req.FilteringVoucherRequest;
-import com.example.greenproject.dto.req.UpdateVoucherRequest;
+import com.example.greenproject.dto.req.VoucherRequest;
+import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.model.Voucher;
 import com.example.greenproject.service.VoucherService;
+import com.example.greenproject.utils.Constants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("api/vouchers")
+@RestController
+@RequestMapping("/api/vouchers")
 @RequiredArgsConstructor
 public class VoucherController {
     private final VoucherService voucherService;
@@ -27,32 +26,34 @@ public class VoucherController {
                 .status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
-                        "Successfully retrieved vouchers list",
+                        Constants.SUCCESS_MESSAGE,
                         voucherService.getAllVouchers(pageNum,pageSize,search)
                 ));
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createVoucher(@Valid @RequestBody CreateVoucherRequest createVoucherRequest){
-        Voucher saveVoucher = voucherService.createVoucher(createVoucherRequest);
+    public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherRequest voucherRequest){
+        System.out.println("createVoucher");
+        System.out.println(voucherRequest);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new DataResponse(
                         HttpStatus.CREATED.value(),
-                        "Successfully create voucher",
-                        saveVoucher
+                        Constants.SUCCESS_MESSAGE,
+                        voucherService.createVoucher(voucherRequest)
                 ));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateVoucher(@PathVariable("id") Long id,@Valid @RequestBody UpdateVoucherRequest updateVoucherRequest){
-        Voucher updateVoucher = voucherService.updateVoucher(id,updateVoucherRequest);
+    public ResponseEntity<?> updateVoucher(@PathVariable("id") Long id,@Valid @RequestBody VoucherRequest voucherRequest){
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
-                        "Successfully update voucher id " + id,
-                        updateVoucherRequest
+                        Constants.SUCCESS_MESSAGE,
+                        voucherService.updateVoucher(id,voucherRequest)
                 ));
     }
 
@@ -61,10 +62,9 @@ public class VoucherController {
         voucherService.deleteVoucher(id);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new DataResponse(
+                .body(new BaseResponse(
                         HttpStatus.OK.value(),
-                        "Successfully delete voucher id " + id,
-                        null
+                        Constants.SUCCESS_MESSAGE
                 ));
     }
 }

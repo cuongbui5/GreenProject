@@ -1,14 +1,16 @@
 package com.example.greenproject.dto.req;
-
 import com.example.greenproject.model.enums.VoucherType;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
-public class UpdateVoucherRequest {
+@Getter
+@Setter
+public class VoucherRequest {
     @NotNull(message = "Tên không được để trống")
     @Size(min = 3, max = 100, message = "Tên phải có độ dài từ 3 đến 100 ký tự")
     private String name;
@@ -25,7 +27,6 @@ public class UpdateVoucherRequest {
     private Integer pointsRequired;
 
 
-
     @NotNull(message = "Loại voucher không được để trống")
     private VoucherType type;
 
@@ -34,9 +35,9 @@ public class UpdateVoucherRequest {
     private double value;
 
     @NotNull(message = "Ngày bắt đầu không được để trống")
-    private LocalDateTime startDate;
+    private ZonedDateTime startDate;
 
     @NotNull(message = "Ngày kết thúc không được để trống")
     @Future(message = "Ngày kết thúc phải là ngày trong tương lai")
-    private LocalDateTime endDate;
+    private ZonedDateTime endDate;
 }
