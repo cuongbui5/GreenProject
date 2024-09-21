@@ -24,6 +24,10 @@ public class ProductItem extends BaseEntity{
     private Product product;
     private Integer quantity;
     private Double price;
+    private Integer sold=0;
+    private Integer reviewsCount=0;
+    private Integer totalRating=0;
+
     @Version
     private Long version;
     @ManyToMany
@@ -42,6 +46,9 @@ public class ProductItem extends BaseEntity{
         dto.setPrice(price);
         dto.setCreatedAt(getCreatedAt());
         dto.setUpdatedAt(getUpdatedAt());
+        dto.setSold(sold);
+        dto.setTotalRating(totalRating);
+        dto.setReviewCount(reviewsCount);
         if(product!=null){
             dto.setProduct(product.mapToProductDto());
         }

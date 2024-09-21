@@ -15,6 +15,9 @@ public class ProductItemDto {
     private ProductDto product;
     private int quantity;
     private Double price;
+    private Integer sold;
+    private Integer reviewCount;
+    private Integer totalRating;
     private List<VariationOptionDto> variationOptions;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
