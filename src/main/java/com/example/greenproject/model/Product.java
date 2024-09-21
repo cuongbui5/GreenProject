@@ -35,6 +35,7 @@ public class Product extends BaseEntity{
 
 
 
+
     public ProductDto mapToProductDto() {
         CategoryDto categoryDto=null;
         if(category!=null){

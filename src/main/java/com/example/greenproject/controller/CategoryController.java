@@ -3,6 +3,7 @@ package com.example.greenproject.controller;
 import com.example.greenproject.dto.req.CategoryFilteringRequest;
 import com.example.greenproject.dto.req.CreateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateCategoryRequest;
+import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.model.Category;
@@ -78,10 +79,10 @@ public class CategoryController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id){
         categoryService.deleteCategoryById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
+        return ResponseEntity.status(HttpStatus.OK).body(new BaseResponse(
                 HttpStatus.OK.value(),
-                Constants.SUCCESS_MESSAGE,
-                null));
+                Constants.SUCCESS_MESSAGE
+        ));
     }
 
 
