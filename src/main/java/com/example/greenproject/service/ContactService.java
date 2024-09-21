@@ -28,10 +28,10 @@ public class ContactService {
         UserInfo userInfo= Utils.getUserInfoFromContext();
         User user=userService.getUserById(userInfo.getId());
         Contact contact = new Contact();
-        contact.setName(createContactRequest.getName());
-        contact.setEmail(createContactRequest.getEmail());
-        contact.setPhoneNumber(createContactRequest.getPhoneNumber());
-        contact.setAddress(createContactRequest.getAddress());
+        contact.setCity(createContactRequest.getCity());
+        contact.setWard(createContactRequest.getWard());
+        contact.setDistrict(createContactRequest.getDistrict());
+        contact.setHouseNumber(createContactRequest.getHouseNumber());
         contact.setUser(user);
 
         return contactRepository.save(contact);
