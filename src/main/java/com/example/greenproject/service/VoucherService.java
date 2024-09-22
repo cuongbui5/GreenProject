@@ -6,6 +6,7 @@ import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.VoucherDto;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Voucher;
+import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.VoucherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -60,6 +61,11 @@ public class VoucherService {
         if(voucherRequest.getEndDate().isBefore(voucherRequest.getStartDate()) ||
            voucherRequest.getEndDate().isBefore(ZonedDateTime.now())){
             throw new RuntimeException("Ngay het han khong hop le!");
+        }
+        VoucherType voucherType=voucherRequest.getType();
+        if(voucherType==VoucherType.DISCOUNT_PERCENTAGE&&voucherRequest.getValue()>=100){
+            throw new RuntimeException("Value ko hop le!");
+
         }
         Voucher voucher = new Voucher();
         return getVoucherDto(voucherRequest, voucher);

@@ -23,7 +23,7 @@ public class Product extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @Column(length = 1000)
+    @Column(length = 10000)
     private String description;
     @OneToMany(mappedBy = "product")
     private List<Image> images;
