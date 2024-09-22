@@ -3,6 +3,9 @@ package com.example.greenproject.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "_cart")
 @NoArgsConstructor
@@ -16,4 +19,6 @@ public class Cart extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
+    @OneToMany(mappedBy = "cart",fetch = FetchType.EAGER)
+    private List<Item> items=new ArrayList<>();
 }

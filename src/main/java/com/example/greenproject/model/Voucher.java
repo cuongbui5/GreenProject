@@ -31,9 +31,9 @@ public class Voucher extends BaseEntity{
     private Long version;
 
     @Enumerated(EnumType.STRING)
-    private VoucherType type; // Loại voucher (FREE_SHIP, DISCOUNT_PERCENTAGE, ...)
+    private VoucherType type;
 
-    private Double value; // Giá trị của voucher (ví dụ: 10%, 50.000 VND,...)
+    private Double value;
 
     private ZonedDateTime startDate;
 

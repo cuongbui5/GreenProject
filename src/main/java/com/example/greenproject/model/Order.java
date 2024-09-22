@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,8 @@ public class Order {
     private Voucher voucher;
     private Double shippingCost;
     private Double totalCost;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
 
 }
