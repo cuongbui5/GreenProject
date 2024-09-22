@@ -16,7 +16,7 @@ public class Cart extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
     @OneToMany(mappedBy = "cart",fetch = FetchType.EAGER)

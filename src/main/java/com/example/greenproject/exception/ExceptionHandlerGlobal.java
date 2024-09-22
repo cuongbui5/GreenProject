@@ -2,6 +2,7 @@ package com.example.greenproject.exception;
 
 import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.ErrorResponse;
+import jakarta.persistence.OptimisticLockException;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,12 @@ import java.util.regex.Pattern;
 
 @RestControllerAdvice
 public class ExceptionHandlerGlobal {
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<?> handleOptimisticLockException(OptimisticLockException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body( new ErrorResponse(HttpStatus.BAD_REQUEST.value(),"OptimisticLockException:Transaction failed due to concurrent modification. Please try again."));
+    }
+    //
 
     @ResponseBody
     @ExceptionHandler(NotFoundException.class)

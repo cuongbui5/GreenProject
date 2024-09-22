@@ -61,6 +61,9 @@ public class ItemService {
 
         return itemRepository.save(item);
     }
+    public void deleteCartItem(Long id){
+        itemRepository.deleteById(id);
+    }
 
 
 

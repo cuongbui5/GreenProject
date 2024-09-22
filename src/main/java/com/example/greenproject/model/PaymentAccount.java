@@ -18,10 +18,9 @@ public class PaymentAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String username;
-    private String pinCode;
-    private String cid;
     private String accountNumber;
+    private String fullName;
+    private String pin;
     private Double balance;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bank_id",referencedColumnName = "id")
