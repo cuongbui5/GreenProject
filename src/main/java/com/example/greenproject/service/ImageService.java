@@ -24,14 +24,8 @@ import java.util.UUID;
 public class ImageService {
     private final ImageRepository imageRepository;
     private final ProductRepository productRepository;
-    private final Cloudinary cloudinary;
-    public String uploadFile(MultipartFile multipartFile) throws IOException {
-        return cloudinary.uploader()
-                .upload(multipartFile.getBytes(),
-                        Map.of("public_id", UUID.randomUUID().toString()))
-                .get("url")
-                .toString();
-    }
+    private final UploadFileService uploadFileService;
+
 
     public List<ImageDto> getAllImageByProductId(Long id){
         return imageRepository.getAllByProductId(id).stream().map(Image::mapToImageDto).toList();
@@ -85,7 +79,7 @@ public class ImageService {
         Product product = productRepository.findById(Long.parseLong(productId))
                 .orElseThrow(()->new RuntimeException("Không tìm thấy thông tin sản phẩm với id: "+productId));
         Image image = new Image();
-        String url=uploadFile(file);
+        String url=uploadFileService.uploadFile(file);
         System.out.println("url: "+url);
         image.setUrl(url);
         image.setProduct(product);

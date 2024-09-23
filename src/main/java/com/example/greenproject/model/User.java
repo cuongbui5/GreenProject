@@ -2,6 +2,7 @@ package com.example.greenproject.model;
 
 import com.example.greenproject.model.enums.UserType;
 import com.example.greenproject.utils.Constants;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -27,11 +28,15 @@ public class User extends BaseEntity {
     @Email(message = "Email should be valid")
     private String email;
     private String username;
+    @JsonIgnore
     private String password;
     private String imgUrl;
-    private Integer points;
+    private Integer points=0;
+    private String phoneNumber;
+    private String fullName;
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
 
 
 
@@ -42,6 +47,7 @@ public class User extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id",
                     referencedColumnName = "id")
     )
+    @JsonIgnore
     private Set<Role> roles=new HashSet<>();
     @PrePersist
     @PreUpdate

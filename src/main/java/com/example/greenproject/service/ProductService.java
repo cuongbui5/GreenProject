@@ -85,7 +85,8 @@ public class ProductService {
         return productRepository.save(newProduct).mapToProductDto();
     }
 
-    public Product updateProduct(Long productId,UpdateProductRequest updateProductRequest){
+    public ProductDto updateProduct(Long productId,UpdateProductRequest updateProductRequest){
+
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException("Khong tim thay san pham"));
         if(updateProductRequest.getCategoryId() != null && !product.getCategory().getId().equals(updateProductRequest.getCategoryId())){
             if(!product.getProductItems().isEmpty()){
@@ -103,10 +104,21 @@ public class ProductService {
         product.setName(updateProductRequest.getName());
         product.setDescription(updateProductRequest.getDescription());
 
-        return productRepository.save(product);
+        return productRepository.save(product).mapToProductDto();
     }
 
     public void deleteProduct(Long id){
+        Optional<Product> product=productRepository.findById(id);
+        if(product.isPresent()){
+            if(!product.get().getProductItems().isEmpty()){
+                throw new RuntimeException("Sản phẩm này đang có nhiều sản phẩm chi tiet!");
+            }
+
+            if(!product.get().getImages().isEmpty()){
+                throw new RuntimeException("Sản phẩm này đang có nhiều anh!");
+            }
+
+        }
        productRepository.deleteById(id);
     }
 

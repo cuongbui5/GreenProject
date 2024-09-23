@@ -8,8 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateContactRequest {
-    private String phoneNumber;
-    private String address;
-    private String name;
-    private String email;
+    private String city;
+    private String district;
+    private String ward;
+    private String houseNumber;
 }

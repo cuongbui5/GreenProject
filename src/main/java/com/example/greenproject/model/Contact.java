@@ -10,13 +10,14 @@ import lombok.*;
 @Getter
 @Setter
 public class Contact extends BaseEntity {
+    //https://provinces.open-api.vn/api/?depth=2
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String phoneNumber;
-    private String address;
-    private String name;
-    private String email;
+    private String city;
+    private String district;
+    private String ward;
+    private String houseNumber;
     @ManyToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;

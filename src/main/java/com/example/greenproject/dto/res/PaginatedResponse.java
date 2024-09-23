@@ -4,12 +4,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
-public class PaginatedResponse<T> {
+public class PaginatedResponse<T> implements Serializable {
     private List<T> content;
     private int totalPages;
     private int currentPage;

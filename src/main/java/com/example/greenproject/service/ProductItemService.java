@@ -70,25 +70,30 @@ public class ProductItemService {
 
 
     public ProductItemDto createProductItem(CreateProductItemRequest createProductItemRequest){
-        Optional<Product> product = productRepository.findById(createProductItemRequest.getProductId());
-        if(product.isEmpty()){
+        Optional<Product> productOptional = productRepository.findById(createProductItemRequest.getProductId());
+        if(productOptional.isEmpty()){
             throw new NotFoundException("Khong tim thay san pham!");
 
         }
+        Product product = productOptional.get();
+        Set<VariationOption> newVariationOptions = new HashSet<>();
+        createProductItemRequest.getProductConfig().forEach(i -> {
+            VariationOption variationOption = variationOptionRepository.findById(i)
+                    .orElseThrow(() -> new NotFoundException("Khong tim thay option id:" + i));
+            newVariationOptions.add(variationOption);
+        });
+        for (ProductItem productItem : product.getProductItems()) {
+            if (productItem.getVariationOptions().equals(newVariationOptions)) {
+                throw new IllegalArgumentException("ProductItem này đã tồn tại!");
+            }
+        }
 
-        ProductItem productItem=new ProductItem();
-        productItem.setProduct(product.get());
+        ProductItem productItem = new ProductItem();
+        productItem.setProduct(product);
         productItem.setQuantity(createProductItemRequest.getQuantity());
         productItem.setPrice(createProductItemRequest.getPrice());
-        if(!createProductItemRequest.getProductConfig().isEmpty()){
-            Set<VariationOption> variationOptions=new HashSet<>();
-            createProductItemRequest.getProductConfig().forEach(i->{
-                VariationOption variationOption=variationOptionRepository.findById(i)
-                        .orElseThrow(()->new NotFoundException("Khong tim thay option id:"+i));
-                variationOptions.add(variationOption);
-            });
-            productItem.setVariationOptions(variationOptions);
-        }
+        productItem.setVariationOptions(newVariationOptions);
+
         return productItemRepository.save(productItem).mapToProductItemDto();
 
 

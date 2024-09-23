@@ -23,33 +23,48 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final static int PAGE_SIZE=5;
+    private final RedisService redisService;
+    private static final String CATEGORY_KEY = "categories";
+    private static final long CACHE_TTL = 1;
 
-    public Object getAllCategories(Integer pageNum, Integer pageSize,String search){
-        if(pageNum==null || pageSize==null){
 
+    public Object getAllCategories(Integer pageNum, Integer pageSize, String search) {
+        if (pageNum == null || pageSize == null) {
             return getAllCategoriesList();
         }
-        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<Category> categories;
 
-        if(search!=null){
+        /*String redisKey = CATEGORY_KEY + ":" + pageNum + ":" + pageSize + (search != null ? ":search:" + search : "");
+        Object cachedObject = redisService.get(redisKey);
 
-            categories= searchCategory(search,pageable);
-        }else {
+        if (cachedObject != null) {
 
-            categories = categoryRepository.findAll(pageable);
-        }
+            if (cachedObject instanceof PaginatedResponse) {
+                System.out.println("Get data cache");
+                return cachedObject;
+            } else {
+                throw new IllegalStateException("Data type mismatch in cache");
+            }
+        }*/
 
-        List<CategoryDtoWithParent> categoryDtoWithParents = categories.getContent().stream().map(Category::mapToCategoryDtoWithParent).toList();
+        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+        Page<Category> categories = search != null ? searchCategory(search, pageable) : categoryRepository.findAll(pageable);
+
+        List<CategoryDtoWithParent> categoryDtoWithParents = categories.getContent().stream()
+                .map(Category::mapToCategoryDtoWithParent)
+                .toList();
+
+        // Cache the result
+        //redisService.set(redisKey, paginatedResponse);
+        //redisService.setTimeToLive(redisKey, CACHE_TTL);
+
         return new PaginatedResponse<>(
                 categoryDtoWithParents,
                 categories.getTotalPages(),
-                categories.getNumber()+1,
+                categories.getNumber() + 1,
                 categories.getTotalElements()
         );
-
     }
+
 
     private Page<Category> searchCategory(String search,Pageable pageable){
         return categoryRepository.findByNameContainingIgnoreCase(search,pageable);
@@ -69,7 +84,7 @@ public class CategoryService {
 
 
 
-    public CategoryDto createCategory(CreateCategoryRequest createCategoryRequest){
+    public CategoryDtoWithParent createCategory(CreateCategoryRequest createCategoryRequest){
         Category parentCategory  = null;
         if(createCategoryRequest.getParentId() != null){
             parentCategory  = findCategoryById(createCategoryRequest.getParentId());
@@ -79,12 +94,12 @@ public class CategoryService {
                 .builder()
                 .name(createCategoryRequest.getName())
                 .parent(parentCategory )
-                .build()).mapToCategoryDto();
+                .build()).mapToCategoryDtoWithParent();
 
 
     }
 
-    public CategoryDto updateCategoryById(Long categoryId, UpdateCategoryRequest updateCategoryRequest){
+    public CategoryDtoWithParent updateCategoryById(Long categoryId, UpdateCategoryRequest updateCategoryRequest){
         if(categoryId == null){
             throw new RuntimeException("Id danh mục rỗng!");
         }
@@ -99,8 +114,6 @@ public class CategoryService {
             throw new RuntimeException("Danh mục cha không được trùng với danh mục hiện tại!");
         }
 
-
-
         if(updateCategoryRequest.getParentId() != null ){
             if((category.getParent()==null||!category.getParent().getId().equals(updateCategoryRequest.getParentId()))){
                 Category parentCategory = categoryRepository.findById(updateCategoryRequest.getParentId())
@@ -113,17 +126,28 @@ public class CategoryService {
         }
 
         category.setName(updateCategoryRequest.getName());
-        return categoryRepository.save(category).mapToCategoryDto();
-
-
-
-
-
+        return categoryRepository.save(category).mapToCategoryDtoWithParent();
 
     }
 
     public void deleteCategoryById(Long id){
-        categoryRepository.deleteById(id);
+        Optional<Category> categoryOptional=categoryRepository.findById(id);
+        if(categoryOptional.isPresent()){
+            Category category=categoryOptional.get();
+            if(!category.getChildren().isEmpty()){
+                throw new RuntimeException("Danh mục này đang có nhiều danh mục con! Thao tác thất bại!");
+            }
+
+            if(!category.getProducts().isEmpty()){
+                throw new RuntimeException("Danh mục này đang có nhiều san pham! Thao tác thất bại!");
+            }
+
+            if(!category.getVariations().isEmpty()){
+                throw new RuntimeException("Danh mục này đang có nhiều bien the! Thao tác thất bại!");
+            }
+            categoryRepository.delete(category);
+        }
+
     }
 
 

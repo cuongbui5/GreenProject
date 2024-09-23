@@ -1,8 +1,11 @@
 package com.example.greenproject.service;
 
+import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Cart;
 import com.example.greenproject.model.User;
 import com.example.greenproject.repository.CartRepository;
+import com.example.greenproject.security.UserInfo;
+import com.example.greenproject.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,27 +17,28 @@ public class CartService {
     private final CartRepository cartRepository;
     private final UserService userService;
 
-    public Cart createCart(Long userId) {
-        Cart cart = getCartByUserId(userId);
-        if (cart != null) {
-            return cart;
+    public Cart getOrCreateCart () {
+        UserInfo userInfo = Utils.getUserInfoFromContext();
 
+        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+        if (userInfo == null) {
+            throw new RuntimeException("Please log in first!");
         }
-        User user=userService.getUserById(userId);
-        Cart newCart=new Cart();
-        newCart.setUser(user);
-        return cartRepository.save(newCart);
+
+        User user = userService.getUserById(userInfo.getId());
+
+
+        return cartRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepository.save(newCart);
+                });
 
 
     }
-    public Cart getCartByUserId(Long userId ) {
-        return cartRepository.findByUserId(userId);
 
-    }
-    public Optional<Cart> getCartById(Long cartId ) {
-        return cartRepository.findById(cartId);
 
-    }
 
 
 }
