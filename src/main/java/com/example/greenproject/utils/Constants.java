@@ -1,5 +1,8 @@
 package com.example.greenproject.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Constants {
     public static final String MESSAGE_EMPTY="Không được để trống";
     public static final String ROLE_ADMIN="ADMIN";
@@ -9,4 +12,7 @@ public class Constants {
     public static final String FAILED_MESSAGE="failed";
     public static final String PASSWORD_GOOGLE_USER="PASSWORD_GOOGLE_USER";
     public static final String REGISTER_OK = "Bạn đã đăng kí tài khoản thành công";
+    public static final String QUEUE_DEV = "rabbit-queue-dev";
+    public static final List<String> queueNameList = List.of(QUEUE_DEV);
+
 }
