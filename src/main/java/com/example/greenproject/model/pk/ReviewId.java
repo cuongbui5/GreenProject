@@ -13,6 +13,7 @@ import java.util.Objects;
 @Embeddable
 @Setter
 @Getter
+@EqualsAndHashCode
 public class ReviewId implements Serializable {
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")

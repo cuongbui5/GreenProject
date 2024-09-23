@@ -6,12 +6,14 @@ import com.example.greenproject.model.Voucher;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Embeddable
 @Setter
 @Getter
+@EqualsAndHashCode
 public class UserVoucherId {
     @ManyToOne
     @JoinColumn(name = "voucher_id", referencedColumnName = "id")
