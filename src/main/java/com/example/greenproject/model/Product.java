@@ -1,9 +1,6 @@
 package com.example.greenproject.model;
 
-import com.example.greenproject.dto.res.CategoryDto;
-import com.example.greenproject.dto.res.ImageDto;
-import com.example.greenproject.dto.res.ProductDto;
-import com.example.greenproject.dto.res.ProductDtoView;
+import com.example.greenproject.dto.res.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,12 +35,10 @@ public class Product extends BaseEntity{
 
 
     public ProductDto mapToProductDto() {
-        CategoryDto categoryDto=null;
-        if(category!=null){
-            categoryDto=new CategoryDto(category.getId(),category.getName());
-        }
         ProductDto productDto=new ProductDto();
-        productDto.setCategory(categoryDto);
+        if(category!=null){
+            productDto.setCategory(category.mapToCategoryDto());
+        }
         productDto.setId(id);
         productDto.setName(name);
         productDto.setDescription(description);
@@ -51,6 +46,26 @@ public class Product extends BaseEntity{
         productDto.setUpdatedAt(getUpdatedAt());
 
         return productDto;
+    }
+
+    public ProductDtoWithDetails mapToProductDtoWithDetails() {
+        ProductDtoWithDetails dto=new ProductDtoWithDetails();
+        dto.setId(id);
+        dto.setName(name);
+        dto.setDescription(description);
+        List<ImageDto> imageDtos = images != null ? images.stream()
+                .map(Image::mapToImageDto)
+                .toList() : new ArrayList<>();
+        dto.setImages(imageDtos);
+        if(category!=null){
+            dto.setCategory(category.mapToCategoryDto());
+        }
+        if(productItems!=null){
+            dto.setProductItems(productItems.stream().map(ProductItem::mapToProductItemDtoLazy).toList());
+
+        }
+        return dto;
+
     }
 
     public ProductDtoView mapToProductDtoView() {

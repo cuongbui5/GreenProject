@@ -19,11 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
     private final ProductService productService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductDetails(@PathVariable("id") Long id){
-        Product product = productService.findProductById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(product);
-    }
 
     @GetMapping
     public ResponseEntity<?> getAllProducts(@RequestParam(value = "pageNum",required = false) Integer pageNum,
@@ -36,7 +31,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
-                        "Successfully retrieved product list",
+                        Constants.SUCCESS_MESSAGE,
                         productService.getAllProduct(pageNum,pageSize,search,categoryId)));
     }
 
@@ -49,8 +44,20 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
-                        "Successfully retrieved product list",
+                        Constants.SUCCESS_MESSAGE,
                         productService.getAllProductViews(pageNum,pageSize)));
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getProductViews(@PathVariable Long productId){
+
+
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        productService.getProductById(productId)));
     }
 
 
@@ -60,7 +67,7 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.OK).body(new DataResponse(
                 HttpStatus.CREATED.value(),
-                "Successfully created product",
+                Constants.SUCCESS_MESSAGE,
                 productService.updateProduct(id,updateProductRequest)
         ));
     }
@@ -70,7 +77,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new DataResponse(
                         HttpStatus.CREATED.value(),
-                        "Successfully created product",
+                        Constants.SUCCESS_MESSAGE,
                         productService.createProduct(createProductRequest)));
     }
 

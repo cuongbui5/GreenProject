@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 import com.example.greenproject.dto.res.ProductItemDto;
+import com.example.greenproject.dto.res.ProductItemDtoLazy;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,20 @@ public class ProductItem extends BaseEntity{
                     referencedColumnName = "id")
     )
     private Set<VariationOption> variationOptions=new HashSet<>();
+
+    public ProductItemDtoLazy mapToProductItemDtoLazy(){
+        ProductItemDtoLazy dto = new ProductItemDtoLazy();
+        dto.setId(id);
+        dto.setQuantity(quantity);
+        dto.setPrice(price);
+        dto.setSold(sold);
+        dto.setTotalRating(totalRating);
+        dto.setReviewCount(reviewsCount);
+        if(variationOptions!=null){
+            dto.setVariationOptions(variationOptions.stream().map(VariationOption::mapToVariationOptionDto).toList());
+        }
+        return dto;
+    }
 
     public ProductItemDto mapToProductItemDto(){
         ProductItemDto dto=new ProductItemDto();
