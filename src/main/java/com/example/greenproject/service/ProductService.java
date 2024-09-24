@@ -6,6 +6,7 @@ import com.example.greenproject.dto.req.UpdateProductRequest;
 
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.ProductDto;
+import com.example.greenproject.dto.res.ProductDtoView;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 
@@ -73,6 +74,12 @@ public class ProductService {
         // Tìm kiếm sản phẩm theo từ khóa và category
         return productRepository.findBySearchAndCategoryIds(search, categoryIds, pageable);
     }
+
+    public List<ProductDtoView> getProductItemByTopSold(Integer limit){
+        List<Product> product= productRepository.findByTopSold(limit);
+        return product.stream().map(Product::mapToProductDtoView).toList();
+    }
+
 
     public Page<Product> getProductsByCategory(Long categoryId, Pageable pageable) {
         // Lấy danh sách tất cả category con, bao gồm cả category cha

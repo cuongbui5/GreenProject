@@ -5,6 +5,7 @@ import com.example.greenproject.dto.req.CreateProductRequest;
 import com.example.greenproject.dto.req.UpdateProductRequest;
 import com.example.greenproject.dto.res.DataResponse;
 
+import com.example.greenproject.dto.res.ProductDtoView;
 import com.example.greenproject.service.ProductService;
 import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -81,6 +84,16 @@ public class ProductController {
                         productService.createProduct(createProductRequest)));
     }
 
+    @GetMapping("/top_sold/limit={limit}")
+    public ResponseEntity<?> getProductItemByTopSold(@PathVariable("limit") Integer limit){
+        List<ProductDtoView> productDtos = productService.getProductItemByTopSold(limit);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        productDtos));
+    }
 
 
     @DeleteMapping("/delete/{id}")

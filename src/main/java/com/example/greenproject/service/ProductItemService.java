@@ -55,11 +55,6 @@ public class ProductItemService {
         );
     }
 
-    public List<ProductDtoView> getProductItemByTopSold(Integer limit){
-        List<Product> product= productRepository.findByTopSold(limit);
-        return product.stream().map(Product::mapToProductDtoView).toList();
-    }
-
     private Page<ProductItem> searchProductItem(String search, Pageable pageable) {
         return productItemRepository.findByProductNameContainingIgnoreCase(search, pageable);
     }

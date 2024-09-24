@@ -36,16 +36,6 @@ public class ProductItemController {
                         products));
     }
 
-    @GetMapping("/top_sold/limit={limit}")
-    public ResponseEntity<?> getProductItemByTopSold(@PathVariable("limit") Integer limit){
-        List<ProductDtoView> productDtos = productItemService.getProductItemByTopSold(limit);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new DataResponse(
-                        HttpStatus.OK.value(),
-                        Constants.SUCCESS_MESSAGE,
-                        productDtos));
-    }
 
 
 
