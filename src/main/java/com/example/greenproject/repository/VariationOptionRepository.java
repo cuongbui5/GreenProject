@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface VariationOptionRepository extends JpaRepository<VariationOption,Long> {
     Optional<VariationOption> findByValue(String value);
+    Page<VariationOption> findByVariationId(Long id, Pageable pageable);
 
     Page<VariationOption> findByValueContainingIgnoreCase(String search, Pageable pageable);
 }

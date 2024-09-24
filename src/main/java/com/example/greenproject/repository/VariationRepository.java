@@ -13,8 +13,10 @@ import java.util.Optional;
 public interface VariationRepository extends JpaRepository<Variation,Long> {
 
     List<Variation> findAllByCategoryId(Long categoryId);
+    Page<Variation> findAllByCategoryId(Long categoryId, Pageable pageable);
 
     Optional<Variation> findByName(String name);
 
     Page<Variation> findByNameContainingIgnoreCase(String search, Pageable pageable);
+
 }

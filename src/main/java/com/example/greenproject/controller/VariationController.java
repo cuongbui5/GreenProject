@@ -38,15 +38,18 @@ public class VariationController {
 
 
 
+
+
     @GetMapping
     public ResponseEntity<?> getAllVariations(@RequestParam(value = "pageNum",required = false) Integer pageNum,
                                               @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                              @RequestParam(value = "search",required = false) String search){
+                                              @RequestParam(value = "search",required = false) String search,
+                                              @RequestParam(value = "categoryId",required = false) Long categoryId){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        variationService.getAllVariations(pageNum,pageSize,search)));
+                        variationService.getAllVariations(pageNum,pageSize,search,categoryId)));
     }
 
 

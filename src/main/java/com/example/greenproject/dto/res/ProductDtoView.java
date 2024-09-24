@@ -1,24 +1,19 @@
 package com.example.greenproject.dto.res;
 
-import com.example.greenproject.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDto {
+public class ProductDtoView {
     private Long id;
     private String name;
-    private String description;
-    private CategoryDto category;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
     private List<ImageDto> images;
-
+    private Double minPrice;
+    private Double maxPrice;
+    private Double avgRating;
 }

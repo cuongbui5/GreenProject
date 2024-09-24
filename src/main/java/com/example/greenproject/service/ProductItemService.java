@@ -1,14 +1,10 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.CreateProductItemRequest;
-import com.example.greenproject.dto.req.CreateProductRequest;
 import com.example.greenproject.dto.req.UpdateProductItemRequest;
-import com.example.greenproject.dto.req.UpdateProductRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
-import com.example.greenproject.dto.res.ProductDto;
 import com.example.greenproject.dto.res.ProductItemDto;
 import com.example.greenproject.exception.NotFoundException;
-import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.model.ProductItem;
 import com.example.greenproject.model.VariationOption;
@@ -29,18 +25,23 @@ public class ProductItemService {
     private final ProductItemRepository productItemRepository;
     private final ProductRepository productRepository;
     private final VariationOptionRepository variationOptionRepository;
-    public Object getAllProductItem(Integer pageNum, Integer pageSize, String search) {
+    public Object getAllProductItem(Integer pageNum, Integer pageSize, String search, Long productId) {
         if(pageNum==null || pageSize==null){
             return getAllProductItems();
         }
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<ProductItem> productItems;
+        Page<ProductItem> productItems = null;
+        
+        if(search==null&&productId==null){
+            productItems = productItemRepository.findAll(pageable);
+        }
 
         if(search!=null){
             productItems= searchProductItem(search,pageable);
-        }else {
-
-            productItems = productItemRepository.findAll(pageable);
+        }
+        
+        if(productId!=null){
+            productItems = productItemRepository.findByProductId(productId,pageable);
         }
 
         List<ProductItemDto> productItemDtos = productItems.getContent().stream().map(ProductItem::mapToProductItemDto).toList();

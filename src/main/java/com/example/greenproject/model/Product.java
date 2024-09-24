@@ -1,8 +1,9 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.CategoryDto;
+import com.example.greenproject.dto.res.ImageDto;
 import com.example.greenproject.dto.res.ProductDto;
-import com.example.greenproject.utils.Utils;
+import com.example.greenproject.dto.res.ProductDtoView;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,7 +49,53 @@ public class Product extends BaseEntity{
         productDto.setDescription(description);
         productDto.setCreatedAt(getCreatedAt());
         productDto.setUpdatedAt(getUpdatedAt());
+
         return productDto;
+    }
+
+    public ProductDtoView mapToProductDtoView() {
+        double minPrice = Double.MAX_VALUE;
+        double maxPrice = Double.MIN_VALUE;
+        double totalRating = 0;
+        int totalReviews = 0;
+
+        // Check if product has any product items
+        if (productItems != null && !productItems.isEmpty()) {
+            for (ProductItem item : productItems) {
+                if (item.getPrice() != null) {
+                    minPrice = Math.min(minPrice, item.getPrice());
+                    maxPrice = Math.max(maxPrice, item.getPrice());
+                }
+                totalRating += item.getTotalRating();
+                totalReviews += item.getReviewsCount();
+            }
+        }
+
+        // Handle case where there are no valid prices
+        if (minPrice == Double.MAX_VALUE) {
+            minPrice = 0.0;
+        }
+        if (maxPrice == Double.MIN_VALUE) {
+            maxPrice = 0.0;
+        }
+
+        // Calculate average rating
+        Double avgRating = totalReviews > 0 ? totalRating / totalReviews : 0.0;
+
+        // Map image DTOs
+        List<ImageDto> imageDtos = images != null ? images.stream()
+                .map(Image::mapToImageDto)
+                .toList() : new ArrayList<>();
+
+        // Create ProductDtoView
+        return new ProductDtoView(
+                id,
+                name,
+                imageDtos,
+                minPrice,
+                maxPrice,
+                avgRating
+        );
     }
 
     @PrePersist

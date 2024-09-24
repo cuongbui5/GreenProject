@@ -26,17 +26,31 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllCategories(@RequestParam(value = "pageNum",required = false) Integer pageNum,
+    public ResponseEntity<?> getAllProducts(@RequestParam(value = "pageNum",required = false) Integer pageNum,
                                               @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                              @RequestParam(value = "search",required = false) String search){
+                                              @RequestParam(value = "search",required = false) String search,
+                                              @RequestParam(value = "categoryId",required = false) Long categoryId){
 
-        Object products= productService.getAllProduct(pageNum,pageSize,search);
+
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         "Successfully retrieved product list",
-                        products));
+                        productService.getAllProduct(pageNum,pageSize,search,categoryId)));
+    }
+
+    @GetMapping("/view")
+    public ResponseEntity<?> getAllProductViews(@RequestParam(value = "pageNum") Integer pageNum,
+                                            @RequestParam(value = "pageSize") Integer pageSize){
+
+
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        "Successfully retrieved product list",
+                        productService.getAllProductViews(pageNum,pageSize)));
     }
 
 

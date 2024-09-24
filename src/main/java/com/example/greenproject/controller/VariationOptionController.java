@@ -23,13 +23,14 @@ public class VariationOptionController {
 
     @GetMapping
     public ResponseEntity<?> getAllVariationOptions(@RequestParam(value = "pageNum",required = false) Integer pageNum,
-                                              @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                              @RequestParam(value = "search",required = false) String search){
+                                                    @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                                    @RequestParam(value = "search",required = false) String search,
+                                                    @RequestParam(value = "variationId",required = false) Long variationId){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        variationOptionService.getAllVariationOptions(pageNum,pageSize,search)));
+                        variationOptionService.getAllVariationOptions(pageNum,pageSize,search,variationId)));
     }
 
     @PutMapping("/update/{id}")

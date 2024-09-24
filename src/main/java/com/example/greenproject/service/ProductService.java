@@ -19,27 +19,43 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    public Object getAllProduct(Integer pageNum, Integer pageSize, String search) {
+    public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId) {
         if(pageNum==null || pageSize==null){
             return getAllProduct();
         }
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<Product> products;
-
-        if(search!=null){
-            products= searchProduct(search,pageable);
-        }else {
-
+        Page<Product> products = null;
+        
+        if(search==null&&categoryId==null){
             products = productRepository.findAll(pageable);
         }
+
+        // Nếu chỉ có search, tìm sản phẩm theo từ khóa
+        if (search != null && categoryId == null) {
+            products = searchProduct(search, pageable);
+        }
+
+        // Nếu chỉ có categoryId, tìm sản phẩm theo category (bao gồm các category con)
+        if (categoryId != null && search == null) {
+            products = getProductsByCategory(categoryId, pageable);
+        }
+
+        // Nếu cả search và categoryId đều khác null, kết hợp tìm kiếm và lọc theo category
+        if (categoryId != null && search != null) {
+            products = searchProductByCategory(search, categoryId, pageable);
+        }
+
 
         List<ProductDto> productDtos = products.getContent().stream().map(Product::mapToProductDto).toList();
         return new PaginatedResponse<>(
@@ -48,6 +64,37 @@ public class ProductService {
                 products.getNumber()+1,
                 products.getTotalElements()
         );
+    }
+
+    private Page<Product> searchProductByCategory(String search, Long categoryId, Pageable pageable) {
+        List<Long> categoryIds = new ArrayList<>();
+        collectChildCategoryIds(categoryId, categoryIds);
+
+        // Tìm kiếm sản phẩm theo từ khóa và category
+        return productRepository.findBySearchAndCategoryIds(search, categoryIds, pageable);
+    }
+
+    public Page<Product> getProductsByCategory(Long categoryId, Pageable pageable) {
+        // Lấy danh sách tất cả category con, bao gồm cả category cha
+        List<Long> categoryIds = new ArrayList<>();
+        collectChildCategoryIds(categoryId, categoryIds);
+
+        // Thực hiện phân trang dựa trên danh sách categoryIds
+        return productRepository.findByCategoryIds(categoryIds, pageable);
+    }
+
+    // Hàm đệ quy để thu thập tất cả các category con (bao gồm cả category hiện tại)
+    private void collectChildCategoryIds(Long categoryId, List<Long> categoryIds) {
+        // Thêm category hiện tại vào danh sách
+        categoryIds.add(categoryId);
+
+        // Lấy các category con của category hiện tại
+        List<Category> childCategories = categoryRepository.findByParentId(categoryId);
+
+        // Đệ quy qua các category con
+        for (Category child : childCategories) {
+            collectChildCategoryIds(child.getId(), categoryIds);
+        }
     }
 
     private Page<Product> searchProduct(String search, Pageable pageable) {
@@ -123,4 +170,14 @@ public class ProductService {
     }
 
 
+    public Object getAllProductViews(Integer pageNum, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
+        Page<Product> products = productRepository.findAll(pageable);
+        return new PaginatedResponse<>(
+                products.stream().map(Product::mapToProductDtoView).toList(),
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
+    }
 }

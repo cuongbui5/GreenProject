@@ -21,9 +21,10 @@ public class ProductItemController {
     @GetMapping
     public ResponseEntity<?> getAllCategories(@RequestParam(value = "pageNum",required = false) Integer pageNum,
                                               @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                              @RequestParam(value = "search",required = false) String search){
+                                              @RequestParam(value = "search",required = false) String search,
+                                              @RequestParam(value = "productId",required = false) Long productId){
 
-        Object products= productItemService.getAllProductItem(pageNum,pageSize,search);
+        Object products= productItemService.getAllProductItem(pageNum,pageSize,search,productId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(

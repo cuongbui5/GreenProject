@@ -3,10 +3,8 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateVariationOptionRequest;
 import com.example.greenproject.dto.req.UpdateVariationOptionRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
-import com.example.greenproject.dto.res.VariationDto;
 import com.example.greenproject.dto.res.VariationOptionDto;
 import com.example.greenproject.exception.NotFoundException;
-import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Variation;
 import com.example.greenproject.model.VariationOption;
 import com.example.greenproject.repository.VariationOptionRepository;
@@ -17,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,17 +57,22 @@ public class VariationOptionService {
 
 
 
-    public Object getAllVariationOptions(Integer pageNum, Integer pageSize, String search) {
+    public Object getAllVariationOptions(Integer pageNum, Integer pageSize, String search, Long variationId) {
         if(pageNum == null || pageSize ==null){
             return variationOptionRepository.findAll().stream().map(VariationOption::mapToVariationOptionDto).toList();
         }
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<VariationOption> variationOptions;
+        Page<VariationOption> variationOptions = null;
+        if(variationId==null&&search==null){
+            variationOptions = variationOptionRepository.findAll(pageable);
+        }
+        
         if(search!=null){
             variationOptions = searchVariationOption(search,pageable);
-        }else {
-
-            variationOptions = variationOptionRepository.findAll(pageable);
+        }
+        
+        if(variationId!=null){
+            variationOptions = variationOptionRepository.findByVariationId(variationId,pageable);
         }
 
         List<VariationOptionDto> variationOptionDtos = variationOptions.getContent().stream().map(VariationOption::mapToVariationOptionDto).toList();
