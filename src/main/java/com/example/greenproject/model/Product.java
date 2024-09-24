@@ -44,6 +44,10 @@ public class Product extends BaseEntity{
         productDto.setDescription(description);
         productDto.setCreatedAt(getCreatedAt());
         productDto.setUpdatedAt(getUpdatedAt());
+        List<ImageDto> imageDtos = images != null ? images.stream()
+                .map(Image::mapToImageDto)
+                .toList() : new ArrayList<>();
+        productDto.setImages(imageDtos);
 
         return productDto;
     }

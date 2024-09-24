@@ -51,6 +51,17 @@ public class ProductController {
                         productService.getAllProductViews(pageNum,pageSize)));
     }
 
+    @GetMapping("/related_product")
+    public ResponseEntity<?> getAllRelatedProduct(@RequestParam(value = "pageNum",required = false) Integer pageNum,
+                                                  @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                                  @RequestParam(value = "categoryId",required = false) Long categoryId){
+        return  ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        productService.getAllRelatedProduct(pageNum,pageSize,categoryId)));
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductViews(@PathVariable Long productId){
 

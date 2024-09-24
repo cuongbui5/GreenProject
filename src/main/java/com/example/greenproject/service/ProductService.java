@@ -67,6 +67,26 @@ public class ProductService {
         );
     }
 
+    public Object getAllRelatedProduct(Integer pageNum, Integer pageSize,Long categoryId){
+        List<Long> categoryIds = new ArrayList<>();
+        collectChildCategoryIds(categoryId, categoryIds);
+        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
+
+        Page<Product> products = productRepository.findByCategoryId(categoryId,pageable);
+
+        List<ProductDtoView> productDtoViews = products.getContent()
+                .stream()
+                .map(Product::mapToProductDtoView)
+                .toList();
+
+        return new PaginatedResponse<>(
+                productDtoViews,
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
+    }
+
     private Page<Product> searchProductByCategory(String search, Long categoryId, Pageable pageable) {
         List<Long> categoryIds = new ArrayList<>();
         collectChildCategoryIds(categoryId, categoryIds);
