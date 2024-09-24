@@ -3,10 +3,7 @@ package com.example.greenproject.model;
 import com.example.greenproject.dto.res.VoucherDto;
 import com.example.greenproject.model.enums.VoucherType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -19,6 +16,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Voucher extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
