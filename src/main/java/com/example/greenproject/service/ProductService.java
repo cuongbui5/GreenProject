@@ -180,4 +180,9 @@ public class ProductService {
                 products.getTotalElements()
         );
     }
+
+    public Object getProductById(Long productId) {
+        Product product=productRepository.findById(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
+        return product.mapToProductDtoWithDetails();
+    }
 }

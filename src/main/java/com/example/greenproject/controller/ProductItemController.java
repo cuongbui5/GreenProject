@@ -4,6 +4,7 @@ import com.example.greenproject.dto.req.CreateProductItemRequest;
 import com.example.greenproject.dto.req.UpdateProductItemRequest;
 import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.dto.res.ProductItemDto;
+import com.example.greenproject.dto.res.ProductItemDtoView;
 import com.example.greenproject.service.ProductItemService;
 import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class ProductItemController {
 
     @GetMapping("/top_sold/limit={limit}")
     public ResponseEntity<?> getProductItemByTopSold(@PathVariable("limit") Integer limit){
-        List<ProductItemDto> productItemDtos = productItemService.getProductItemByTopSold(limit);
+        List<ProductItemDtoView> productItemDtos = productItemService.getProductItemByTopSold(limit);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
