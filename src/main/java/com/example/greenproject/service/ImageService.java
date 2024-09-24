@@ -34,7 +34,15 @@ public class ImageService {
 
     public Image updateImageToProduct(Long imageId, UpdateImageRequest imageRequest){
         Image existOrNotImage = imageRepository.findById(imageId).orElseThrow();
-        existOrNotImage.setUrl(imageRequest.getImageUrl());
+
+        if(imageRequest.getImageUrl() != null){
+            existOrNotImage.setUrl(imageRequest.getImageUrl());
+        }
+
+        if(imageRequest.getProductId() != null){
+            Product product = productRepository.findById(imageRequest.getProductId()).orElseThrow(()-> new RuntimeException("Not found product"));
+            existOrNotImage.setProduct(product);
+        }
         return imageRepository.save(existOrNotImage);
     }
 

@@ -53,6 +53,13 @@ public class ProductItemService {
         );
     }
 
+    public List<ProductItemDto> getProductItemByTopSold(Integer limit){
+        List<ProductItem> productItems = productItemRepository.findAll();
+        productItems.sort(Comparator.comparing(ProductItem::getSold).reversed());
+
+        return productItems.stream().limit(limit).map(ProductItem::mapToProductItemDto).toList();
+    }
+
     private Page<ProductItem> searchProductItem(String search, Pageable pageable) {
         return productItemRepository.findByProductNameContainingIgnoreCase(search, pageable);
     }
