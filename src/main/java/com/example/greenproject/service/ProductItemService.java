@@ -3,7 +3,9 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateProductItemRequest;
 import com.example.greenproject.dto.req.UpdateProductItemRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
+import com.example.greenproject.dto.res.ProductDtoView;
 import com.example.greenproject.dto.res.ProductItemDto;
+import com.example.greenproject.dto.res.ProductItemDtoView;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.model.ProductItem;
@@ -53,11 +55,9 @@ public class ProductItemService {
         );
     }
 
-    public List<ProductItemDto> getProductItemByTopSold(Integer limit){
-        List<ProductItem> productItems = productItemRepository.findAll();
-        productItems.sort(Comparator.comparing(ProductItem::getSold).reversed());
-
-        return productItems.stream().limit(limit).map(ProductItem::mapToProductItemDto).toList();
+    public List<ProductDtoView> getProductItemByTopSold(Integer limit){
+        List<Product> product= productRepository.findByTopSold(limit);
+        return product.stream().map(Product::mapToProductDtoView).toList();
     }
 
     private Page<ProductItem> searchProductItem(String search, Pageable pageable) {

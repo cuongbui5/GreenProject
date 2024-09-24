@@ -3,27 +3,27 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateProductRequest;
 
 import com.example.greenproject.dto.req.UpdateProductRequest;
-import com.example.greenproject.dto.res.CategoryDtoWithParent;
+
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.ProductDto;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
-import com.example.greenproject.model.Image;
+
 import com.example.greenproject.model.Product;
 import com.example.greenproject.repository.CategoryRepository;
 import com.example.greenproject.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -179,5 +179,10 @@ public class ProductService {
                 products.getNumber()+1,
                 products.getTotalElements()
         );
+    }
+
+    public Object getProductById(Long productId) {
+        Product product=productRepository.findById(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
+        return product.mapToProductDtoWithDetails();
     }
 }

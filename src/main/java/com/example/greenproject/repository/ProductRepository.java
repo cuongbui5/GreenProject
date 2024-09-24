@@ -18,4 +18,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Page<Product> findByCategoryIds(@Param("categoryIds") List<Long> categoryIds,Pageable pageable);
     @Query("SELECT p FROM Product p WHERE p.name LIKE %:search% AND p.category.id IN :categoryIds")
     Page<Product> findBySearchAndCategoryIds(@Param("search") String search, @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
+
+    @Query("SELECT p FROM Product p JOIN p.productItems pi GROUP BY p.id ORDER BY SUM(pi.sold) DESC LIMIT :limit")
+    List<Product> findByTopSold(@Param("limit") Integer limit);
 }
