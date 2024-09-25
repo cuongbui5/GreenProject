@@ -95,15 +95,15 @@ public class ProductController {
                         productService.createProduct(createProductRequest)));
     }
 
-    @GetMapping("/top_sold/limit={limit}")
-    public ResponseEntity<?> getProductItemByTopSold(@PathVariable("limit") Integer limit){
-        List<ProductDtoView> productDtos = productService.getProductItemByTopSold(limit);
+    @GetMapping("/top_sold")
+    public ResponseEntity<?> getProductItemByTopSold(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
+                                                     @RequestParam(value = "pageSize",required = false,defaultValue = "8") Integer pageSize){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productDtos));
+                        productService.getProductItemByTopSold(pageNum,pageSize)));
     }
 
 

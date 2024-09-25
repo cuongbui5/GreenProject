@@ -95,9 +95,18 @@ public class ProductService {
         return productRepository.findBySearchAndCategoryIds(search, categoryIds, pageable);
     }
 
-    public List<ProductDtoView> getProductItemByTopSold(Integer limit){
-        List<Product> product= productRepository.findByTopSold(limit);
-        return product.stream().map(Product::mapToProductDtoView).toList();
+    public PaginatedResponse<ProductDtoView> getProductItemByTopSold(Integer pageNum,Integer pageSize){
+        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
+        // Lấy danh sách tất cả sản phẩm bán được nhiều nhất
+        Page<Product> products= productRepository.findByTopSold(pageable);
+
+        List<ProductDtoView> productDtoViews = products.stream().map(Product::mapToProductDtoView).toList();
+        return new PaginatedResponse<>(
+                productDtoViews,
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
     }
 
 

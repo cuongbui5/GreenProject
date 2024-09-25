@@ -1,20 +1,18 @@
 package com.example.greenproject.dto.res;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDtoWithDetails {
-    private Long id;
-    private String name;
-    private String description;
-    private CategoryDto category;
-    private List<ImageDto> images;
+public class ProductDtoWithDetails extends ProductDtoView{
+    public ProductDtoWithDetails(Long id, String name, String description, CategoryDto category, List<ImageDto> images, Double minPrice, Double maxPrice, Double avgRating) {
+        super(id, name, description, category, images, minPrice, maxPrice, avgRating);
+    }
+
     private List<ProductItemDtoLazy> productItems;
 
 }
