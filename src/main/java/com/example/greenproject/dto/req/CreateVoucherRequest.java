@@ -1,7 +1,6 @@
 package com.example.greenproject.dto.req;
 
 
-import com.example.greenproject.dto.req_abstract.VoucherRequestInterface;
 import com.example.greenproject.model.enums.VoucherType;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class CreateVoucherRequest implements VoucherRequestInterface {
+public class CreateVoucherRequest  {
     @NotNull(message = "Tên không được để trống")
     @Size(min = 3, max = 100, message = "Tên phải có độ dài từ 3 đến 100 ký tự")
     private String name;

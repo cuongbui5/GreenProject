@@ -1,6 +1,7 @@
 package com.example.greenproject.repository;
 
 import com.example.greenproject.model.ProductItem;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +15,4 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
     Page<ProductItem> findByProductId(Long productId, Pageable pageable);
 
     Page<ProductItem> findByProductNameContainingIgnoreCase(String productName, Pageable pageable);
-
-    @Query("SELECT * FROM product_items")
-    Page<ProductItem> getAllProductOrderByPrice();
 }

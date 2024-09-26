@@ -20,7 +20,6 @@ public class CartService {
     public Cart getOrCreateCart () {
         UserInfo userInfo = Utils.getUserInfoFromContext();
 
-        // Kiểm tra xem người dùng đã đăng nhập hay chưa
         if (userInfo == null) {
             throw new RuntimeException("Please log in first!");
         }
