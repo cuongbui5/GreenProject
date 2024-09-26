@@ -7,6 +7,7 @@ import com.example.greenproject.dto.req.UpdateProductRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.ProductDto;
 import com.example.greenproject.dto.res.ProductDtoView;
+import com.example.greenproject.dto.res.ProductItemDto;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,14 +35,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-    private final ProductItemRepository productItemRepository;
     private final CategoryRepository categoryRepository;
-    public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId) {
+    public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId,Boolean view) {
+        System.out.println(pageSize);
         if(pageNum==null || pageSize==null){
             return getAllProduct();
         }
+
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
         Page<Product> products = null;
+
         
         if(search==null&&categoryId==null){
             products = productRepository.findAll(pageable);
@@ -62,20 +66,34 @@ public class ProductService {
         }
 
 
-        List<ProductDto> productDtos = products.getContent().stream().map(Product::mapToProductDto).toList();
+
+        if(view){
+            return new PaginatedResponse<>(
+                    products.getContent().stream().map(Product::mapToProductDtoView).toList(),
+                    products.getTotalPages(),
+                    products.getNumber()+1,
+                    products.getTotalElements()
+            );
+        }
+
         return new PaginatedResponse<>(
-                productDtos,
+                products.getContent().stream().map(Product::mapToProductDto).toList(),
                 products.getTotalPages(),
                 products.getNumber()+1,
                 products.getTotalElements()
         );
     }
 
-    private List<Product> sortProductByPrice(){
-        // Sắp xếp sản phẩm theo giá
-        List<ProductItem> productItems = productItemRepository.findAll();
+    public Object getAllSortedProductItems(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
+        Page<Product> products = productRepository.findAllProductsOrderByLowestPrice(pageable);
 
-        return productItems.stream().map(ProductItem::getProduct).toList();
+        return new PaginatedResponse<>(
+                products.getContent().stream().map(Product::mapToProductDtoView).toList(),
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
     }
 
     public Object getAllRelatedProduct(Integer pageNum, Integer pageSize,Long categoryId){
@@ -108,7 +126,6 @@ public class ProductService {
 
     public PaginatedResponse<ProductDtoView> getProductItemByTopSold(Integer pageNum,Integer pageSize){
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
-        // Lấy danh sách tất cả sản phẩm bán được nhiều nhất
         Page<Product> products= productRepository.findByTopSold(pageable);
 
         List<ProductDtoView> productDtoViews = products.stream().map(Product::mapToProductDtoView).toList();
@@ -232,4 +249,6 @@ public class ProductService {
         Product product=productRepository.findById(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
         return product.mapToProductDtoWithDetails();
     }
+
+
 }

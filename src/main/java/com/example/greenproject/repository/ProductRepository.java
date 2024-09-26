@@ -21,4 +21,9 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     @Query("SELECT p FROM Product p JOIN p.productItems pi GROUP BY p.id ORDER BY SUM(pi.sold) DESC")
     Page<Product> findByTopSold(Pageable pageable);
+
+
+    @Query("SELECT p FROM Product p JOIN p.productItems pi GROUP BY p.id ORDER BY MIN(pi.price) ASC")
+    Page<Product> findAllProductsOrderByLowestPrice(Pageable pageable);
+
 }

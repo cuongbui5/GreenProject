@@ -25,9 +25,10 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<?> getAllProducts(@RequestParam(value = "pageNum",required = false) Integer pageNum,
-                                              @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                              @RequestParam(value = "search",required = false) String search,
-                                              @RequestParam(value = "categoryId",required = false) Long categoryId){
+                                            @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                            @RequestParam(value = "search",required = false) String search,
+                                            @RequestParam(value = "categoryId",required = false) Long categoryId,
+                                            @RequestParam(value = "view",required = false) Boolean view){
 
 
 
@@ -35,7 +36,7 @@ public class ProductController {
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllProduct(pageNum,pageSize,search,categoryId)));
+                        productService.getAllProduct(pageNum,pageSize,search,categoryId,view)));
     }
 
     @GetMapping("/view")
@@ -104,6 +105,17 @@ public class ProductController {
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
                         productService.getProductItemByTopSold(pageNum,pageSize)));
+    }
+
+    @GetMapping("/sort")
+    public ResponseEntity<?> getAllSortedProduct(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
+                                                 @RequestParam(value = "pageSize",required = false,defaultValue = "50") Integer pageSize){
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        productService.getAllSortedProductItems(pageNum,pageSize)));
     }
 
 
