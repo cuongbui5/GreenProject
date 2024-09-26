@@ -31,8 +31,6 @@ public class ProductItem extends BaseEntity{
     private Integer reviewsCount=0;
     private Integer totalRating=0;
 
-    @Version
-    private Long version;
     @ManyToMany()
     @JoinTable(name = "_product_configuration",
             joinColumns = @JoinColumn(name = "product_item_id",

@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.ReviewDto;
 import com.example.greenproject.model.pk.ReviewId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -23,4 +24,13 @@ public class Review extends BaseEntity{
     @Max(value = 5, message = "Rating must be at most 5")
     private int rating;
 
+    public ReviewDto mapToReviewDto(){
+        ReviewDto reviewDto = new ReviewDto();
+        reviewDto.setUser(id.getUser().mapToUserDtoLazy());
+        reviewDto.setRating(rating);
+        reviewDto.setContent(content);
+        reviewDto.setProductItemId(id.getProductItem().getId());
+        reviewDto.setUpdatedAt(getUpdatedAt());
+        return reviewDto;
+    }
 }

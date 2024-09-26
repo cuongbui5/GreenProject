@@ -12,16 +12,11 @@ import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 
 import com.example.greenproject.model.Product;
-import com.example.greenproject.model.ProductItem;
 import com.example.greenproject.repository.CategoryRepository;
-import com.example.greenproject.repository.ProductItemRepository;
 import com.example.greenproject.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.*;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -249,6 +244,4 @@ public class ProductService {
         Product product=productRepository.findById(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
         return product.mapToProductDtoWithDetails();
     }
-
-
 }

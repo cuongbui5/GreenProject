@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.UserDtoLazy;
 import com.example.greenproject.model.enums.UserType;
 import com.example.greenproject.utils.Constants;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -56,5 +57,13 @@ public class User extends BaseEntity {
         this.email = this.email.trim();
 
 
+    }
+
+    public UserDtoLazy mapToUserDtoLazy(){
+        UserDtoLazy userDtoLazy = new UserDtoLazy();
+        userDtoLazy.setId(id);
+        userDtoLazy.setUsername(username);
+        userDtoLazy.setImageUrl(imgUrl);
+        return userDtoLazy;
     }
 }
