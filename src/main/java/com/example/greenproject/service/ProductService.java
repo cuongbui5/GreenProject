@@ -11,7 +11,9 @@ import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 
 import com.example.greenproject.model.Product;
+import com.example.greenproject.model.ProductItem;
 import com.example.greenproject.repository.CategoryRepository;
+import com.example.greenproject.repository.ProductItemRepository;
 import com.example.greenproject.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +33,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductItemRepository productItemRepository;
     private final CategoryRepository categoryRepository;
     public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId) {
         if(pageNum==null || pageSize==null){
@@ -65,6 +69,13 @@ public class ProductService {
                 products.getNumber()+1,
                 products.getTotalElements()
         );
+    }
+
+    private List<Product> sortProductByPrice(){
+        // Sắp xếp sản phẩm theo giá
+        List<ProductItem> productItems = productItemRepository.findAll();
+
+        return productItems.stream().map(ProductItem::getProduct).toList();
     }
 
     public Object getAllRelatedProduct(Integer pageNum, Integer pageSize,Long categoryId){

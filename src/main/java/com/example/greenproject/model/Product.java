@@ -31,9 +31,6 @@ public class Product extends BaseEntity{
     @OneToMany(mappedBy = "product")
     private List<ProductItem> productItems;
 
-
-
-
     public ProductDto mapToProductDto() {
         ProductDto productDto=new ProductDto();
         if(category!=null){
