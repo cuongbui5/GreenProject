@@ -25,9 +25,10 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<?> getAllProducts(@RequestParam(value = "pageNum",required = false) Integer pageNum,
-                                              @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                              @RequestParam(value = "search",required = false) String search,
-                                              @RequestParam(value = "categoryId",required = false) Long categoryId){
+                                            @RequestParam(value = "pageSize",required = false) Integer pageSize,
+                                            @RequestParam(value = "search",required = false) String search,
+                                            @RequestParam(value = "categoryId",required = false) Long categoryId,
+                                            @RequestParam(value = "view",required = false) Boolean view){
 
 
 
@@ -35,7 +36,7 @@ public class ProductController {
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllProduct(pageNum,pageSize,search,categoryId)));
+                        productService.getAllProduct(pageNum,pageSize,search,categoryId,view)));
     }
 
     @GetMapping("/view")

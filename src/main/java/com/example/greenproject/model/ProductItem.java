@@ -33,7 +33,7 @@ public class ProductItem extends BaseEntity{
 
     @Version
     private Long version;
-    @ManyToMany
+    @ManyToMany()
     @JoinTable(name = "_product_configuration",
             joinColumns = @JoinColumn(name = "product_item_id",
                     referencedColumnName = "id"),
