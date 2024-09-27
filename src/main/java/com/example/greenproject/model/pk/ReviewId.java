@@ -1,15 +1,12 @@
 package com.example.greenproject.model.pk;
 
-import com.example.greenproject.model.Product;
 import com.example.greenproject.model.ProductItem;
 import com.example.greenproject.model.User;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
-
 import java.io.Serializable;
-import java.util.Objects;
 
 @Embeddable
 @Setter

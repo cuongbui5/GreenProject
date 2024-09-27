@@ -4,8 +4,6 @@ import com.example.greenproject.dto.res.VoucherDto;
 import com.example.greenproject.model.enums.VoucherType;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Entity

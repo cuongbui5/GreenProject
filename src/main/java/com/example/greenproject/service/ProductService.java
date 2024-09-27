@@ -7,21 +7,15 @@ import com.example.greenproject.dto.req.UpdateProductRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.ProductDto;
 import com.example.greenproject.dto.res.ProductDtoView;
-import com.example.greenproject.dto.res.ProductItemDto;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
-
 import com.example.greenproject.model.Product;
 import com.example.greenproject.repository.CategoryRepository;
 import com.example.greenproject.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
-
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
