@@ -28,7 +28,7 @@ public class ProductItem extends BaseEntity{
     private Integer reviewsCount=0;
     private Integer totalRating=0;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "_product_configuration",
             joinColumns = @JoinColumn(name = "product_item_id",
                     referencedColumnName = "id"),

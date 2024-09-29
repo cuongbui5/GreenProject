@@ -17,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Review extends BaseEntity{
-    @Id
+    @EmbeddedId
     private ReviewId id;
     private String content;
     @Min(value = 1, message = "Rating must be at least 1")

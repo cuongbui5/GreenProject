@@ -50,7 +50,7 @@ public class ProductController {
     }
 
     @GetMapping("/related_product")
-    public ResponseEntity<?> getAllRelatedProduct(@RequestParam(value = "pageNum",required = false) Integer pageNum,
+    public ResponseEntity<?> getProductByCategoryId(@RequestParam(value = "pageNum",required = false) Integer pageNum,
                                                   @RequestParam(value = "pageSize",required = false) Integer pageSize,
                                                   @RequestParam(value = "categoryId",required = false) Long categoryId){
         return  ResponseEntity.status(HttpStatus.OK)

@@ -9,6 +9,7 @@ import com.example.greenproject.model.User;
 import com.example.greenproject.model.pk.ReviewId;
 import com.example.greenproject.repository.ProductItemRepository;
 import com.example.greenproject.repository.ReviewRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ public class ReviewService {
     private final ProductItemRepository productItemRepository;
     private final UserService userService;
 
+    @Transactional
     public Object getReviewByProductId(Long productItemId,Integer pageNum, Integer pageSize){
         Pageable pageable = PageRequest.of(pageNum-1,pageSize,Sort.by(Sort.Direction.DESC, "updatedAt"));
         Page<Review> reviews = reviewRepository.findByIdProductItemId(productItemId,pageable);
