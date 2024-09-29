@@ -51,7 +51,7 @@ public class ProductController {
                         productService.getAllProductsView(pageNum,pageSize)));
     }
 
-    @GetMapping("/related_product")
+    /*@GetMapping("/related_product")
     public ResponseEntity<?> getAllRelatedProduct(@RequestParam(value = "pageNum",required = false) Integer pageNum,
                                                   @RequestParam(value = "pageSize",required = false) Integer pageSize,
                                                   @RequestParam(value = "categoryId",required = false) Long categoryId){
@@ -60,7 +60,7 @@ public class ProductController {
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
                         productService.getAllRelatedProduct(pageNum,pageSize,categoryId)));
-    }
+    }*/
 
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductViews(@PathVariable Long productId){
@@ -94,7 +94,7 @@ public class ProductController {
                         productService.createProduct(createProductRequest)));
     }
 
-    @GetMapping("/top_sold")
+    /*@GetMapping("/top_sold")
     public ResponseEntity<?> getProductItemByTopSold(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
                                                      @RequestParam(value = "pageSize",required = false,defaultValue = "8") Integer pageSize){
 
@@ -115,7 +115,7 @@ public class ProductController {
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
                         productService.getAllSortedProductItems(pageNum,pageSize)));
-    }
+    }*/
 
 
     @DeleteMapping("/delete/{id}")
