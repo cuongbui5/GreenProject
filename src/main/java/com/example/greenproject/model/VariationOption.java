@@ -20,11 +20,11 @@ public class VariationOption extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "variation_id",referencedColumnName = "id")
     private Variation variation;
     private String value;
-    @ManyToMany(mappedBy = "variationOptions",fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "variationOptions",fetch = FetchType.EAGER)
     private Set<ProductItem> productItems = new HashSet<>();
 
 

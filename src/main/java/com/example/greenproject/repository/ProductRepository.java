@@ -16,17 +16,11 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
     @EntityGraph(attributePaths = {"category"})
     List<Product> findAll();
-    Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
     Optional<Product> findByName(String name);
     @Query("SELECT p FROM Product p WHERE p.category.id IN :categoryIds")
     Page<Product> findByCategoryIds(@Param("categoryIds") List<Long> categoryIds,Pageable pageable);
     @Query("SELECT p FROM Product p WHERE p.name LIKE %:search% AND p.category.id IN :categoryIds")
     Page<Product> findBySearchAndCategoryIds(@Param("search") String search, @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
 
-    @Query("SELECT p FROM Product p JOIN p.productItems pi GROUP BY p.id ORDER BY SUM(pi.sold) DESC")
-    Page<Product> findByTopSold(Pageable pageable);
-
-    @Query("SELECT p FROM Product p JOIN p.productItems pi GROUP BY p.id ORDER BY MIN(pi.price) ASC")
-    Page<Product> findAllProductsOrderByLowestPrice(Pageable pageable);
 
 }

@@ -25,12 +25,12 @@ public class Variation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
     private String name;
 
-    @OneToMany(mappedBy = "variation",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "variation",fetch = FetchType.EAGER)
     private Set<VariationOption> variationOptions;
 
     @PrePersist

@@ -27,8 +27,7 @@ public class ProductController {
     public ResponseEntity<?> getAllProducts(@RequestParam(value = "pageNum",required = false) Integer pageNum,
                                             @RequestParam(value = "pageSize",required = false) Integer pageSize,
                                             @RequestParam(value = "search",required = false) String search,
-                                            @RequestParam(value = "categoryId",required = false) Long categoryId,
-                                            @RequestParam(value = "view",required = false) Boolean view){
+                                            @RequestParam(value = "categoryId",required = false) Long categoryId){
 
 
 
@@ -36,7 +35,7 @@ public class ProductController {
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllProduct(pageNum,pageSize,search,categoryId,view)));
+                        productService.getAllProduct(pageNum,pageSize,search,categoryId)));
     }
 
     @GetMapping("/view")
@@ -49,7 +48,7 @@ public class ProductController {
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllProductViews(pageNum,pageSize)));
+                        productService.getAllProductsView(pageNum,pageSize)));
     }
 
     @GetMapping("/related_product")
@@ -65,7 +64,6 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductViews(@PathVariable Long productId){
-
 
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -104,8 +102,9 @@ public class ProductController {
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getProductItemByTopSold(pageNum,pageSize)));
+                        productService.getProductsByTopSold(pageNum,pageSize)));
     }
+
 
     @GetMapping("/sort")
     public ResponseEntity<?> getAllSortedProduct(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
