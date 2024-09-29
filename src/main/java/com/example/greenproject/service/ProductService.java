@@ -11,6 +11,7 @@ import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.repository.CategoryRepository;
+import com.example.greenproject.repository.ProductDtoViewRepository;
 import com.example.greenproject.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,21 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductDtoViewRepository productDtoViewRepository;
 
-    public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId,Boolean view) {
+    public Object getAllProductsView(Integer pageNum, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
+        Page<ProductDtoView> products = productDtoViewRepository.findAll(pageable);
+
+        return new PaginatedResponse<>(
+                products.getContent(),
+                products.getTotalPages(),
+                products.getNumber()+1,
+                products.getTotalElements()
+        );
+    }
+
+    public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId) {
         System.out.println(pageSize);
         if(pageNum==null || pageSize==null){
             return getAllProduct();
@@ -60,14 +74,6 @@ public class ProductService {
 
 
 
-        if(view){
-            return new PaginatedResponse<>(
-                    products.getContent().stream().map(Product::mapToProductDtoView).toList(),
-                    products.getTotalPages(),
-                    products.getNumber()+1,
-                    products.getTotalElements()
-            );
-        }
 
         return new PaginatedResponse<>(
                 products.getContent().stream().map(Product::mapToProductDto).toList(),
@@ -77,7 +83,7 @@ public class ProductService {
         );
     }
 
-    public Object getAllSortedProductItems(int pageNumber, int pageSize) {
+    /*public Object getAllSortedProductItems(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
         Page<Product> products = productRepository.findAllProductsOrderByLowestPrice(pageable);
 
@@ -87,9 +93,9 @@ public class ProductService {
                 products.getNumber()+1,
                 products.getTotalElements()
         );
-    }
+    }*/
 
-    public Object getAllRelatedProduct(Integer pageNum, Integer pageSize,Long categoryId){
+    /*public Object getAllRelatedProduct(Integer pageNum, Integer pageSize,Long categoryId){
         List<Long> categoryIds = new ArrayList<>();
         collectChildCategoryIds(categoryId, categoryIds);
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
@@ -107,7 +113,7 @@ public class ProductService {
                 products.getNumber()+1,
                 products.getTotalElements()
         );
-    }
+    }*/
 
     private Page<Product> searchProductByCategory(String search, Long categoryId, Pageable pageable) {
         List<Long> categoryIds = new ArrayList<>();
@@ -117,7 +123,7 @@ public class ProductService {
         return productRepository.findBySearchAndCategoryIds(search, categoryIds, pageable);
     }
 
-    public PaginatedResponse<ProductDtoView> getProductItemByTopSold(Integer pageNum,Integer pageSize){
+    /*public PaginatedResponse<ProductDtoView> getProductItemByTopSold(Integer pageNum,Integer pageSize){
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
         Page<Product> products= productRepository.findByTopSold(pageable);
 
@@ -128,7 +134,7 @@ public class ProductService {
                 products.getNumber()+1,
                 products.getTotalElements()
         );
-    }
+    }*/
 
 
     public Page<Product> getProductsByCategory(Long categoryId, Pageable pageable) {
@@ -217,16 +223,7 @@ public class ProductService {
     }
 
 
-    public Object getAllProductViews(Integer pageNum, Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<Product> products = productRepository.findAll(pageable);
-        return new PaginatedResponse<>(
-                products.stream().map(Product::mapToProductDtoView).toList(),
-                products.getTotalPages(),
-                products.getNumber()+1,
-                products.getTotalElements()
-        );
-    }
+
 
     public Object getProductById(Long productId) {
         Product product=productRepository.findById(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
