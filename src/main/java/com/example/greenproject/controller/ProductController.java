@@ -4,8 +4,6 @@ import com.example.greenproject.dto.req.CreateProductRequest;
 
 import com.example.greenproject.dto.req.UpdateProductRequest;
 import com.example.greenproject.dto.res.DataResponse;
-
-import com.example.greenproject.dto.res.ProductDtoView;
 import com.example.greenproject.service.ProductService;
 import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -38,6 +35,7 @@ public class ProductController {
                         productService.getAllProduct(pageNum,pageSize,search,categoryId)));
     }
 
+
     @GetMapping("/view")
     public ResponseEntity<?> getAllProductViews(@RequestParam(value = "pageNum") Integer pageNum,
                                             @RequestParam(value = "pageSize") Integer pageSize){
@@ -59,19 +57,19 @@ public class ProductController {
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllRelatedProduct(pageNum,pageSize,categoryId)));
+                        productService.getProductByCategoryId(pageNum,pageSize,categoryId)));
     }
 
     @GetMapping("/{productId}")
-    public ResponseEntity<?> getProductById(@PathVariable Long productId){
+    public ResponseEntity<?> getProductViews(@PathVariable Long productId){
+
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
                         productService.getProductById(productId)));
     }
-
-
 
 
 
