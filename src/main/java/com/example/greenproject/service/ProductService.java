@@ -30,9 +30,24 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductDtoViewRepository productDtoViewRepository;
 
-    public Object getAllProductsView(Integer pageNum, Integer pageSize){
+    public Object getAllProductsView(Integer pageNum, Integer pageSize,Long categoryId,String search){
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<ProductDtoView> products = productDtoViewRepository.findAll(pageable);
+        Page<ProductDtoView> products = null;
+        if(search==null&&categoryId==null){
+           products = productDtoViewRepository.findAll(pageable);
+        }
+
+        if(search==null&&categoryId!=null){
+            List<Long> categoryIds = new ArrayList<>();
+            collectChildCategoryIds(categoryId, categoryIds);
+            products=productDtoViewRepository.findByCategoryId(categoryIds,pageable);
+        }
+
+        if (search != null && categoryId == null) {
+            products = productDtoViewRepository.findByNameContainingIgnoreCase(search,pageable);
+        }
+
+
 
         return new PaginatedResponse<>(
                 products.getContent(),
@@ -80,9 +95,19 @@ public class ProductService {
         );
     }
 
-    public Object getAllSortedProductItems(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
-        Page<ProductDtoView> productDtoViews = productDtoViewRepository.findAllProductsOrderByLowestPrice(pageable);
+    public Object getAllSortedProductItems(int pageNumber, int pageSize, String option) {
+
+        Pageable pageable = switch (option) {
+            case "ascMinPrice" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("minPrice").ascending());
+            case "descMinPrice" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("minPrice").descending());
+            case "ascMaxPrice" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("maxPrice").ascending());
+            case "descMaxPrice" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("maxPrice").descending());
+            case "reviewCount" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("totalReviews").descending());
+            case "totalRating" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("totalRating").descending());
+            default -> PageRequest.of(pageNumber - 1, pageSize);
+        };
+
+        Page<ProductDtoView> productDtoViews = productDtoViewRepository.findAll(pageable);
 
         return new PaginatedResponse<>(
                 productDtoViews.getContent(),
@@ -93,7 +118,7 @@ public class ProductService {
     }
 
 
-    public Object getProductByCategoryId (Integer pageNum, Integer pageSize,Long categoryId){
+    public Object getProductsByCategoryId(Integer pageNum, Integer pageSize,Long categoryId){
         List<Long> categoryIds = new ArrayList<>();
         collectChildCategoryIds(categoryId, categoryIds);
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -22,42 +23,85 @@ public class ItemService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
     private final ProductItemRepository productItemRepository;
+
     public void createCartItem(CreateCartItemRequest createCartItemRequest) {
-        Optional<ProductItem> productItem=productItemRepository.findById(createCartItemRequest.getProductItemId());
-        if(productItem.isEmpty()){
-            throw new RuntimeException("not find productItem");
-        }
+        ProductItem productItem=productItemRepository.findById(createCartItemRequest.getProductItemId())
+                .orElseThrow(()-> new RuntimeException("not find productItem"));
+
         Cart cart=cartService.getOrCreateCart();
-        if(cart.getItems().stream().map(Item::getProductItem).toList().contains(productItem.get())){
-            throw new RuntimeException("cart item already exist");
+        List<Item> items= itemRepository.findByCart(cart);
+        if(!items.isEmpty()){
+            for (Item item : items) {
+                if(Objects.equals(item.getProductItem().getId(), productItem.getId())){
+                    throw new RuntimeException("san pham da co trong gio hang");
+                }
+            }
+
         }
+
+
         Item item = new Item();
         item.setCart(cart);
         item.setStatus(ItemStatus.CART_ITEM);
         item.setQuantity(createCartItemRequest.getQuantity());
-        item.setProductItem(productItem.get());
-        item.setTotalPrice(productItem.get().getPrice()*createCartItemRequest.getQuantity());
+        item.setProductItem(productItem);
+        item.setTotalPrice(productItem.getPrice()*createCartItemRequest.getQuantity());
         itemRepository.save(item);
     }
-    public Item createOrderItem(CreateOrderItemRequest createOrderItemRequest) {
-        Item item = new Item();
-        Optional<Order> orderOptional= orderRepository.findById(createOrderItemRequest.getOrderId());
-        if(orderOptional.isEmpty()){
-            throw new RuntimeException("not find order");
-        }
+    public Item createItem(Long productItemId, Integer quantity) {
+        ProductItem productItem = productItemRepository.findById(productItemId)
+                .orElseThrow(() -> new RuntimeException("Product item not found"));
+        Item item=new Item();
+        double totalPriceProduct = calculateTotalPrice(productItem.getPrice(), quantity);
+        item.setProductItem(productItem);
+        item.setTotalPrice(totalPriceProduct);
+        item.setQuantity(quantity);
+        return itemRepository.save(item);
 
-        Optional<ProductItem> productItem=productItemRepository.findById(createOrderItemRequest.getProductItemId());
-        if(productItem.isEmpty()){
-            throw new RuntimeException("not find productItem");
-        }
-        item.setOrder(orderOptional.get());
+
+    }
+
+    public void createOrderItem(CreateOrderItemRequest createOrderItemRequest) {
+        Order order = orderRepository.findById(createOrderItemRequest.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        ProductItem productItem = productItemRepository.findById(createOrderItemRequest.getProductItemId())
+                .orElseThrow(() -> new RuntimeException("Product item not found"));
+
+        // Tính toán giá
+        double totalPriceProduct = calculateTotalPrice(productItem.getPrice(), createOrderItemRequest.getQuantity());
+        double shippingPrice = calculateShippingPrice(totalPriceProduct);
+        double finalPrice = calculateFinalPrice(totalPriceProduct, shippingPrice);
+
+        // Tạo Item
+        Item item = new Item();
+        item.setOrder(order);
         item.setStatus(ItemStatus.ORDER_ITEM);
         item.setQuantity(createOrderItemRequest.getQuantity());
-        item.setProductItem(productItem.get());
-        item.setTotalPrice(productItem.get().getPrice()*createOrderItemRequest.getQuantity());
+        item.setProductItem(productItem);
+        item.setTotalPrice(totalPriceProduct);
+        itemRepository.save(item);
 
-        return itemRepository.save(item);
+        // Cộng dồn giá trị cho Order
+        order.setShippingCost(order.getShippingCost() + shippingPrice);
+        order.setProductTotalCost(order.getProductTotalCost() + totalPriceProduct);
+        order.setTotalCost(order.getTotalCost() + finalPrice);
+        orderRepository.save(order);
     }
+
+    // Tách logic tính toán
+    private double calculateTotalPrice(double price, int quantity) {
+        return price * quantity;
+    }
+
+    private double calculateShippingPrice(double totalPriceProduct) {
+        return totalPriceProduct * 0.1;
+    }
+
+    private double calculateFinalPrice(double totalPriceProduct, double shippingPrice) {
+        return totalPriceProduct + shippingPrice;
+    }
+
     public void deleteCartItem(Long id){
         itemRepository.deleteById(id);
     }

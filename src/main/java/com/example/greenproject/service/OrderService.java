@@ -1,6 +1,7 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.CreateOrderRequest;
+import com.example.greenproject.dto.req.CreateOrderRequestWithProductItem;
 import com.example.greenproject.dto.req.CreatePaymentRequest;
 import com.example.greenproject.dto.req.UpdateOrderRequest;
 import com.example.greenproject.exception.NotFoundException;
@@ -25,7 +26,8 @@ public class OrderService {
     private final CartService cartService;
     private final ProductItemRepository productItemRepository;
     private final PaymentAccountRepository paymentAccountRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final ItemService itemService;
     @Transactional
     public Order createOrderByCart() {
         Cart cart=cartService.getOrCreateCart();
@@ -66,6 +68,17 @@ public class OrderService {
 
         return savedOrder;
 
+    }
+
+    public Order createEmptyOrder() {
+        Order order = new Order();
+        order.setStatus(OrderStatus.INIT);
+        order.setUser(userService.getUserInfo());
+        order.setProductTotalCost(0.0);
+        order.setShippingCost(0.0);
+        order.setTotalCost(0.0);
+        order.setPaid(false);
+        return orderRepository.save(order);
     }
 
     public Order updateOrder(long orderId, UpdateOrderRequest updateOrderRequest) {
@@ -178,6 +191,31 @@ public class OrderService {
 
         order.setPaid(true);
         order.setStatus(OrderStatus.PENDING);
+        return order;
+    }
+
+    public Object createOrderByProductItem(CreateOrderRequestWithProductItem createOrderRequestWithProductItem) {
+        Item item = itemService.createItem(createOrderRequestWithProductItem.getProductItemId(), createOrderRequestWithProductItem.getQuantity());
+        item.setStatus(ItemStatus.ORDER_ITEM);
+
+        // Tính toán tổng giá
+        double productTotalCost = item.getTotalPrice();
+        double shippingCost = productTotalCost * 0.1;
+        double totalCost = productTotalCost + shippingCost;
+
+        // Tạo Order
+        Order order = new Order();
+        order.setProductTotalCost(productTotalCost);
+        order.setShippingCost(shippingCost);
+        order.setTotalCost(totalCost);
+        order.setPaid(false);
+        order.setStatus(OrderStatus.INIT);
+
+        // Lưu Order và Item
+        order = orderRepository.save(order);
+        item.setOrder(order); // Gán item cho order
+        itemRepository.save(item); // Lưu item sau khi đã gán order
+
         return order;
     }
 }

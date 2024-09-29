@@ -38,7 +38,9 @@ public class ProductController {
 
     @GetMapping("/view")
     public ResponseEntity<?> getAllProductViews(@RequestParam(value = "pageNum") Integer pageNum,
-                                            @RequestParam(value = "pageSize") Integer pageSize){
+                                                @RequestParam(value = "pageSize") Integer pageSize,
+                                                @RequestParam(value = "categoryId",required = false) Long categoryId,
+                                                @RequestParam(value = "search",required = false) String search){
 
 
 
@@ -46,19 +48,10 @@ public class ProductController {
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllProductsView(pageNum,pageSize)));
+                        productService.getAllProductsView(pageNum,pageSize,categoryId,search)));
     }
 
-    @GetMapping("/related_product")
-    public ResponseEntity<?> getProductByCategoryId(@RequestParam(value = "pageNum",required = false) Integer pageNum,
-                                                  @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                                  @RequestParam(value = "categoryId",required = false) Long categoryId){
-        return  ResponseEntity.status(HttpStatus.OK)
-                .body(new DataResponse(
-                        HttpStatus.OK.value(),
-                        Constants.SUCCESS_MESSAGE,
-                        productService.getProductByCategoryId(pageNum,pageSize,categoryId)));
-    }
+
 
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductViews(@PathVariable Long productId){
@@ -106,13 +99,14 @@ public class ProductController {
 
     @GetMapping("/sort")
     public ResponseEntity<?> getAllSortedProduct(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
-                                                 @RequestParam(value = "pageSize",required = false,defaultValue = "50") Integer pageSize){
+                                                 @RequestParam(value = "pageSize",required = false,defaultValue = "50") Integer pageSize,
+                                                 @RequestParam(value = "option",required = false,defaultValue = "+minPrice") String option){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllSortedProductItems(pageNum,pageSize)));
+                        productService.getAllSortedProductItems(pageNum,pageSize,option)));
     }
 
 

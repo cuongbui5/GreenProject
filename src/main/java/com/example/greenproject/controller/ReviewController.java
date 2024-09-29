@@ -30,6 +30,16 @@ public class ReviewController {
                 ));
     }
 
+    @GetMapping("/product_item/{productItemId}")
+    public ResponseEntity<?> getReviewById(@PathVariable("productItemId") Long productItemId){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        reviewService.getReviewByReviewId(productItemId)
+                ));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createReview(@RequestBody @Valid ReviewRequest reviewRequest){
         return ResponseEntity.status(HttpStatus.CREATED)
