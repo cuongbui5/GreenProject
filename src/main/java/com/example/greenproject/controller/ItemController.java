@@ -1,6 +1,7 @@
 package com.example.greenproject.controller;
 
 import com.example.greenproject.dto.req.CreateCartItemRequest;
+import com.example.greenproject.dto.req.CreateOrderItemRequest;
 import com.example.greenproject.dto.req.UpdateCartQuantity;
 import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
@@ -23,6 +24,15 @@ public class ItemController {
                 HttpStatus.OK.value(),
                 Constants.SUCCESS_MESSAGE
 
+        ));
+    }
+
+    @PostMapping("/create-orderItem")
+    public ResponseEntity<?> createOrderItem(@RequestBody CreateOrderItemRequest createOrderItemRequest){
+        itemService.createOrderItem(createOrderItemRequest);
+        return ResponseEntity.ok().body(new BaseResponse(
+                HttpStatus.OK.value(),
+                Constants.SUCCESS_MESSAGE
         ));
     }
     @GetMapping("/my-cart")

@@ -14,6 +14,7 @@ import java.util.List;
 public interface ProductDtoViewRepository extends JpaRepository<ProductDtoView, Long> {
 
     Page<ProductDtoView> findAll(Pageable pageable);
+    Page<ProductDtoView> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     @Query(value = "SELECT * FROM product_dto_view psv ORDER BY psv.sold DESC",nativeQuery = true)
     Page<ProductDtoView> findByTopSold(Pageable pageable);

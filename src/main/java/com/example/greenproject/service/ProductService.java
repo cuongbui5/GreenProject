@@ -30,9 +30,24 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductDtoViewRepository productDtoViewRepository;
 
-    public Object getAllProductsView(Integer pageNum, Integer pageSize){
+    public Object getAllProductsView(Integer pageNum, Integer pageSize,Long categoryId,String search){
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<ProductDtoView> products = productDtoViewRepository.findAll(pageable);
+        Page<ProductDtoView> products = null;
+        if(search==null&&categoryId==null){
+           products = productDtoViewRepository.findAll(pageable);
+        }
+
+        if(search==null&&categoryId!=null){
+            List<Long> categoryIds = new ArrayList<>();
+            collectChildCategoryIds(categoryId, categoryIds);
+            products=productDtoViewRepository.findByCategoryId(categoryIds,pageable);
+        }
+
+        if (search != null && categoryId == null) {
+            products = productDtoViewRepository.findByNameContainingIgnoreCase(search,pageable);
+        }
+
+
 
         return new PaginatedResponse<>(
                 products.getContent(),
@@ -93,7 +108,7 @@ public class ProductService {
     }
 
 
-    public Object getProductByCategoryId (Integer pageNum, Integer pageSize,Long categoryId){
+    public Object getProductsByCategoryId(Integer pageNum, Integer pageSize,Long categoryId){
         List<Long> categoryIds = new ArrayList<>();
         collectChildCategoryIds(categoryId, categoryIds);
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
