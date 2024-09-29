@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -93,7 +92,8 @@ public class ProductService {
         );
     }
 
-    public Object getAllRelatedProduct(Integer pageNum, Integer pageSize,Long categoryId){
+
+    public Object getProductByCategoryId (Integer pageNum, Integer pageSize,Long categoryId){
         List<Long> categoryIds = new ArrayList<>();
         collectChildCategoryIds(categoryId, categoryIds);
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
