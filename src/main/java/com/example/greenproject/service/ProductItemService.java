@@ -137,4 +137,8 @@ public class ProductItemService {
     public void deleteProductItem(Long id){
         productItemRepository.deleteById(id);
     }
+
+    public Object getAllProductItemsByProductId(Long productId) {
+        return productItemRepository.findByProductId(productId).stream().map(ProductItem::mapToProductItemDtoDetail).toList();
+    }
 }

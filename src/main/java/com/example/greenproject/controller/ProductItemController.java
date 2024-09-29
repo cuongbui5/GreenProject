@@ -19,6 +19,17 @@ import java.util.List;
 public class ProductItemController {
     private final ProductItemService productItemService;
 
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<?> getAllItemByProductId(@PathVariable Long productId){
+        return ResponseEntity.ok().body(
+                new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        productItemService.getAllProductItemsByProductId(productId)
+                )
+        );
+    }
+
 
 
     @GetMapping

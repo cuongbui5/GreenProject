@@ -22,5 +22,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Query("SELECT p FROM Product p WHERE p.name LIKE %:search% AND p.category.id IN :categoryIds")
     Page<Product> findBySearchAndCategoryIds(@Param("search") String search, @Param("categoryIds") List<Long> categoryIds, Pageable pageable);
 
-
+    @EntityGraph(attributePaths = {"category", "images"})
+    @Query("SELECT p FROM Product p WHERE p.id = :productId")
+    Optional<Product> findByProductId(Long productId);
 }

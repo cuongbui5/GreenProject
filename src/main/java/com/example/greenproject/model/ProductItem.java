@@ -1,7 +1,5 @@
 package com.example.greenproject.model;
-import com.example.greenproject.dto.res.ProductItemDto;
-import com.example.greenproject.dto.res.ProductItemDtoLazy;
-import com.example.greenproject.dto.res.VariationOptionDtoLazy;
+import com.example.greenproject.dto.res.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -50,6 +48,25 @@ public class ProductItem extends BaseEntity{
         return dto;
     }
 
+    public ProductItemDtoDetail mapToProductItemDtoDetail(){
+        ProductItemDtoDetail dto = new ProductItemDtoDetail();
+        dto.setId(id);
+        dto.setQuantity(quantity);
+        dto.setPrice(price);
+        dto.setSold(sold);
+        dto.setTotalRating(totalRating);
+        dto.setReviewCount(reviewsCount);
+        if(!variationOptions.isEmpty()){
+            Set<VariationOptionDto> dtoSet=new HashSet<>();
+            variationOptions.forEach(variationOptionDto -> {
+                dtoSet.add(variationOptionDto.mapToVariationOptionDto());
+            });
+            dto.setVariationOptions(dtoSet);
+        }
+
+        return dto;
+    }
+
     public ProductItemDto mapToProductItemDto(){
         ProductItemDto dto=new ProductItemDto();
         dto.setId(id);
@@ -63,14 +80,6 @@ public class ProductItem extends BaseEntity{
         if(product!=null){
             dto.setProduct(product.mapToProductDtoLazy());
         }
-        /*if(variationOptions!=null){
-            Set<VariationOptionDtoLazy> set=new HashSet<>();
-            variationOptions.forEach(v->{
-                set.add(v.mapToVariationOptionDtoLazy());
-            });
-
-            dto.setVariationOptions(set);
-        }*/
         return dto;
 
     }

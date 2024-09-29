@@ -15,8 +15,8 @@ public class ProductDto {
     private String name;
     private String description;
     private CategoryDtoLazy category;
+    private List<ImageDto> images;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
-    private List<ImageDto> images;
 
 }

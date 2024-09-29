@@ -36,6 +36,9 @@ public class Product extends BaseEntity{
         if(category!=null){
             productDto.setCategory(category.mapToCategoryDtoLazy());
         }
+        if(images!=null){
+            productDto.setImages(images.stream().map(Image::mapToImageDto).toList());
+        }
         productDto.setId(id);
         productDto.setName(name);
         productDto.setDescription(description);
@@ -48,20 +51,6 @@ public class Product extends BaseEntity{
         return new ProductDtoLazy(id,name);
     }
 
-    public ProductDtoWithDetails mapToProductDtoWithDetails() {
-        List<ImageDto> imageDtos = images != null ? images.stream()
-                .map(Image::mapToImageDto)
-                .toList() : new ArrayList<>();
-
-        ProductDtoWithDetails dto=new ProductDtoWithDetails(id,name,description,category.mapToCategoryDtoLazy(),getCreatedAt(),getUpdatedAt(),imageDtos);
-
-        if(productItems!=null){
-            dto.setProductItems(productItems.stream().map(ProductItem::mapToProductItemDtoLazy).toList());
-
-        }
-        return dto;
-
-    }
 
 
 

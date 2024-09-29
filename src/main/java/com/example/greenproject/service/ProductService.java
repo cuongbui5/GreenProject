@@ -217,9 +217,9 @@ public class ProductService {
 
 
 
-    @Transactional
+
     public Object getProductById(Long productId) {
-        Product product=productRepository.findById(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
-        return product.mapToProductDtoWithDetails();
+        Product product=productRepository.findByProductId(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
+        return product.mapToProductDto();
     }
 }
