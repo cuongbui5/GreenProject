@@ -19,20 +19,15 @@ public class Voucher extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;// Tên của voucher
+    private String name;
     private String description;
     private Integer quantity;
     private Integer pointsRequired;
-
     @Enumerated(EnumType.STRING)
     private VoucherType type;
-
     private Double value;
-
     private ZonedDateTime startDate;
-
     private ZonedDateTime endDate;
-
     public VoucherDto mapToVoucherDto() {
         VoucherDto dto = new VoucherDto();
         dto.setId(id);

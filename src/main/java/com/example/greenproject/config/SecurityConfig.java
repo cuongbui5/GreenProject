@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> {
                             //a.requestMatchers("/admin/**").hasAuthority("ADMIN");
                             a.requestMatchers("/api/auth/**").permitAll();
-                            a.anyRequest().permitAll();
+                            a.anyRequest().authenticated();
                         }
                 )
                 .oauth2Login(oauth2->oauth2.successHandler(auth2LoginSuccessHandler)

@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 public class VariationOptionDto {
     private Long id;
     private String value;
-    private VariationDto variation;
+    private VariationDtoLazy variation;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 }

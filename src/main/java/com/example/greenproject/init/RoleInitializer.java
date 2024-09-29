@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class RoleInitializer {
-    @Bean
+    /*@Bean
     public CommandLineRunner initializeRoles(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             // Tạo role USER nếu chưa tồn tại
@@ -30,5 +30,5 @@ public class RoleInitializer {
                 roleRepository.save(role);
             }
         };
-    }
+    }*/
 }

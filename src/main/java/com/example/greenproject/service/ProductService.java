@@ -12,9 +12,12 @@ import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.repository.CategoryRepository;
 import com.example.greenproject.repository.ProductRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,7 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+
     public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId,Boolean view) {
         System.out.println(pageSize);
         if(pageNum==null || pageSize==null){
@@ -184,7 +188,7 @@ public class ProductService {
 
         return productRepository.save(newProduct).mapToProductDto();
     }
-
+    @Transactional
     public ProductDto updateProduct(Long productId,UpdateProductRequest updateProductRequest){
 
         Product product = productRepository.findById(productId).orElseThrow(()->new NotFoundException("Khong tim thay san pham"));
@@ -208,17 +212,7 @@ public class ProductService {
     }
 
     public void deleteProduct(Long id){
-        Optional<Product> product=productRepository.findById(id);
-        if(product.isPresent()){
-            if(!product.get().getProductItems().isEmpty()){
-                throw new RuntimeException("Sản phẩm này đang có nhiều sản phẩm chi tiet!");
-            }
 
-            if(!product.get().getImages().isEmpty()){
-                throw new RuntimeException("Sản phẩm này đang có nhiều anh!");
-            }
-
-        }
        productRepository.deleteById(id);
     }
 

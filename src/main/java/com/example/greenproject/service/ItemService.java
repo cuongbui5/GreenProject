@@ -22,19 +22,22 @@ public class ItemService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
     private final ProductItemRepository productItemRepository;
-    public Item createCartItem(CreateCartItemRequest createCartItemRequest) {
+    public void createCartItem(CreateCartItemRequest createCartItemRequest) {
         Optional<ProductItem> productItem=productItemRepository.findById(createCartItemRequest.getProductItemId());
         if(productItem.isEmpty()){
             throw new RuntimeException("not find productItem");
         }
         Cart cart=cartService.getOrCreateCart();
+        if(cart.getItems().stream().map(Item::getProductItem).toList().contains(productItem.get())){
+            throw new RuntimeException("cart item already exist");
+        }
         Item item = new Item();
         item.setCart(cart);
         item.setStatus(ItemStatus.CART_ITEM);
         item.setQuantity(createCartItemRequest.getQuantity());
         item.setProductItem(productItem.get());
         item.setTotalPrice(productItem.get().getPrice()*createCartItemRequest.getQuantity());
-        return itemRepository.save(item);
+        itemRepository.save(item);
     }
     public Item createOrderItem(CreateOrderItemRequest createOrderItemRequest) {
         Item item = new Item();

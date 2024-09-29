@@ -20,13 +20,13 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contact_id",referencedColumnName = "id")
     private Contact contact;
     @OneToMany(mappedBy = "order")
     private List<Item> items=new ArrayList<>();
     private boolean isPaid;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voucher_id",referencedColumnName = "id")
     private Voucher voucher;
     private Double productTotalCost;

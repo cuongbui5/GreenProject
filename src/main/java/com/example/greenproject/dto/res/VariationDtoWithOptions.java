@@ -4,9 +4,11 @@ import lombok.Data;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
+
 @Data
 public class VariationDtoWithOptions {
     private Long id;
     private String name;
-    private List<VariationOptionLazy> values;
+    private Set<VariationOptionDtoLazy> values;
 }

@@ -37,6 +37,16 @@ public class LazyJwtSecurityContextProvider implements SecurityContext {
             try {
                 System.out.println("Check token");
                 var jwtToken = SecurityUtils.getToken(this.request);
+                /*if(jwtToken == null) {
+                    ErrorResponse res = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),"Phien dang nhap het han");
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    OutputStream responseStream = response.getOutputStream();
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.writeValue(responseStream, res);
+                    responseStream.flush();
+
+                }*/
                 System.out.println(jwtToken);
                 var decodedJWT = SecurityUtils.validate(jwtToken);
                 UserInfo userInfo = SecurityUtils.getValueObject(decodedJWT);

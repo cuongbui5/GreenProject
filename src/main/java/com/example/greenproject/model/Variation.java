@@ -1,16 +1,15 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.VariationDto;
+import com.example.greenproject.dto.res.VariationDtoLazy;
 import com.example.greenproject.dto.res.VariationDtoWithOptions;
-import com.example.greenproject.dto.res.VariationOptionDto;
-import com.example.greenproject.dto.res.VariationOptionLazy;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.example.greenproject.dto.res.VariationOptionDtoLazy;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -31,15 +30,13 @@ public class Variation extends BaseEntity {
     private Category category;
     private String name;
 
-    @OneToMany(mappedBy = "variation")
+    @OneToMany(mappedBy = "variation",fetch = FetchType.LAZY)
     private Set<VariationOption> variationOptions;
 
     @PrePersist
     @PreUpdate
     public void trimData() {
         this.name = this.name.trim();
-
-
     }
 
     public VariationDtoWithOptions mapToVariationDtoWithOptions(){
@@ -47,12 +44,18 @@ public class Variation extends BaseEntity {
         dto.setId(id);
         dto.setName(name);
         if(variationOptions != null){
-            List<VariationOptionLazy> options = new ArrayList<>();
-            variationOptions.forEach(option -> {options.add(option.mapToVariationOptionLazy());});
-            dto.setValues(options);
+           Set<VariationOptionDtoLazy> set=new HashSet<>();
+           for(VariationOption option : variationOptions){
+               set.add(option.mapToVariationOptionDtoLazy());
+           }
+           dto.setValues(set);
 
         }
         return dto;
+    }
+
+    public VariationDtoLazy mapToVariationDtoLazy(){
+        return new VariationDtoLazy(id,name);
     }
 
     public VariationDto mapToVariationDto() {
@@ -62,7 +65,7 @@ public class Variation extends BaseEntity {
         variationDto.setCreatedAt(getCreatedAt());
         variationDto.setUpdatedAt(getUpdatedAt());
         if(category!=null){
-            variationDto.setCategory(category.mapToCategoryDto());
+            variationDto.setCategory(category.mapToCategoryDtoLazy());
         }
 
         return variationDto;

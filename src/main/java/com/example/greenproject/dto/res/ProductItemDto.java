@@ -7,18 +7,20 @@ import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
+
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
 public class ProductItemDto {
     private Long id;
-    private ProductDto product;
+    private ProductDtoLazy product;
     private int quantity;
     private Double price;
     private Integer sold;
     private Integer reviewCount;
     private Integer totalRating;
-    private List<VariationOptionDto> variationOptions;
+    private Set<VariationOptionDtoLazy> variationOptions;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 }

@@ -1,11 +1,8 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.CategoryDtoLazy;
 import com.example.greenproject.dto.res.CategoryDto;
-import com.example.greenproject.dto.res.CategoryDtoWithChild;
-import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.utils.Constants;
-import com.example.greenproject.utils.Utils;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
@@ -29,18 +26,10 @@ public class Category extends BaseEntity{
     private Long id;
     @NotEmpty(message = Constants.MESSAGE_EMPTY)
     private String name;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id",referencedColumnName = "id")
-    @JsonBackReference("parent_child")
     private Category parent;
-    @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
-    @JsonBackReference("parent_child")
-    private List<Category> children=new ArrayList<>();
 
-    @OneToMany(mappedBy = "category")
-    private List<Product> products=new ArrayList<>();
-    @OneToMany(mappedBy = "category")
-    private List<Variation> variations=new ArrayList<>();
 
     @PrePersist
     @PreUpdate
@@ -51,39 +40,28 @@ public class Category extends BaseEntity{
     }
 
 
-    public CategoryDto mapToCategoryDto(){
-        return new CategoryDto(id,name);
+    public CategoryDtoLazy mapToCategoryDtoLazy(){
+        return new CategoryDtoLazy(id,name);
     }
 
-    public CategoryDtoWithParent mapToCategoryDtoWithParent(){
-        CategoryDtoWithParent categoryDtoWithParent = new CategoryDtoWithParent();
-        categoryDtoWithParent.setId(id);
-        categoryDtoWithParent.setName(name);
-        categoryDtoWithParent.setCreatedAt(getCreatedAt());
-        categoryDtoWithParent.setUpdatedAt(getUpdatedAt());
+    public CategoryDto mapToCategoryDto(){
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setId(id);
+        categoryDto.setName(name);
+        categoryDto.setCreatedAt(getCreatedAt());
+        categoryDto.setUpdatedAt(getUpdatedAt());
         if(parent != null){
-            CategoryDtoWithParent parentDto=new CategoryDtoWithParent();
+            CategoryDto parentDto=new CategoryDto();
             parentDto.setId(parent.getId());
             parentDto.setName(parent.getName());
             parentDto.setCreatedAt(parent.getCreatedAt());
             parentDto.setUpdatedAt(parent.getUpdatedAt());
-            categoryDtoWithParent.setParent(parentDto);
+            categoryDto.setParent(parentDto);
         }
 
-        return categoryDtoWithParent;
+        return categoryDto;
     }
-    public CategoryDtoWithChild mapToCategoryDtoWithChild(){
-        CategoryDtoWithChild categoryDtoWithChild = new CategoryDtoWithChild();
-        categoryDtoWithChild.setId(id);
-        categoryDtoWithChild.setName(name);
-        if(children.isEmpty()){
-            categoryDtoWithChild.setChildren(null);
-        }else {
-            categoryDtoWithChild.setChildren(children.stream().map(Category::mapToCategoryDtoWithChild).toList());
-        }
 
-        return categoryDtoWithChild;
-    }
 
 
 

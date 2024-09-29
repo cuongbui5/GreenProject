@@ -1,13 +1,21 @@
 package com.example.greenproject.dto.res;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.ZonedDateTime;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class CategoryDto {
     private Long id;
     private String name;
+    private CategoryDto parent;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
+
+
+
+
 }

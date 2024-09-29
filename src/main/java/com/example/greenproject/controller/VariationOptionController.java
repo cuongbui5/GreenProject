@@ -33,22 +33,35 @@ public class VariationOptionController {
                         variationOptionService.getAllVariationOptions(pageNum,pageSize,search,variationId)));
     }
 
+    @GetMapping("/product_item/{productItemId}")
+    public ResponseEntity<?> getAllVariationOptions(@PathVariable Long productItemId){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        variationOptionService.getAllVariationsByProductItemId(productItemId)));
+    }
+
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateVariationOption(@PathVariable("id") Long variationId,@RequestBody UpdateVariationOptionRequest updateVariationOptionRequest){
 
         return ResponseEntity.status(HttpStatus.OK).
                 body(new DataResponse(
-                        HttpStatus.OK.value()
-                        ,Constants.SUCCESS_MESSAGE
-                        ,variationOptionService.updateVariationOptionById(variationId,updateVariationOptionRequest)
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        variationOptionService.updateVariationOptionById(variationId,updateVariationOptionRequest)
                 ));
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createVariationOption(@RequestBody CreateVariationOptionRequest createVariationOptionRequest){
-        variationOptionService.createVariationOption(createVariationOptionRequest);
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new BaseResponse(HttpStatus.CREATED.value(), Constants.SUCCESS_MESSAGE));
+                .body(new DataResponse(HttpStatus.CREATED.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        variationOptionService.createVariationOption(createVariationOptionRequest)
+                ));
     }
 
     @DeleteMapping("/delete/{id}")

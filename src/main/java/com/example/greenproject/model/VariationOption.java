@@ -1,11 +1,11 @@
 package com.example.greenproject.model;
 
-import com.example.greenproject.dto.res.VariationDto;
-import com.example.greenproject.dto.res.VariationDtoWithOptions;
-import com.example.greenproject.dto.res.VariationOptionDto;
-import com.example.greenproject.dto.res.VariationOptionLazy;
+import com.example.greenproject.dto.res.*;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "_variation_option", uniqueConstraints = {
@@ -20,14 +20,14 @@ public class VariationOption extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variation_id",referencedColumnName = "id")
     private Variation variation;
     private String value;
+    @ManyToMany(mappedBy = "variationOptions",fetch = FetchType.LAZY)
+    private Set<ProductItem> productItems = new HashSet<>();
 
-    public VariationOptionLazy mapToVariationOptionLazy(){
-        return new VariationOptionLazy(id,value);
-    }
+
 
     @PrePersist
     @PreUpdate
@@ -37,6 +37,7 @@ public class VariationOption extends BaseEntity{
 
     }
 
+
     public VariationOptionDto mapToVariationOptionDto() {
         VariationOptionDto dto = new VariationOptionDto();
         dto.setId(id);
@@ -44,8 +45,12 @@ public class VariationOption extends BaseEntity{
         dto.setCreatedAt(getCreatedAt());
         dto.setUpdatedAt(getUpdatedAt());
         if(variation != null) {
-            dto.setVariation(variation.mapToVariationDto());
+            dto.setVariation(variation.mapToVariationDtoLazy());
         }
         return dto;
+    }
+
+    public VariationOptionDtoLazy mapToVariationOptionDtoLazy() {
+        return new VariationOptionDtoLazy(id,value);
     }
 }

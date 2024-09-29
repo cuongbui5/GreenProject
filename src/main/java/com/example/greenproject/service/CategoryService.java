@@ -3,12 +3,11 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateCategoryRequest;
 import com.example.greenproject.dto.req.UpdateCategoryRequest;
 import com.example.greenproject.dto.res.CategoryDto;
-import com.example.greenproject.dto.res.CategoryDtoWithChild;
-import com.example.greenproject.dto.res.CategoryDtoWithParent;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Category;
 import com.example.greenproject.repository.CategoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,15 +16,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final RedisService redisService;
-    private static final String CATEGORY_KEY = "categories";
-    private static final long CACHE_TTL = 1;
+    //private final RedisService;
+    //private static final String CATEGORY_KEY = "categories";
+    //private static final long CACHE_TTL = 1;
+
 
 
     public Object getAllCategories(Integer pageNum, Integer pageSize, String search) {
@@ -49,8 +48,8 @@ public class CategoryService {
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
         Page<Category> categories = search != null ? searchCategory(search, pageable) : categoryRepository.findAll(pageable);
 
-        List<CategoryDtoWithParent> categoryDtoWithParents = categories.getContent().stream()
-                .map(Category::mapToCategoryDtoWithParent)
+        List<CategoryDto> categoryDtos = categories.getContent().stream()
+                .map(Category::mapToCategoryDto)
                 .toList();
 
         // Cache the result
@@ -58,7 +57,7 @@ public class CategoryService {
         //redisService.setTimeToLive(redisKey, CACHE_TTL);
 
         return new PaginatedResponse<>(
-                categoryDtoWithParents,
+                categoryDtos,
                 categories.getTotalPages(),
                 categories.getNumber() + 1,
                 categories.getTotalElements()
@@ -70,21 +69,17 @@ public class CategoryService {
         return categoryRepository.findByNameContainingIgnoreCase(search,pageable);
     }
 
-    private List<CategoryDtoWithParent> getAllCategoriesList(){
-        return categoryRepository.findAll().stream().map(Category::mapToCategoryDtoWithParent).toList();
-    }
-
-    public List<CategoryDtoWithChild> getAllParents(){
-        return categoryRepository.getCategoriesByParentIsNull().stream().map(Category::mapToCategoryDtoWithChild).toList();
-    }
-
-    private Page<Category> getAllCategoriesPagination(Pageable pageable){
-        return categoryRepository.findAll(pageable);
+    private List<CategoryDto> getAllCategoriesList(){
+        return categoryRepository.findAll().stream().map(Category::mapToCategoryDto).toList();
     }
 
 
 
-    public CategoryDtoWithParent createCategory(CreateCategoryRequest createCategoryRequest){
+
+
+
+
+    public CategoryDto createCategory(CreateCategoryRequest createCategoryRequest){
         Category parentCategory  = null;
         if(createCategoryRequest.getParentId() != null){
             parentCategory  = findCategoryById(createCategoryRequest.getParentId());
@@ -94,59 +89,53 @@ public class CategoryService {
                 .builder()
                 .name(createCategoryRequest.getName())
                 .parent(parentCategory )
-                .build()).mapToCategoryDtoWithParent();
+                .build()).mapToCategoryDto();
 
 
     }
+    /*if(categoryId == null){
+           throw new RuntimeException("Id danh mục rỗng!");
+       }
+       Category category = findCategoryById(categoryId);
+       category.getChildren().forEach(c->{
+           if(Objects.equals(c.getId(), updateCategoryRequest.getParentId())){
+               throw new RuntimeException("Danh mục hiện tại là danh mục cha!");
+           }
+       });
 
-    public CategoryDtoWithParent updateCategoryById(Long categoryId, UpdateCategoryRequest updateCategoryRequest){
-        if(categoryId == null){
-            throw new RuntimeException("Id danh mục rỗng!");
-        }
+       if(Objects.equals(category.getId(), updateCategoryRequest.getParentId())){
+           throw new RuntimeException("Danh mục cha không được trùng với danh mục hiện tại!");
+       }
+
+       if(updateCategoryRequest.getParentId() != null ){
+           if((category.getParent()==null||!category.getParent().getId().equals(updateCategoryRequest.getParentId()))){
+               Category parentCategory = categoryRepository.findById(updateCategoryRequest.getParentId())
+                       .orElseThrow(()->new NotFoundException("Không tìm thấy danh mục cha với id : " + updateCategoryRequest.getParentId()));
+               category.setParent(parentCategory);
+           }
+
+       }else {
+           category.setParent(null);
+       }*/
+    @Transactional
+    public CategoryDto updateCategoryById(Long categoryId, UpdateCategoryRequest updateCategoryRequest){
         Category category = findCategoryById(categoryId);
-        category.getChildren().forEach(c->{
-            if(Objects.equals(c.getId(), updateCategoryRequest.getParentId())){
-                throw new RuntimeException("Danh mục hiện tại là danh mục cha!");
-            }
-        });
-
-        if(Objects.equals(category.getId(), updateCategoryRequest.getParentId())){
-            throw new RuntimeException("Danh mục cha không được trùng với danh mục hiện tại!");
+        Category parentCategory = null;
+        if(Objects.equals(updateCategoryRequest.getParentId(), categoryId)){
+            throw new RuntimeException("Data không hợp lệ!");
         }
-
-        if(updateCategoryRequest.getParentId() != null ){
-            if((category.getParent()==null||!category.getParent().getId().equals(updateCategoryRequest.getParentId()))){
-                Category parentCategory = categoryRepository.findById(updateCategoryRequest.getParentId())
-                        .orElseThrow(()->new NotFoundException("Không tìm thấy danh mục cha với id : " + updateCategoryRequest.getParentId()));
-                category.setParent(parentCategory);
-            }
-
-        }else {
-            category.setParent(null);
+        if(updateCategoryRequest.getParentId() != null){
+            parentCategory = findCategoryById(updateCategoryRequest.getParentId());
         }
 
         category.setName(updateCategoryRequest.getName());
-        return categoryRepository.save(category).mapToCategoryDtoWithParent();
+        category.setParent(parentCategory);
+        return categoryRepository.save(category).mapToCategoryDto();
 
     }
-
+    @Transactional
     public void deleteCategoryById(Long id){
-        Optional<Category> categoryOptional=categoryRepository.findById(id);
-        if(categoryOptional.isPresent()){
-            Category category=categoryOptional.get();
-            if(!category.getChildren().isEmpty()){
-                throw new RuntimeException("Danh mục này đang có nhiều danh mục con! Thao tác thất bại!");
-            }
-
-            if(!category.getProducts().isEmpty()){
-                throw new RuntimeException("Danh mục này đang có nhiều san pham! Thao tác thất bại!");
-            }
-
-            if(!category.getVariations().isEmpty()){
-                throw new RuntimeException("Danh mục này đang có nhiều bien the! Thao tác thất bại!");
-            }
-            categoryRepository.delete(category);
-        }
+        categoryRepository.deleteById(id);
 
     }
 
@@ -155,8 +144,8 @@ public class CategoryService {
         return categoryRepository.findById(id).orElseThrow(()->new NotFoundException("Không tìm thấy danh mục với id : " + id));
     }
 
-    public CategoryDtoWithParent getCategoryById(Long id) {
+    public CategoryDto getCategoryById(Long id) {
         Category category= categoryRepository.findById(id).orElseThrow(()->new NotFoundException("Không tìm thấy danh mục với id : " + id));
-        return category.mapToCategoryDtoWithParent();
+        return category.mapToCategoryDto();
     }
 }

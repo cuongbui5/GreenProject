@@ -10,6 +10,7 @@ import com.example.greenproject.model.Category;
 import com.example.greenproject.model.Variation;
 import com.example.greenproject.repository.CategoryRepository;
 import com.example.greenproject.repository.VariationRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -78,22 +79,22 @@ public class VariationService {
 
     }
 
-
+    @Transactional
     public VariationDto updateVariationById(Long variationId, UpdateVariationRequest updateVariationRequest) {
         Optional<Variation> variationOptional = variationRepository.findById(variationId);
         if (variationOptional.isEmpty()) {
             throw new NotFoundException("Không tìm thấy biến thể với id: " + variationId);
         }
-
         Variation variation = variationOptional.get();
 
-        if (variation.getCategory() == null || !variation.getCategory().getId().equals(updateVariationRequest.getCategoryId())) {
+        if (!variation.getCategory().getId().equals(updateVariationRequest.getCategoryId())) {
             Optional<Category> category = categoryRepository.findById(updateVariationRequest.getCategoryId());
             if (category.isEmpty()) {
-                throw new NotFoundException("Không tìm thấy danh muc với id: " + updateVariationRequest.getCategoryId());
+                throw new NotFoundException("Không tìm thấy danh muc");
             }
             variation.setCategory(category.get());
         }
+
         variation.setName(updateVariationRequest.getName());
 
         return variationRepository.save(variation).mapToVariationDto();

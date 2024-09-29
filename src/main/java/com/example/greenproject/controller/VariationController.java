@@ -24,7 +24,7 @@ public class VariationController {
     private final VariationService variationService;
     private final ProductService productService;
 
-    @GetMapping("/{productId}")
+    @GetMapping("/product/{productId}")
     public ResponseEntity<?> getAllVariationByProductId(@PathVariable Long productId){
         Product product = productService.findProductById(productId);
 
@@ -51,6 +51,9 @@ public class VariationController {
                         Constants.SUCCESS_MESSAGE,
                         variationService.getAllVariations(pageNum,pageSize,search,categoryId)));
     }
+
+
+
 
 
 

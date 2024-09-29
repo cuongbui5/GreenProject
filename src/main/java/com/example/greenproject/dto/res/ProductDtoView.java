@@ -13,7 +13,7 @@ public class ProductDtoView {
     private Long id;
     private String name;
     private String description;
-    private CategoryDto category;
+    private CategoryDtoLazy category;
     private List<ImageDto> images;
     private Double minPrice;
     private Double maxPrice;

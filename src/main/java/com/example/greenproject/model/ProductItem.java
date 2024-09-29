@@ -1,8 +1,10 @@
 package com.example.greenproject.model;
 import com.example.greenproject.dto.res.ProductItemDto;
 import com.example.greenproject.dto.res.ProductItemDtoLazy;
+import com.example.greenproject.dto.res.VariationOptionDtoLazy;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,11 +15,13 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@NamedEntityGraph(name = "ProductItem.variationOptions",
+        attributeNodes = @NamedAttributeNode("variationOptions"))
 public class ProductItem extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;
     private Integer quantity;
@@ -26,7 +30,7 @@ public class ProductItem extends BaseEntity{
     private Integer reviewsCount=0;
     private Integer totalRating=0;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "_product_configuration",
             joinColumns = @JoinColumn(name = "product_item_id",
                     referencedColumnName = "id"),
@@ -43,9 +47,6 @@ public class ProductItem extends BaseEntity{
         dto.setSold(sold);
         dto.setTotalRating(totalRating);
         dto.setReviewCount(reviewsCount);
-        if(variationOptions!=null){
-            dto.setVariationOptions(variationOptions.stream().map(VariationOption::mapToVariationOptionDto).toList());
-        }
         return dto;
     }
 
@@ -60,11 +61,16 @@ public class ProductItem extends BaseEntity{
         dto.setTotalRating(totalRating);
         dto.setReviewCount(reviewsCount);
         if(product!=null){
-            dto.setProduct(product.mapToProductDto());
+            dto.setProduct(product.mapToProductDtoLazy());
         }
-        if(variationOptions!=null){
-            dto.setVariationOptions(variationOptions.stream().map(VariationOption::mapToVariationOptionDto).toList());
-        }
+        /*if(variationOptions!=null){
+            Set<VariationOptionDtoLazy> set=new HashSet<>();
+            variationOptions.forEach(v->{
+                set.add(v.mapToVariationOptionDtoLazy());
+            });
+
+            dto.setVariationOptions(set);
+        }*/
         return dto;
 
     }

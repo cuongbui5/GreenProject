@@ -17,13 +17,13 @@ public class Item extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_item_id",referencedColumnName = "id")
     private ProductItem productItem;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id",referencedColumnName = "id")
     private Cart cart;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id",referencedColumnName = "id")
     private Order order;
     private int quantity;

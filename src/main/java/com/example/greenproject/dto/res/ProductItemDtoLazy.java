@@ -16,5 +16,5 @@ public class ProductItemDtoLazy {
     private Integer sold;
     private Integer reviewCount;
     private Integer totalRating;
-    private List<VariationOptionDto> variationOptions;
+
 }

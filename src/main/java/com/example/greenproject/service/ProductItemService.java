@@ -3,9 +3,7 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateProductItemRequest;
 import com.example.greenproject.dto.req.UpdateProductItemRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
-import com.example.greenproject.dto.res.ProductDtoView;
 import com.example.greenproject.dto.res.ProductItemDto;
-import com.example.greenproject.dto.res.ProductItemDtoView;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.model.ProductItem;
@@ -13,6 +11,7 @@ import com.example.greenproject.model.VariationOption;
 import com.example.greenproject.repository.ProductItemRepository;
 import com.example.greenproject.repository.ProductRepository;
 import com.example.greenproject.repository.VariationOptionRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,9 +32,12 @@ public class ProductItemService {
         }
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
         Page<ProductItem> productItems = null;
+
         
         if(search==null&&productId==null){
             productItems = productItemRepository.findAll(pageable);
+
+
         }
 
         if(search!=null){
@@ -71,7 +73,7 @@ public class ProductItemService {
     }
 
 
-
+    @Transactional
     public ProductItemDto createProductItem(CreateProductItemRequest createProductItemRequest){
         Optional<Product> productOptional = productRepository.findById(createProductItemRequest.getProductId());
         if(productOptional.isEmpty()){
@@ -103,7 +105,7 @@ public class ProductItemService {
 
 
     }
-
+    @Transactional
     public ProductItemDto updateProductItem(Long productItemId, UpdateProductItemRequest updateProductItemRequest){
         ProductItem productItem = productItemRepository
                 .findById(productItemId)

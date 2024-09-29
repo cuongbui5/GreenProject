@@ -18,7 +18,7 @@ public class Contact extends BaseEntity {
     private String district;
     private String ward;
     private String houseNumber;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 
