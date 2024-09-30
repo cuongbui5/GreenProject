@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.example.greenproject.dto.res.ItemDto;
 import com.example.greenproject.model.enums.ItemStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,4 +31,14 @@ public class Item extends BaseEntity {
     private Double totalPrice;
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
+
+    public ItemDto mapToItemDto(){
+        ItemDto itemDto = new ItemDto();
+        itemDto.setProductItemDtoDetail(productItem.mapToProductItemDtoDetail());
+        itemDto.setId(id);
+        itemDto.setQuantity(quantity);
+        itemDto.setStatus(status);
+        itemDto.setTotalPrice(totalPrice);
+        return itemDto;
+    }
 }

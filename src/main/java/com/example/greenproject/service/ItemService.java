@@ -3,12 +3,14 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateCartItemRequest;
 import com.example.greenproject.dto.req.CreateOrderItemRequest;
 import com.example.greenproject.dto.req.UpdateCartQuantity;
+import com.example.greenproject.dto.res.ItemDto;
 import com.example.greenproject.model.Cart;
 import com.example.greenproject.model.Item;
 import com.example.greenproject.model.Order;
 import com.example.greenproject.model.ProductItem;
 import com.example.greenproject.model.enums.ItemStatus;
 import com.example.greenproject.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -106,9 +108,11 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
-    public List<Item> getAllCartItem() {
+    @Transactional
+    public List<ItemDto> getAllCartItem() {
         Cart cart=cartService.getOrCreateCart();
-        return itemRepository.findByCart(cart);
+        List<ItemDto> list = itemRepository.findByCart(cart).stream().map(Item::mapToItemDto).toList();
+        return list;
     }
 
 
