@@ -1,5 +1,7 @@
 package com.example.greenproject.dto.res;
 
+import com.example.greenproject.model.Item;
+import com.example.greenproject.model.Voucher;
 import com.example.greenproject.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
