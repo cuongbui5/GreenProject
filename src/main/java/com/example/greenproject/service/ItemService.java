@@ -41,7 +41,6 @@ public class ItemService {
 
         }
 
-
         Item item = new Item();
         item.setCart(cart);
         item.setStatus(ItemStatus.CART_ITEM);
@@ -50,20 +49,20 @@ public class ItemService {
         item.setTotalPrice(productItem.getPrice()*createCartItemRequest.getQuantity());
         itemRepository.save(item);
     }
+
     public Item createItem(Long productItemId, Integer quantity) {
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(() -> new RuntimeException("Product item not found"));
-        Item item=new Item();
-        double totalPriceProduct = calculateTotalPrice(productItem.getPrice(), quantity);
+        Item item=new Item();;
         item.setProductItem(productItem);
-        item.setTotalPrice(totalPriceProduct);
         item.setQuantity(quantity);
+        item.calculateTotalPrice();
         return itemRepository.save(item);
 
 
     }
 
-    public void createOrderItem(CreateOrderItemRequest createOrderItemRequest) {
+    /*public void createOrderItem(CreateOrderItemRequest createOrderItemRequest) {
         Order order = orderRepository.findById(createOrderItemRequest.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -89,20 +88,9 @@ public class ItemService {
         order.setProductTotalCost(order.getProductTotalCost() + totalPriceProduct);
         order.setTotalCost(order.getTotalCost() + finalPrice);
         orderRepository.save(order);
-    }
+    }*/
 
-    // Tách logic tính toán
-    private double calculateTotalPrice(double price, int quantity) {
-        return price * quantity;
-    }
 
-    private double calculateShippingPrice(double totalPriceProduct) {
-        return totalPriceProduct * 0.1;
-    }
-
-    private double calculateFinalPrice(double totalPriceProduct, double shippingPrice) {
-        return totalPriceProduct + shippingPrice;
-    }
 
     public void deleteCartItem(Long id){
         itemRepository.deleteById(id);

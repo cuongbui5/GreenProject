@@ -67,6 +67,22 @@ public class ProductItem extends BaseEntity{
         return dto;
     }
 
+    public ProductItemDtoLazyWithProduct mapToProductItemDtoLazyWithProduct(){
+        ProductItemDtoLazyWithProduct dto=new ProductItemDtoLazyWithProduct();
+        dto.setId(id);
+        dto.setQuantity(quantity);
+        dto.setPrice(price);
+        dto.setCreatedAt(getCreatedAt());
+        dto.setUpdatedAt(getUpdatedAt());
+        dto.setSold(sold);
+        dto.setTotalRating(totalRating);
+        dto.setReviewCount(reviewsCount);
+        if(product!=null){
+            dto.setProduct(product.mapToProductDtoLazy());
+        }
+        return dto;
+
+    }
     public ProductItemDto mapToProductItemDto(){
         ProductItemDto dto=new ProductItemDto();
         dto.setId(id);
@@ -78,7 +94,14 @@ public class ProductItem extends BaseEntity{
         dto.setTotalRating(totalRating);
         dto.setReviewCount(reviewsCount);
         if(product!=null){
-            dto.setProduct(product.mapToProductDtoLazy());
+            dto.setProduct(product.mapToProductDto());
+        }
+        if(!variationOptions.isEmpty()){
+            Set<VariationOptionDtoLazy> dtoSet=new HashSet<>();
+            variationOptions.forEach(variationOptionDto -> {
+                dtoSet.add(variationOptionDto.mapToVariationOptionDtoLazy());
+            });
+            dto.setVariationOptions(dtoSet);
         }
         return dto;
 

@@ -7,9 +7,6 @@ import com.example.greenproject.repository.UserRepository;
 import com.example.greenproject.security.UserInfo;
 import com.example.greenproject.utils.Utils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +31,7 @@ public class UserService {
 
 
 
-    public User getUserInfo() {
+    public User getUserByUserInfo() {
         UserInfo userInfo= Utils.getUserInfoFromContext();
         return userRepository
                 .findByUsername(userInfo.getUsername()).
@@ -42,7 +39,7 @@ public class UserService {
     }
 
     public User updateUser(UpdateUserRequest updateUserRequest) {
-        User user = getUserInfo();
+        User user = getUserByUserInfo();
         user.setFullName(updateUserRequest.getFullName());
         user.setPhoneNumber(updateUserRequest.getNumberPhone());
         return userRepository.save(user);
@@ -52,7 +49,7 @@ public class UserService {
         if(!Objects.equals(changePasswordRequest.getNewPassword(), changePasswordRequest.getConfirmPassword())){
             throw new RuntimeException("Mat khau xac nhan ko dung!");
         }
-        User user = getUserInfo();
+        User user = getUserByUserInfo();
         if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())){
             throw new RuntimeException("Sai mat khau!");
         }
@@ -64,7 +61,7 @@ public class UserService {
 
     public User uploadAvatar(MultipartFile file) throws IOException {
         String url=uploadFileService.uploadFile(file);
-        User user = getUserInfo();
+        User user = getUserByUserInfo();
         if(url.isBlank()){
             throw new RuntimeException("url is blank!");
         }

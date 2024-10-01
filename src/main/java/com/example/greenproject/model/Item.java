@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 @Entity
 @Table(name = "_item")
@@ -23,9 +24,11 @@ public class Item extends BaseEntity {
     private ProductItem productItem;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id",referencedColumnName = "id")
+    @JsonIgnore
     private Cart cart;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id",referencedColumnName = "id")
+    @JsonIgnore
     private Order order;
     private int quantity;
     private Double totalPrice;
@@ -34,11 +37,17 @@ public class Item extends BaseEntity {
 
     public ItemDto mapToItemDto(){
         ItemDto itemDto = new ItemDto();
-        itemDto.setProductItemDtoDetail(productItem.mapToProductItemDtoDetail());
         itemDto.setId(id);
+        itemDto.setProductItem(productItem.mapToProductItemDto());
         itemDto.setQuantity(quantity);
-        itemDto.setStatus(status);
         itemDto.setTotalPrice(totalPrice);
+        itemDto.setStatus(status);
+        itemDto.setCreatedAt(getCreatedAt());
+        itemDto.setUpdatedAt(getUpdatedAt());
         return itemDto;
+    }
+
+    public void calculateTotalPrice(){
+        this.totalPrice=productItem.getPrice()*this.getQuantity();
     }
 }

@@ -3,6 +3,7 @@ package com.example.greenproject.model;
 import com.example.greenproject.dto.res.CategoryDtoLazy;
 import com.example.greenproject.dto.res.CategoryDto;
 import com.example.greenproject.utils.Constants;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
@@ -28,6 +29,7 @@ public class Category extends BaseEntity{
     private String name;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id",referencedColumnName = "id")
+    @JsonIgnore
     private Category parent;
 
 
