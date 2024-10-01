@@ -35,6 +35,7 @@ public class OrderService {
         }
 
         Order order = new Order();
+        order.setStatus(OrderStatus.INIT);
         for (Item item : cart.getItems()) {
             item.setStatus(ItemStatus.ORDER_ITEM);
             item.setCart(null);
@@ -172,14 +173,16 @@ public class OrderService {
     public OrderDto createOrderByProductItem(CreateOrderRequestWithProductItem createOrderRequestWithProductItem) {
         ProductItem productItem = productItemRepository.findById(createOrderRequestWithProductItem.getProductItemId())
                 .orElseThrow(() -> new RuntimeException("Product item not found"));
-        Item item=new Item();;
+        Item item=new Item();
         item.setProductItem(productItem);
         item.setQuantity(createOrderRequestWithProductItem.getQuantity());
         item.calculateTotalPrice();
+        item.setStatus(ItemStatus.ORDER_ITEM);
         User user=userService.getUserByUserInfo();
         // Tạo Order
         Order order = new Order();
         order.setPaid(false);
+        order.setStatus(OrderStatus.INIT);
         order.setUser(user);
         order.setContact(null);
         order.setVoucher(null);
@@ -193,7 +196,7 @@ public class OrderService {
         return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with ID: " + id)).mapToOrderDto();
     }
 
-    public OrderDtoLazy updateContactToOrder(UpdateContactOrderRequest updateContactOrderRequest) {
+    public void updateContactToOrder(UpdateContactOrderRequest updateContactOrderRequest) {
         Order order=orderRepository.findById(updateContactOrderRequest.getOrderId())
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + updateContactOrderRequest.getOrderId()));
         Contact contact=contactRepository.findById(updateContactOrderRequest.getContactId())
@@ -201,7 +204,7 @@ public class OrderService {
 
         order.setContact(contact);
 
-        return orderRepository.save(order).mapToOrderDtoLazy();
+        orderRepository.save(order);
     }
 
     public OrderDtoLazy updateVoucherToOrder(UpdateVoucherOrderRequest updateVoucherOrderRequest) {

@@ -48,6 +48,6 @@ public class Item extends BaseEntity {
     }
 
     public void calculateTotalPrice(){
-        this.totalPrice=productItem.getPrice()*this.getQuantity();
+        this.totalPrice=this.productItem.getPrice()*this.getQuantity();
     }
 }
