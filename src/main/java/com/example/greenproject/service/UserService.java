@@ -69,4 +69,8 @@ public class UserService {
         return userRepository.save(user);
 
     }
+
+    public User updateUserPoint(User user){
+        return userRepository.save(user);
+    }
 }

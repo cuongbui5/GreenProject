@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +48,23 @@ public class VoucherService {
                 vouchers.getTotalElements()
         );
     }
+
+    //------------------------------------------------------------------------------------------------------------------------------
+    public Object getValidVouchers(Integer pageNum, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
+        ZonedDateTime now = ZonedDateTime.now();
+
+
+        Page<Voucher> validVouchers = voucherRepository.findValidVouchers(now, pageable);
+
+        return new PaginatedResponse<>(
+                validVouchers.getContent().stream().map(Voucher::mapToVoucherDto).toList(),
+                validVouchers.getTotalPages(),
+                validVouchers.getNumber()+1,
+                validVouchers.getTotalElements()
+        );
+    }
+    //------------------------------------------------------------------------------------------------------------------------------
 
     private List<VoucherDto> getAllVouchersList(){
         return voucherRepository.findAll().stream().map(Voucher::mapToVoucherDto).toList();
@@ -81,6 +99,7 @@ public class VoucherService {
         Voucher voucher=voucherOptional.get();
         return getVoucherDto(voucherRequest, voucher);
     }
+
 
     private VoucherDto getVoucherDto(VoucherRequest voucherRequest, Voucher voucher) {
         voucher.setName(voucherRequest.getName());

@@ -3,11 +3,13 @@ package com.example.greenproject.controller;
 import com.example.greenproject.dto.req.VoucherRequest;
 import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
+import com.example.greenproject.dto.res.VoucherDto;
 import com.example.greenproject.model.Voucher;
 import com.example.greenproject.service.VoucherService;
 import com.example.greenproject.utils.Constants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +67,19 @@ public class VoucherController {
                 .body(new BaseResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE
+                ));
+    }
+
+    @GetMapping("/valid")
+    public ResponseEntity<DataResponse> getValidVouchers(
+            @RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize",required = false,defaultValue = "10") Integer pageSize) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        voucherService.getValidVouchers(pageNum, pageSize)
                 ));
     }
 }
