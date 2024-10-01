@@ -1,6 +1,7 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,11 +25,13 @@ public class Product extends BaseEntity{
     @Column(length = 10000)
     private String description;
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Image> images;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id",referencedColumnName = "id")
     private Category category;
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<ProductItem> productItems;
 
     public ProductDto mapToProductDto() {

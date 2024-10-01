@@ -57,43 +57,7 @@ public class ProductService {
         );
     }
 
-    public Object getAllProduct(Integer pageNum, Integer pageSize, String search,Long categoryId) {
-        System.out.println(pageSize);
-        if(pageNum==null || pageSize==null){
-            return getAllProduct();
-        }
 
-        Pageable pageable = PageRequest.of(pageNum-1, pageSize);
-        Page<Product> products = null;
-
-        
-        if(search==null&&categoryId==null){
-            products = productRepository.findAll(pageable);
-        }
-
-        // Nếu chỉ có search, tìm sản phẩm theo từ khóa
-        if (search != null && categoryId == null) {
-            products = searchProduct(search, pageable);
-        }
-
-        // Nếu chỉ có categoryId, tìm sản phẩm theo category (bao gồm các category con)
-        if (categoryId != null && search == null) {
-            products = getProductsByCategory(categoryId, pageable);
-        }
-
-        // Nếu cả search và categoryId đều khác null, kết hợp tìm kiếm và lọc theo category
-        if (categoryId != null && search != null) {
-            products = searchProductByCategory(search, categoryId, pageable);
-        }
-
-
-        return new PaginatedResponse<>(
-                products.getContent().stream().map(Product::mapToProductDto).toList(),
-                products.getTotalPages(),
-                products.getNumber()+1,
-                products.getTotalElements()
-        );
-    }
 
     public Object getAllSortedProductItems(int pageNumber, int pageSize, String option) {
 
@@ -118,28 +82,9 @@ public class ProductService {
     }
 
 
-    public Object getProductsByCategoryId(Integer pageNum, Integer pageSize,Long categoryId){
-        List<Long> categoryIds = new ArrayList<>();
-        collectChildCategoryIds(categoryId, categoryIds);
-        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
 
-        Page<ProductDtoView> productDtoViews = productDtoViewRepository.findByCategoryId(categoryIds,pageable);
 
-        return new PaginatedResponse<>(
-                productDtoViews.getContent(),
-                productDtoViews.getTotalPages(),
-                productDtoViews.getNumber()+1,
-                productDtoViews.getTotalElements()
-        );
-    }
 
-    private Page<Product> searchProductByCategory(String search, Long categoryId, Pageable pageable) {
-        List<Long> categoryIds = new ArrayList<>();
-        collectChildCategoryIds(categoryId, categoryIds);
-
-        // Tìm kiếm sản phẩm theo từ khóa và category
-        return productRepository.findBySearchAndCategoryIds(search, categoryIds, pageable);
-    }
 
     public PaginatedResponse<ProductDtoView> getProductsByTopSold(Integer pageNum,Integer pageSize){
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
@@ -154,36 +99,23 @@ public class ProductService {
     }
 
 
-    public Page<Product> getProductsByCategory(Long categoryId, Pageable pageable) {
-        // Lấy danh sách tất cả category con, bao gồm cả category cha
-        List<Long> categoryIds = new ArrayList<>();
-        collectChildCategoryIds(categoryId, categoryIds);
 
-        // Thực hiện phân trang dựa trên danh sách categoryIds
-        return productRepository.findByCategoryIds(categoryIds, pageable);
-    }
 
-    // Hàm đệ quy để thu thập tất cả các category con (bao gồm cả category hiện tại)
+
     private void collectChildCategoryIds(Long categoryId, List<Long> categoryIds) {
-        // Thêm category hiện tại vào danh sách
         categoryIds.add(categoryId);
-
-        // Lấy các category con của category hiện tại
         List<Category> childCategories = categoryRepository.findByParentId(categoryId);
 
-        // Đệ quy qua các category con
         for (Category child : childCategories) {
             collectChildCategoryIds(child.getId(), categoryIds);
         }
     }
 
-    private Page<Product> searchProduct(String search, Pageable pageable) {
-        return productRepository.findByNameContainingIgnoreCase(search, pageable);
-    }
 
 
-    public List<ProductDto> getAllProduct(){
-        return productRepository.findAll().stream().map(Product::mapToProductDto).toList();
+
+    public List<Product> getAllProduct(){
+        return productRepository.findAll();
     }
 
 

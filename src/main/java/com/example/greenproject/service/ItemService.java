@@ -1,12 +1,10 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.CreateCartItemRequest;
-import com.example.greenproject.dto.req.CreateOrderItemRequest;
 import com.example.greenproject.dto.req.UpdateCartQuantity;
 import com.example.greenproject.dto.res.ItemDto;
 import com.example.greenproject.model.Cart;
 import com.example.greenproject.model.Item;
-import com.example.greenproject.model.Order;
 import com.example.greenproject.model.ProductItem;
 import com.example.greenproject.model.enums.ItemStatus;
 import com.example.greenproject.repository.*;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +38,6 @@ public class ItemService {
 
         }
 
-
         Item item = new Item();
         item.setCart(cart);
         item.setStatus(ItemStatus.CART_ITEM);
@@ -50,20 +46,20 @@ public class ItemService {
         item.setTotalPrice(productItem.getPrice()*createCartItemRequest.getQuantity());
         itemRepository.save(item);
     }
+
     public Item createItem(Long productItemId, Integer quantity) {
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(() -> new RuntimeException("Product item not found"));
-        Item item=new Item();
-        double totalPriceProduct = calculateTotalPrice(productItem.getPrice(), quantity);
+        Item item=new Item();;
         item.setProductItem(productItem);
-        item.setTotalPrice(totalPriceProduct);
         item.setQuantity(quantity);
+        item.calculateTotalPrice();
         return itemRepository.save(item);
 
 
     }
 
-    public void createOrderItem(CreateOrderItemRequest createOrderItemRequest) {
+    /*public void createOrderItem(CreateOrderItemRequest createOrderItemRequest) {
         Order order = orderRepository.findById(createOrderItemRequest.getOrderId())
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -89,20 +85,9 @@ public class ItemService {
         order.setProductTotalCost(order.getProductTotalCost() + totalPriceProduct);
         order.setTotalCost(order.getTotalCost() + finalPrice);
         orderRepository.save(order);
-    }
+    }*/
 
-    // Tách logic tính toán
-    private double calculateTotalPrice(double price, int quantity) {
-        return price * quantity;
-    }
 
-    private double calculateShippingPrice(double totalPriceProduct) {
-        return totalPriceProduct * 0.1;
-    }
-
-    private double calculateFinalPrice(double totalPriceProduct, double shippingPrice) {
-        return totalPriceProduct + shippingPrice;
-    }
 
     public void deleteCartItem(Long id){
         itemRepository.deleteById(id);
@@ -116,13 +101,14 @@ public class ItemService {
     }
 
 
+    @Transactional
     public Object updateCartQuantity(UpdateCartQuantity updateCartQuantity, Long itemId) {
         Item item=itemRepository.findById(itemId).orElseThrow(()->new RuntimeException("not find item"));
         item.setQuantity(updateCartQuantity.getQuantity());
-        return itemRepository.save(item);
+        return itemRepository.save(item).mapToItemDto();
     }
 
     public void deleteItemById(Long itemId) {
-        orderRepository.deleteById(itemId);
+        itemRepository.deleteById(itemId);
     }
 }

@@ -4,6 +4,8 @@ import com.example.greenproject.model.enums.ItemStatus;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.ZonedDateTime;
+
 @Getter
 @Setter
 public class ItemDto {
@@ -11,5 +13,7 @@ public class ItemDto {
     private int quantity;
     private Double totalPrice;
     private ItemStatus status;
-    private ProductItemDtoDetail productItemDtoDetail;
+    private ProductItemDto productItem;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
 }

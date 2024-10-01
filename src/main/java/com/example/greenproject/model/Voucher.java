@@ -43,11 +43,26 @@ public class Voucher extends BaseEntity{
         dto.setUpdatedAt(getUpdatedAt());
         return dto;
     }
+    public boolean validateVoucherValue() {
+        if (type == VoucherType.FREE_SHIP) {
+            return value == 0;
+        } else if (type == VoucherType.DISCOUNT_PERCENTAGE) {
+            return value >= 0 && value <= 100;
+        } else if (type == VoucherType.DISCOUNT_AMOUNT) {
+            return value > 0;
+        }
+        return false;
+    }
+
 
     @PrePersist
     @PreUpdate
     public void trimData() {
         this.name = this.name.trim();
+
+        if (!validateVoucherValue()) {
+            throw new IllegalArgumentException("Invalid voucher value for type: " + type);
+        }
 
 
     }

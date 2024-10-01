@@ -21,18 +21,12 @@ public class ProductController {
 
 
     @GetMapping
-    public ResponseEntity<?> getAllProducts(@RequestParam(value = "pageNum",required = false) Integer pageNum,
-                                            @RequestParam(value = "pageSize",required = false) Integer pageSize,
-                                            @RequestParam(value = "search",required = false) String search,
-                                            @RequestParam(value = "categoryId",required = false) Long categoryId){
-
-
-
+    public ResponseEntity<?> getAllProducts(){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllProduct(pageNum,pageSize,search,categoryId)));
+                        productService.getAllProduct()));
     }
 
 

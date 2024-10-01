@@ -1,21 +1,17 @@
 package com.example.greenproject.service;
 
-import com.example.greenproject.dto.req.CreateOrderRequest;
-import com.example.greenproject.dto.req.CreateOrderRequestWithProductItem;
-import com.example.greenproject.dto.req.CreatePaymentRequest;
-import com.example.greenproject.dto.req.UpdateOrderRequest;
+import com.example.greenproject.dto.req.*;
+import com.example.greenproject.dto.res.OrderDto;
+import com.example.greenproject.dto.res.OrderDtoLazy;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.*;
 import com.example.greenproject.model.enums.ItemStatus;
 import com.example.greenproject.model.enums.OrderStatus;
 import com.example.greenproject.repository.*;
-import com.example.greenproject.security.UserInfo;
-import com.example.greenproject.utils.Utils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 @Service
@@ -28,60 +24,38 @@ public class OrderService {
     private final PaymentAccountRepository paymentAccountRepository;
     private final UserService userService;
     private final ItemService itemService;
+    private final ContactRepository contactRepository;
+    private final VoucherRepository voucherRepository;
+
     @Transactional
-    public Order createOrderByCart() {
+    public OrderDto createOrderByCart() {
         Cart cart=cartService.getOrCreateCart();
         if (cart.getItems().isEmpty()) {
             throw new IllegalStateException("Cannot create order from an empty cart");
         }
 
         Order order = new Order();
-        order.setUser(cart.getUser());
-        order.setItems(new ArrayList<>());
-
-
-        double totalCost = 0.0;
         for (Item item : cart.getItems()) {
-            totalCost += item.getTotalPrice();
-            order.getItems().add(item);
-        }
-
-
-        double shippingCost = totalCost * 0.1;
-        double total = totalCost + shippingCost;
-        order.setProductTotalCost(totalCost);
-        order.setShippingCost(shippingCost);
-        order.setTotalCost(total);
-        order.setPaid(false);
-
-
-        Order savedOrder = orderRepository.save(order);
-
-
-        for (Item item : cart.getItems()) {
-            item.setOrder(savedOrder);
             item.setStatus(ItemStatus.ORDER_ITEM);
+            item.setCart(null);
+            order.getItems().add(item);
+            item.setOrder(order);
         }
-
-
-        itemRepository.saveAll(cart.getItems());
-
-        return savedOrder;
-
-    }
-
-    public Order createEmptyOrder() {
-        Order order = new Order();
-        order.setStatus(OrderStatus.INIT);
-        order.setUser(userService.getUserInfo());
-        order.setProductTotalCost(0.0);
-        order.setShippingCost(0.0);
-        order.setTotalCost(0.0);
+        order.setUser(cart.getUser());
+        order.setContact(null);
+        order.setVoucher(null);
         order.setPaid(false);
-        return orderRepository.save(order);
+        order.calculateAllCosts();
+        return orderRepository.save(order).mapToOrderDto();
     }
 
-    public Order updateOrder(long orderId, UpdateOrderRequest updateOrderRequest) {
+    public void deleteOrderById(Long id) {
+        orderRepository.deleteById(id);
+    }
+
+
+
+    public Order updateOrderStatus(long orderId, UpdateOrderStatusRequest updateOrderStatusRequest) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
@@ -89,7 +63,7 @@ public class OrderService {
             throw new IllegalStateException("Order is not paid");
         }
 
-        OrderStatus newStatus = updateOrderRequest.getOrderStatus();
+        OrderStatus newStatus = updateOrderStatusRequest.getOrderStatus();
         OrderStatus currentStatus = order.getStatus();
 
         switch (newStatus) {
@@ -135,8 +109,9 @@ public class OrderService {
         return orderRepository.save(order);
 
     }
+
     @Transactional
-    public Order pay(CreatePaymentRequest createPaymentRequest) {
+    public Order createPayment(CreatePaymentRequest createPaymentRequest) {
         Order order = orderRepository.findById(createPaymentRequest.getOrderId())
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + createPaymentRequest.getOrderId()));
 
@@ -188,34 +163,55 @@ public class OrderService {
 
         }
 
-
         order.setPaid(true);
         order.setStatus(OrderStatus.PENDING);
         return order;
     }
 
-    public Object createOrderByProductItem(CreateOrderRequestWithProductItem createOrderRequestWithProductItem) {
-        Item item = itemService.createItem(createOrderRequestWithProductItem.getProductItemId(), createOrderRequestWithProductItem.getQuantity());
-        item.setStatus(ItemStatus.ORDER_ITEM);
-
-        // Tính toán tổng giá
-        double productTotalCost = item.getTotalPrice();
-        double shippingCost = productTotalCost * 0.1;
-        double totalCost = productTotalCost + shippingCost;
-
+    @Transactional
+    public OrderDto createOrderByProductItem(CreateOrderRequestWithProductItem createOrderRequestWithProductItem) {
+        ProductItem productItem = productItemRepository.findById(createOrderRequestWithProductItem.getProductItemId())
+                .orElseThrow(() -> new RuntimeException("Product item not found"));
+        Item item=new Item();;
+        item.setProductItem(productItem);
+        item.setQuantity(createOrderRequestWithProductItem.getQuantity());
+        item.calculateTotalPrice();
+        User user=userService.getUserByUserInfo();
         // Tạo Order
         Order order = new Order();
-        order.setProductTotalCost(productTotalCost);
-        order.setShippingCost(shippingCost);
-        order.setTotalCost(totalCost);
         order.setPaid(false);
-        order.setStatus(OrderStatus.INIT);
+        order.setUser(user);
+        order.setContact(null);
+        order.setVoucher(null);
+        order.getItems().add(item);
+        item.setOrder(order);
+        order.calculateAllCosts();
+        return orderRepository.save(order).mapToOrderDto();
+    }
 
-        // Lưu Order và Item
-        order = orderRepository.save(order);
-        item.setOrder(order); // Gán item cho order
-        itemRepository.save(item); // Lưu item sau khi đã gán order
+    public OrderDto getOrderById(Long id) {
+        return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with ID: " + id)).mapToOrderDto();
+    }
 
-        return order;
+    public OrderDtoLazy updateContactToOrder(UpdateContactOrderRequest updateContactOrderRequest) {
+        Order order=orderRepository.findById(updateContactOrderRequest.getOrderId())
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + updateContactOrderRequest.getOrderId()));
+        Contact contact=contactRepository.findById(updateContactOrderRequest.getContactId())
+                .orElseThrow(() -> new NotFoundException("Contact not found"));
+
+        order.setContact(contact);
+
+        return orderRepository.save(order).mapToOrderDtoLazy();
+    }
+
+    public OrderDtoLazy updateVoucherToOrder(UpdateVoucherOrderRequest updateVoucherOrderRequest) {
+        Order order=orderRepository.findById(updateVoucherOrderRequest.getOrderId())
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + updateVoucherOrderRequest.getOrderId()));
+        Voucher voucher=voucherRepository.findById(updateVoucherOrderRequest.getVoucherId())
+                .orElseThrow(() -> new NotFoundException("Voucher not found"));
+        order.setVoucher(voucher);
+        order.calculateAllCosts();
+
+        return orderRepository.save(order).mapToOrderDtoLazy();
     }
 }

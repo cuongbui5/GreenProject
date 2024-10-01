@@ -40,7 +40,7 @@ public class ReviewService {
     }
 
     public ReviewDto getReviewByReviewId(Long productItemId){
-        User user = userService.getUserInfo();
+        User user = userService.getUserByUserInfo();
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(()->new RuntimeException("Not found product item id " + productItemId));
         ReviewId reviewId = new ReviewId();
@@ -52,7 +52,7 @@ public class ReviewService {
     }
 
     public ReviewDto createReview(ReviewRequest reviewRequest){
-        User user = userService.getUserInfo();
+        User user = userService.getUserByUserInfo();
         ProductItem productItem = productItemRepository.findById(reviewRequest.getProductItemId())
                 .orElseThrow(()->new RuntimeException("Not found product item id " + reviewRequest.getProductItemId()));
 
@@ -77,7 +77,7 @@ public class ReviewService {
     }
 
     public ReviewDto updateReview(ReviewRequest reviewRequest){
-        User user = userService.getUserInfo();
+        User user = userService.getUserByUserInfo();
         ProductItem productItem = productItemRepository.findById(reviewRequest.getProductItemId())
                 .orElseThrow(()->new RuntimeException("Not found product item id " + reviewRequest.getProductItemId()));
 
@@ -98,7 +98,7 @@ public class ReviewService {
     }
 
     public void deleteReview(Long productItemId){
-        User user = userService.getUserInfo();
+        User user = userService.getUserByUserInfo();
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(()->new RuntimeException("Not found product item id " + productItemId));
 

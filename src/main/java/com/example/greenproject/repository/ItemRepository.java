@@ -10,10 +10,6 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-//    @EntityGraph(attributePaths = {"productItem"})
-//    List<Item> findByCart(Cart cart);
-
-
     @EntityGraph(attributePaths = {"productItem.product.category", "productItem.product.images", "productItem.variationOptions"})
     List<Item> findByCart(Cart cart);
 }

@@ -3,7 +3,7 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.CreateProductItemRequest;
 import com.example.greenproject.dto.req.UpdateProductItemRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
-import com.example.greenproject.dto.res.ProductItemDto;
+import com.example.greenproject.dto.res.ProductItemDtoLazyWithProduct;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.Product;
 import com.example.greenproject.model.ProductItem;
@@ -48,9 +48,9 @@ public class ProductItemService {
             productItems = productItemRepository.findByProductId(productId,pageable);
         }
 
-        List<ProductItemDto> productItemDtos = productItems.getContent().stream().map(ProductItem::mapToProductItemDto).toList();
+        List<ProductItemDtoLazyWithProduct> productItemDtoLazyWithProducts = productItems.getContent().stream().map(ProductItem::mapToProductItemDtoLazyWithProduct).toList();
         return new PaginatedResponse<>(
-                productItemDtos,
+                productItemDtoLazyWithProducts,
                 productItems.getTotalPages(),
                 productItems.getNumber()+1,
                 productItems.getTotalElements()
@@ -62,8 +62,8 @@ public class ProductItemService {
     }
 
 
-    public List<ProductItemDto> getAllProductItems(){
-        return productItemRepository.findAll().stream().map(ProductItem::mapToProductItemDto).toList();
+    public List<ProductItemDtoLazyWithProduct> getAllProductItems(){
+        return productItemRepository.findAll().stream().map(ProductItem::mapToProductItemDtoLazyWithProduct).toList();
     }
 
 
@@ -74,7 +74,7 @@ public class ProductItemService {
 
 
     @Transactional
-    public ProductItemDto createProductItem(CreateProductItemRequest createProductItemRequest){
+    public ProductItemDtoLazyWithProduct createProductItem(CreateProductItemRequest createProductItemRequest){
         Optional<Product> productOptional = productRepository.findById(createProductItemRequest.getProductId());
         if(productOptional.isEmpty()){
             throw new NotFoundException("Khong tim thay san pham!");
@@ -99,14 +99,14 @@ public class ProductItemService {
         productItem.setPrice(createProductItemRequest.getPrice());
         productItem.setVariationOptions(newVariationOptions);
 
-        return productItemRepository.save(productItem).mapToProductItemDto();
+        return productItemRepository.save(productItem).mapToProductItemDtoLazyWithProduct();
 
 
 
 
     }
     @Transactional
-    public ProductItemDto updateProductItem(Long productItemId, UpdateProductItemRequest updateProductItemRequest){
+    public ProductItemDtoLazyWithProduct updateProductItem(Long productItemId, UpdateProductItemRequest updateProductItemRequest){
         ProductItem productItem = productItemRepository
                 .findById(productItemId)
                 .orElseThrow(()->new NotFoundException("Not found"));
@@ -131,7 +131,7 @@ public class ProductItemService {
 
 
 
-        return productItemRepository.save(productItem).mapToProductItemDto();
+        return productItemRepository.save(productItem).mapToProductItemDtoLazyWithProduct();
     }
 
     public void deleteProductItem(Long id){

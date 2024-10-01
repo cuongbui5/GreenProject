@@ -11,5 +11,7 @@ public class CreateContactRequest {
     private String city;
     private String district;
     private String ward;
-    private String houseNumber;
+    private String houseAddress;
+    private String phoneNumber;
+    private String fullName;
 }

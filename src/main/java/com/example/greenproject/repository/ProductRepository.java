@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
-    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
     @EntityGraph(attributePaths = {"category"})
     List<Product> findAll();
     Optional<Product> findByName(String name);

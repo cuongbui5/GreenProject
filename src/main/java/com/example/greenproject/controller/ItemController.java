@@ -27,14 +27,14 @@ public class ItemController {
         ));
     }
 
-    @PostMapping("/create-orderItem")
+    /*@PostMapping("/create-orderItem")
     public ResponseEntity<?> createOrderItem(@RequestBody CreateOrderItemRequest createOrderItemRequest){
         itemService.createOrderItem(createOrderItemRequest);
         return ResponseEntity.ok().body(new BaseResponse(
                 HttpStatus.OK.value(),
                 Constants.SUCCESS_MESSAGE
         ));
-    }
+    }*/
     @GetMapping("/my-cart")
     public ResponseEntity<?> getMyCart(){
         return ResponseEntity.ok().body(new DataResponse(

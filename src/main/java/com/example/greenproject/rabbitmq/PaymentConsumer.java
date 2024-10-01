@@ -23,7 +23,7 @@ public class PaymentConsumer {
     @RabbitListener(queues = "payment-queue")
     @Transactional
     public void receivePaymentRequest(CreatePaymentRequest createPaymentRequest) {
-        orderService.pay(createPaymentRequest);
+        orderService.createPayment(createPaymentRequest);
     }
 
 }
