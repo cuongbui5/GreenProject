@@ -30,7 +30,7 @@ public class Voucher extends BaseEntity{
     private Double value;
     private ZonedDateTime startDate;
     private ZonedDateTime endDate;
-    @ManyToMany(mappedBy = "vouchers")
+    @ManyToMany(mappedBy = "vouchers",fetch = FetchType.LAZY)
     private Set<User> users=new HashSet<>();
     public VoucherDto mapToVoucherDto() {
         VoucherDto dto = new VoucherDto();

@@ -133,7 +133,7 @@ public class VoucherService {
 
         UserInfo userInfo= Utils.getUserInfoFromContext();
 
-        Page<Voucher> vouchers = voucherRepository.findByUserId(userInfo.getId(),pageable);
+        Page<Voucher> vouchers = voucherRepository.findAllByUserId(userInfo.getId(),pageable);
 
         return new PaginatedResponse<>(
                 vouchers.getContent().stream().map(Voucher::mapToVoucherDto).toList(),

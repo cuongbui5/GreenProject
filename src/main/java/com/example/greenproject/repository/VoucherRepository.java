@@ -15,7 +15,8 @@ import java.util.List;
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
     Page<Voucher> findByNameContainingIgnoreCase(String search, Pageable pageable);
-    Page<Voucher> findByUserId(Long userId, Pageable pageable);
+    @Query("SELECT v FROM Voucher v JOIN v.users u WHERE u.id = :userId")
+    Page<Voucher> findAllByUserId(@Param("userId") Long userId,Pageable pageable);
 
     List<Voucher> findByName(String name);
 
