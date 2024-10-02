@@ -107,6 +107,7 @@ public class ReviewService {
             Review review = reviewOptional.get();
             productItem.setReviewsCount(productItem.getReviewsCount() - 1);
             productItem.setTotalRating(productItem.getTotalRating() - review.getRating());
+            productItemRepository.save(productItem);
             reviewRepository.deleteById(reviewId);
         }else {
             throw new RuntimeException("Không tìm thấy review");
