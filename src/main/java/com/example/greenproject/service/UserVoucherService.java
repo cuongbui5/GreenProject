@@ -1,30 +1,18 @@
 package com.example.greenproject.service;
 
-import com.example.greenproject.dto.res.PaginatedResponse;
-import com.example.greenproject.dto.res.VoucherDto;
-import com.example.greenproject.model.User;
-import com.example.greenproject.model.UserVoucher;
-import com.example.greenproject.model.Voucher;
-import com.example.greenproject.model.pk.UserVoucherId;
 import com.example.greenproject.repository.VoucherRepository;
-import com.example.greenproject.repository.VoucherUserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserVoucherService {
 
-    private final VoucherUserRepository userVoucherRepository;
+    //private final VoucherUserRepository userVoucherRepository;
     private final VoucherRepository voucherRepository;
     private final UserService userService;
 
-    @Transactional
+    /*@Transactional
     public Object getVouchersByUserId(Integer pageNum, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
 
@@ -75,5 +63,5 @@ public class UserVoucherService {
         voucherRepository.save(voucher);
 
         return voucher.mapToVoucherDto();
-    }
+    }*/
 }

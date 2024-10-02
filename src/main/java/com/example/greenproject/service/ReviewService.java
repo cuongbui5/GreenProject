@@ -56,61 +56,52 @@ public class ReviewService {
         ProductItem productItem = productItemRepository.findById(reviewRequest.getProductItemId())
                 .orElseThrow(()->new RuntimeException("Not found product item id " + reviewRequest.getProductItemId()));
 
-        productItem.setTotalRating(productItem.getTotalRating() + reviewRequest.getRating());
-        productItem.setReviewsCount(productItem.getReviewsCount() + 1);
-        ProductItem saveProductItem = productItemRepository.save(productItem);
-
-        ReviewId reviewId = new ReviewId();
-        reviewId.setUser(user);
-        reviewId.setProductItem(saveProductItem);
-
-        Review review = new Review();
-        review.setId(reviewId);
-        review.setRating(reviewRequest.getRating());
-        review.setContent(reviewRequest.getContent());
-        return reviewRepository.save(review).mapToReviewDto();
-    }
-
-
-//    public ReviewDto updateReview(ReviewRequest reviewRequest){
-//        User user = userService.getUserByUserInfo();
-//        ProductItem productItem = productItemRepository.findById(reviewRequest.getProductItemId())
-//                .orElseThrow(()->new RuntimeException("Not found product item id " + reviewRequest.getProductItemId()));
-//
-//        productItem.setTotalRating(productItem.getTotalRating() + reviewRequest.getRating());
-//        productItem.setReviewsCount(productItem.getReviewsCount() + 1);
-//        ProductItem saveProductItem = productItemRepository.save(productItem);
-//
-//        ReviewId reviewId = new ReviewId();
-//        reviewId.setUser(user);
-//        reviewId.setProductItem(saveProductItem);
-//
-//        Review review = reviewRepository.findById(reviewId).orElseThrow(()->new RuntimeException("Not found"));
-//
-//        review.setContent(review.getContent());
-//        review.setRating(review.getRating());
-//
-//        return reviewRepository.save(review).mapToReviewDto();
-//    }
-
-    public void deleteReview(Long productItemId){
-        User user = userService.getUserByUserInfo();
-        ProductItem productItem = productItemRepository.findById(productItemId)
-                .orElseThrow(()->new RuntimeException("Not found product item id " + productItemId));
-
         ReviewId reviewId = new ReviewId();
         reviewId.setUser(user);
         reviewId.setProductItem(productItem);
-
         Optional<Review> reviewOptional = reviewRepository.findById(reviewId);
-        if(reviewOptional.isPresent()){
-            Review review = reviewOptional.get();
-            productItem.setReviewsCount(productItem.getReviewsCount() - 1);
-            productItem.setTotalRating(productItem.getTotalRating() - review.getRating());
+
+        if(reviewOptional.isEmpty()){
+            Review review = new Review();
+            review.setId(reviewId);
+            review.setRating(reviewRequest.getRating());
+            review.setContent(reviewRequest.getContent());
+            productItem.setTotalRating(productItem.getTotalRating() + reviewRequest.getRating());
+            productItem.setReviewsCount(productItem.getReviewsCount() + 1);
             productItemRepository.save(productItem);
-            reviewRepository.deleteById(reviewId);
-        }else {
-            throw new RuntimeException("Không tìm thấy review");
+            return reviewRepository.save(review).mapToReviewDto();
         }
+        Review review = reviewOptional.get();
+        productItem.setTotalRating(productItem.getTotalRating()+reviewRequest.getRating()-review.getRating());
+        productItemRepository.save(productItem);
+        review.setRating(reviewRequest.getRating());
+        review.setContent(reviewRequest.getContent());
+        return reviewRepository.save(review).mapToReviewDto();
+
+
+
+
     }
+
+    public Review findByReviewId(Long productItemId){
+        User user = userService.getUserByUserInfo();
+        ProductItem productItem = productItemRepository.findById(productItemId)
+                .orElseThrow(()->new RuntimeException("Not found product item id "));
+        ReviewId reviewId = new ReviewId();
+        reviewId.setUser(user);
+        reviewId.setProductItem(productItem);
+        return reviewRepository.findById(reviewId).orElseThrow(()->new RuntimeException("Not found"));
+
+    }
+
+   @Transactional
+    public void deleteReview(Long productItemId){
+        Review review = findByReviewId(productItemId);
+        reviewRepository.delete(review);
+        ProductItem productItem=review.getId().getProductItem();
+        productItem.setReviewsCount(productItem.getReviewsCount() - 1);
+        productItem.setTotalRating(productItem.getTotalRating()-review.getRating());
+        productItemRepository.save(productItem);
+    }
+
 }

@@ -31,6 +31,7 @@ public class ProductService {
     private final ProductDtoViewRepository productDtoViewRepository;
 
     public Object getAllProductsView(Integer pageNum, Integer pageSize,Long categoryId,String search){
+
         Pageable pageable = PageRequest.of(pageNum-1, pageSize);
         Page<ProductDtoView> products = null;
         if(search==null&&categoryId==null){
@@ -87,8 +88,8 @@ public class ProductService {
 
 
     public PaginatedResponse<ProductDtoView> getProductsByTopSold(Integer pageNum,Integer pageSize){
-        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
-        Page<ProductDtoView> productDtoViews = productDtoViewRepository.findByTopSold(pageable);
+        Pageable pageable = PageRequest.of(pageNum-1,pageSize, Sort.by(Sort.Direction.DESC, "sold"));
+        Page<ProductDtoView> productDtoViews = productDtoViewRepository.findAll(pageable);
 
         return new PaginatedResponse<>(
                 productDtoViews.getContent(),

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user_voucher")
 public class UserVoucherController {
 
-    private final UserVoucherService userVoucherService;
+    /*private final UserVoucherService userVoucherService;
 
     @GetMapping("/my-voucher")
     public ResponseEntity<?> getVouchersByUserId(
@@ -42,5 +42,5 @@ public class UserVoucherController {
                         userVoucherService.redeemVoucher(voucherId)
                 )
         );
-    }
+    }*/
 }

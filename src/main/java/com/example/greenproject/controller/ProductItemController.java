@@ -33,7 +33,7 @@ public class ProductItemController {
 
 
     @GetMapping
-    public ResponseEntity<?> getAllCategories(@RequestParam(value = "pageNum",required = false) Integer pageNum,
+    public ResponseEntity<?> getAllProductItems(@RequestParam(value = "pageNum",required = false) Integer pageNum,
                                               @RequestParam(value = "pageSize",required = false) Integer pageSize,
                                               @RequestParam(value = "search",required = false) String search,
                                               @RequestParam(value = "productId",required = false) Long productId){
