@@ -37,10 +37,6 @@ public class User extends BaseEntity {
     private String fullName;
     @Enumerated(EnumType.STRING)
     private UserType userType;
-
-
-
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "_user_role",
             joinColumns = @JoinColumn(name = "user_id",
@@ -50,6 +46,17 @@ public class User extends BaseEntity {
     )
     @JsonIgnore
     private Set<Role> roles=new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "_user_voucher",
+            joinColumns = @JoinColumn(name = "user_id",
+                    referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "voucher_id",
+                    referencedColumnName = "id")
+    )
+    @JsonIgnore
+    private Set<Voucher> vouchers=new HashSet<>();
+
     @PrePersist
     @PreUpdate
     public void trimData() {

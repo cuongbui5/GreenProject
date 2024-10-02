@@ -5,11 +5,15 @@ import com.example.greenproject.dto.req.UpdateVoucherRequest;
 import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.dto.res.VoucherDto;
 import com.example.greenproject.exception.NotFoundException;
+import com.example.greenproject.model.User;
 import com.example.greenproject.model.Voucher;
 import com.example.greenproject.model.enums.VoucherType;
+import com.example.greenproject.repository.UserRepository;
 import com.example.greenproject.repository.VoucherRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VoucherService {
     private final VoucherRepository voucherRepository;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
     public Object getAllVouchers(Integer pageNum, Integer pageSize,String search){
         System.out.println("getAllVouchers");
@@ -119,6 +125,48 @@ public class VoucherService {
     }
 
 
+    @Transactional
+    public Object getVouchersByUserId(Integer pageNum, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNum-1,pageSize);
 
+        User user = userService.getUserByUserInfo();
+
+        Page<Voucher> vouchers = new PageImpl<>(user.getVouchers().stream().toList(),pageable,user.getVouchers().size());
+
+        return new PaginatedResponse<>(
+                vouchers.getContent().stream().map(Voucher::mapToVoucherDto).toList(),
+                vouchers.getTotalPages(),
+                vouchers.getNumber()+1,
+                vouchers.getTotalElements()
+        );
+    }
+
+    @Transactional
+    public VoucherDto redeemVoucher(Long voucherId) {
+        User user = userService.getUserByUserInfo();
+
+        Voucher voucher = voucherRepository.findById(voucherId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy voucher id : " + voucherId));
+
+
+        if (user.getPoints() < voucher.getPointsRequired()) {
+            throw new RuntimeException("Không đủ điểm để đổi voucher");
+        }
+
+        if (voucher.getQuantity() <= 0) {
+            throw new RuntimeException("Đã hết voucher");
+        }
+
+        if(user.getVouchers().stream().anyMatch((v)->v.getName().equals(voucher.getName()))){
+            throw new RuntimeException("Bạn đã sở hữu voucher này rồi !");
+        }
+
+        user.setPoints(user.getPoints() - voucher.getPointsRequired());
+        voucher.setQuantity(voucher.getQuantity() - 1);
+        user.getVouchers().add(voucher);
+        userService.updateUserPoint(user);
+
+        return voucher.mapToVoucherDto();
+    }
 
 }

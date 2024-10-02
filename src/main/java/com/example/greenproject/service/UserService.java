@@ -70,7 +70,7 @@ public class UserService {
 
     }
 
-    public User updateUserPoint(User user){
-        return userRepository.save(user);
+    public void updateUserPoint(User user){
+        userRepository.save(user);
     }
 }

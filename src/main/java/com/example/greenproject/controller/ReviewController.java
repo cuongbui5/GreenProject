@@ -50,15 +50,6 @@ public class ReviewController {
                 ));
     }
 
-//    @PutMapping("/update")
-//    public ResponseEntity<?> updateReview(@RequestBody @Valid ReviewRequest reviewRequest){
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(new DataResponse(
-//                        HttpStatus.OK.value(),
-//                        Constants.SUCCESS_MESSAGE,
-//                        reviewService.updateReview(reviewRequest)
-//                ));
-//    }
 
     @DeleteMapping("/delete/product_item/{productItemId}")
     public ResponseEntity<?> deleteReview(@PathVariable("productItemId") Long productItemId){

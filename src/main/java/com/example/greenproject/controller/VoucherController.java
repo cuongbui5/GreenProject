@@ -82,4 +82,30 @@ public class VoucherController {
                         voucherService.getValidVouchers(pageNum, pageSize)
                 ));
     }
+
+    @GetMapping("/my-voucher")
+    public ResponseEntity<?> getVouchersByUserId(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        voucherService.getVouchersByUserId(pageNum, pageSize)
+                )
+        );
+    }
+
+    @PostMapping("/redeem")
+    public ResponseEntity<?> redeemVoucher(
+            @RequestParam Long voucherId) {
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        voucherService.redeemVoucher(voucherId)
+                )
+        );
+    }
 }

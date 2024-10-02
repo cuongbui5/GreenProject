@@ -80,8 +80,8 @@ public class ProductController {
     }
 
     @GetMapping("/top_sold")
-    public ResponseEntity<?> getProductItemByTopSold(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
-                                                     @RequestParam(value = "pageSize",required = false,defaultValue = "8") Integer pageSize){
+    public ResponseEntity<?> getProductItemByTopSold(@RequestParam(value = "pageNum") Integer pageNum,
+                                                     @RequestParam(value = "pageSize") Integer pageSize){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
