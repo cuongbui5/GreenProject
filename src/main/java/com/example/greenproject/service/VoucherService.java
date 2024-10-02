@@ -10,6 +10,8 @@ import com.example.greenproject.model.Voucher;
 import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.UserRepository;
 import com.example.greenproject.repository.VoucherRepository;
+import com.example.greenproject.security.UserInfo;
+import com.example.greenproject.utils.Utils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -129,9 +131,9 @@ public class VoucherService {
     public Object getVouchersByUserId(Integer pageNum, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
 
-        User user = userService.getUserByUserInfo();
+        UserInfo userInfo= Utils.getUserInfoFromContext();
 
-        Page<Voucher> vouchers = new PageImpl<>(user.getVouchers().stream().toList(),pageable,user.getVouchers().size());
+        Page<Voucher> vouchers = voucherRepository.findByUserId(userInfo.getId(),pageable);
 
         return new PaginatedResponse<>(
                 vouchers.getContent().stream().map(Voucher::mapToVoucherDto).toList(),

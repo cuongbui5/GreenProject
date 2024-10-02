@@ -5,6 +5,8 @@ import com.example.greenproject.model.enums.VoucherType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "_voucher",uniqueConstraints = {
@@ -28,6 +30,8 @@ public class Voucher extends BaseEntity{
     private Double value;
     private ZonedDateTime startDate;
     private ZonedDateTime endDate;
+    @ManyToMany(mappedBy = "vouchers")
+    private Set<User> users=new HashSet<>();
     public VoucherDto mapToVoucherDto() {
         VoucherDto dto = new VoucherDto();
         dto.setId(id);
@@ -43,6 +47,8 @@ public class Voucher extends BaseEntity{
         dto.setUpdatedAt(getUpdatedAt());
         return dto;
     }
+
+
     public boolean validateVoucherValue() {
         if (type == VoucherType.FREE_SHIP) {
             return value == 0;
