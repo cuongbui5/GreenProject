@@ -43,7 +43,7 @@ public class ItemService {
         item.setStatus(ItemStatus.CART_ITEM);
         item.setQuantity(createCartItemRequest.getQuantity());
         item.setProductItem(productItem);
-        item.setTotalPrice(productItem.getPrice()*createCartItemRequest.getQuantity());
+        item.calculateTotalPrice();
         itemRepository.save(item);
     }
 
@@ -89,15 +89,12 @@ public class ItemService {
 
 
 
-    public void deleteCartItem(Long id){
-        itemRepository.deleteById(id);
-    }
+
 
     @Transactional
     public List<ItemDto> getAllCartItem() {
         Cart cart=cartService.getOrCreateCart();
-        List<ItemDto> list = itemRepository.findByCart(cart).stream().map(Item::mapToItemDto).toList();
-        return list;
+        return itemRepository.findByCart(cart).stream().map(Item::mapToItemDto).toList();
     }
 
 
@@ -105,6 +102,7 @@ public class ItemService {
     public Object updateCartQuantity(UpdateCartQuantity updateCartQuantity, Long itemId) {
         Item item=itemRepository.findById(itemId).orElseThrow(()->new RuntimeException("not find item"));
         item.setQuantity(updateCartQuantity.getQuantity());
+        item.calculateTotalPrice();
         return itemRepository.save(item).mapToItemDto();
     }
 

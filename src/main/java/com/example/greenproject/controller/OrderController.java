@@ -21,10 +21,10 @@ public class OrderController {
 
     @PostMapping("/set-contact")
     public ResponseEntity<?> setContactToOrder(@RequestBody UpdateContactOrderRequest updateContactOrderRequest){
-        return ResponseEntity.ok().body(new DataResponse(
+        orderService.updateContactToOrder(updateContactOrderRequest);
+        return ResponseEntity.ok().body(new BaseResponse(
                 HttpStatus.OK.value(),
-                Constants.SUCCESS_MESSAGE,
-                orderService.updateContactToOrder(updateContactOrderRequest)
+                Constants.SUCCESS_MESSAGE
         ));
     }
 
@@ -91,6 +91,12 @@ public class OrderController {
     @PostMapping("/pay")
     public String pay(@RequestBody CreatePaymentRequest createPaymentRequest) {
         paymentProducer.sendPaymentRequest(createPaymentRequest);
+        return "Yêu cầu thanh toán đã được gửi đi.";
+    }
+
+    @PostMapping("/pay-on-delivery")
+    public String payOnDelivery(@RequestBody CreatePaymentRequest createPaymentRequest) {
+        //paymentProducer.sendPaymentRequest(createPaymentRequest);
         return "Yêu cầu thanh toán đã được gửi đi.";
     }
 
