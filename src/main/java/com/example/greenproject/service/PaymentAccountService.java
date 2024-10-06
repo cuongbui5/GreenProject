@@ -1,6 +1,7 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.LinkPaymentAccount;
+import com.example.greenproject.dto.res.PaymentAccountDto;
 import com.example.greenproject.model.PaymentAccount;
 import com.example.greenproject.model.User;
 import com.example.greenproject.repository.PaymentAccountRepository;
@@ -19,11 +20,14 @@ import java.util.Optional;
 public class PaymentAccountService {
     private final PaymentAccountRepository paymentAccountRepository;
     private final UserService userService;
+
     public List<PaymentAccount> findAllByUserId(Long userId) {
         return paymentAccountRepository.findByUserId(userId);
     }
+
+
     @Transactional
-    public PaymentAccount linkUserToPaymentAccount(LinkPaymentAccount linkPaymentAccount) {
+    public PaymentAccountDto linkUserToPaymentAccount(LinkPaymentAccount linkPaymentAccount) {
         Optional<PaymentAccount> paymentAccountOptional=paymentAccountRepository
                 .findByAccountNumberAndBankId(linkPaymentAccount.getAccountNumber(), linkPaymentAccount.getBankId());
 
@@ -41,7 +45,7 @@ public class PaymentAccountService {
 
         User user=userService.getUserByUserInfo();
         paymentAccount.setUser(user);
-        return paymentAccountRepository.save(paymentAccount);
+        return paymentAccountRepository.save(paymentAccount).mapToPaymentAccountDto();
 
     }
 

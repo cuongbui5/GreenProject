@@ -94,13 +94,14 @@ public class ProductController {
     @GetMapping("/sort")
     public ResponseEntity<?> getAllSortedProduct(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
                                                  @RequestParam(value = "pageSize",required = false,defaultValue = "50") Integer pageSize,
-                                                 @RequestParam(value = "option",required = false,defaultValue = "+minPrice") String option){
+                                                 @RequestParam(value = "option",required = false,defaultValue = "+minPrice") String option,
+                                                 @RequestParam(value = "ratingPoint",required = false) Integer ratingPoint){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllSortedProductItems(pageNum,pageSize,option)));
+                        productService.getAllSortedProductItems(pageNum,pageSize,option,ratingPoint)));
     }
 
 
