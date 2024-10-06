@@ -1,6 +1,7 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,11 +21,12 @@ public class VariationOption extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variation_id",referencedColumnName = "id")
+    @JsonIgnore
     private Variation variation;
     private String value;
-    @ManyToMany(mappedBy = "variationOptions",fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "variationOptions",fetch = FetchType.LAZY)
     private Set<ProductItem> productItems = new HashSet<>();
 
 

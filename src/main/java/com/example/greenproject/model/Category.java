@@ -31,6 +31,9 @@ public class Category extends BaseEntity{
     @JoinColumn(name = "parent_id",referencedColumnName = "id")
     @JsonIgnore
     private Category parent;
+    @OneToMany(mappedBy = "category",fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Product> products = new ArrayList<>();
 
 
     @PrePersist

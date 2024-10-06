@@ -4,6 +4,7 @@ import com.example.greenproject.dto.res.VariationDto;
 import com.example.greenproject.dto.res.VariationDtoLazy;
 import com.example.greenproject.dto.res.VariationDtoWithOptions;
 import com.example.greenproject.dto.res.VariationOptionDtoLazy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.HashSet;
@@ -22,12 +23,13 @@ public class Variation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id",referencedColumnName = "id")
+    @JsonIgnore
     private Category category;
     private String name;
 
-    @OneToMany(mappedBy = "variation",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "variation",fetch = FetchType.LAZY)
     private Set<VariationOption> variationOptions;
 
     @PrePersist

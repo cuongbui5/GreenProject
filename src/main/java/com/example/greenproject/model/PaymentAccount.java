@@ -1,5 +1,6 @@
 package com.example.greenproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class PaymentAccount {
     private Long id;
     private String accountNumber;
     private String fullName;
+    @JsonIgnore
     private String pinCode;
     private Double balance;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,6 +29,7 @@ public class PaymentAccount {
     private Bank bank;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
+    @JsonIgnore
     private User user;
 
 }

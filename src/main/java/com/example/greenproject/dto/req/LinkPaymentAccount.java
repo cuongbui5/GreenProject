@@ -7,6 +7,5 @@ public class LinkPaymentAccount {
     private Long bankId;
     private String accountNumber;
     private String fullName;
-    private String pinCode
-            ;
+    private String pinCode;
 }

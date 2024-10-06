@@ -6,8 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -28,4 +30,10 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
                     "AND v.end_date >= :now",
             nativeQuery = true)
     Page<Voucher> findValidVouchers(@Param("now") ZonedDateTime now,Pageable pageable);
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM _user_voucher WHERE user_id = :userId AND voucher_id = :voucherId", nativeQuery = true)
+    void deleteUserVoucher(Long userId, Long voucherId);
+
+
 }

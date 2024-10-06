@@ -7,6 +7,7 @@ import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.*;
 import com.example.greenproject.model.enums.ItemStatus;
 import com.example.greenproject.model.enums.OrderStatus;
+import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class OrderService {
     private final ProductItemRepository productItemRepository;
     private final PaymentAccountRepository paymentAccountRepository;
     private final UserService userService;
-    private final ItemService itemService;
+    private final VoucherService voucherService;
     private final ContactRepository contactRepository;
     private final VoucherRepository voucherRepository;
 
@@ -131,14 +132,6 @@ public class OrderService {
             throw new RuntimeException("Tai khoan nay khong du tien thanh toan!Vui long chon tai khoan khac!");
         }
 
-        boolean isCancelled = order.getItems().stream()
-                .anyMatch(item -> item.getProductItem().getQuantity() < item.getQuantity());
-
-        if (isCancelled) {
-            order.setStatus(OrderStatus.CANCELED);
-            orderRepository.save(order);
-            return;
-        }
 
         for (Item item : order.getItems()) {
             ProductItem productItem = productItemRepository.findById(item.getProductItem().getId())
@@ -168,6 +161,7 @@ public class OrderService {
         order.setPaid(true);
         order.setStatus(OrderStatus.PENDING);
         orderRepository.save(order);
+        voucherService.deleteVoucherAfterPaymentSuccess(order.getVoucher().getId(), user.getId());
     }
 
     @Transactional
@@ -193,6 +187,7 @@ public class OrderService {
         return orderRepository.save(order).mapToOrderDto();
     }
 
+    @Transactional
     public OrderDto getOrderById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with ID: " + id)).mapToOrderDto();
     }

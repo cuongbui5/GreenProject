@@ -1,6 +1,7 @@
 package com.example.greenproject.model;
 
 import com.example.greenproject.dto.res.ImageDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class Image extends BaseEntity{
     private String url;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id",referencedColumnName = "id")
+    @JsonIgnore
     private Product product;
 
     public ImageDto mapToImageDto() {

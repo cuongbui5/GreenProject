@@ -8,6 +8,7 @@ import com.example.greenproject.security.UserInfo;
 import com.example.greenproject.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +22,7 @@ public class PaymentAccountService {
     public List<PaymentAccount> findAllByUserId(Long userId) {
         return paymentAccountRepository.findByUserId(userId);
     }
-
+    @Transactional
     public PaymentAccount linkUserToPaymentAccount(LinkPaymentAccount linkPaymentAccount) {
         Optional<PaymentAccount> paymentAccountOptional=paymentAccountRepository
                 .findByAccountNumberAndBankId(linkPaymentAccount.getAccountNumber(), linkPaymentAccount.getBankId());

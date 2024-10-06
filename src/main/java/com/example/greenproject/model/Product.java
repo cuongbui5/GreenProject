@@ -26,13 +26,14 @@ public class Product extends BaseEntity{
     private String description;
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Image> images;
+    private List<Image> images=new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id",referencedColumnName = "id")
+    @JsonIgnore
     private Category category;
     @OneToMany(mappedBy = "product",fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<ProductItem> productItems;
+    private List<ProductItem> productItems=new ArrayList<>();
 
     public ProductDto mapToProductDto() {
         ProductDto productDto=new ProductDto();

@@ -11,7 +11,6 @@ import java.util.List;
 @Data
 public class OrderDto {
     private Long id;
-    private Long userId;
     private ContactDto contact;
     private List<ItemDto> items=new ArrayList<>();
     private boolean isPaid;

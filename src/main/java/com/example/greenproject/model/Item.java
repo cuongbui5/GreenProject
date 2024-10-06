@@ -21,6 +21,7 @@ public class Item extends BaseEntity {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_item_id",referencedColumnName = "id")
+    @JsonIgnore
     private ProductItem productItem;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id",referencedColumnName = "id")

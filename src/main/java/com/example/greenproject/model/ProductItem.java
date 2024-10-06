@@ -2,6 +2,7 @@ package com.example.greenproject.model;
 import com.example.greenproject.dto.res.*;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,14 +14,13 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-@NamedEntityGraph(name = "ProductItem.variationOptions",
-        attributeNodes = @NamedAttributeNode("variationOptions"))
 public class ProductItem extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id",referencedColumnName = "id")
+    @JsonIgnore
     private Product product;
     private Integer quantity;
     private Double price;
@@ -35,6 +35,7 @@ public class ProductItem extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "variation_option_id",
                     referencedColumnName = "id")
     )
+    @JsonIgnore
     private Set<VariationOption> variationOptions=new HashSet<>();
 
     public ProductItemDtoLazy mapToProductItemDtoLazy(){

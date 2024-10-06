@@ -33,7 +33,7 @@ public class Order {
     @JsonIgnore
     private List<Item> items=new ArrayList<>();
     private boolean isPaid;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voucher_id",referencedColumnName = "id")
     @JsonIgnore
     private Voucher voucher;
@@ -46,7 +46,6 @@ public class Order {
     public OrderDto mapToOrderDto(){
         OrderDto dto = new OrderDto();
         dto.setId(id);
-        dto.setUserId(user.getId());
         dto.setContact(contact==null?null:contact.mapToContactDto());
         dto.setVoucher(voucher==null?null:voucher.mapToVoucherDto());
         dto.setItems(items.stream().map(Item::mapToItemDto).toList());

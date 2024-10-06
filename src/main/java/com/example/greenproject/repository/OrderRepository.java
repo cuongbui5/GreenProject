@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    @EntityGraph(attributePaths = {"user", "contact", "voucher", "items.productItem.product", "items.productItem.variationOptions"})
+    @EntityGraph(attributePaths = {"contact", "voucher", "items.productItem.product.category","items.productItem.product.images", "items.productItem.variationOptions"})
     Optional<Order> findById(Long id);
+
 }

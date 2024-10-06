@@ -171,4 +171,9 @@ public class VoucherService {
         return voucher.mapToVoucherDto();
     }
 
+    public void deleteVoucherAfterPaymentSuccess(Long voucherId,Long userId) {
+         voucherRepository.deleteUserVoucher(userId,voucherId);
+
+    }
+
 }
