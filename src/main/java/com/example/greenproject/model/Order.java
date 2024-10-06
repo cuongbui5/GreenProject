@@ -71,6 +71,7 @@ public class Order extends BaseEntity {
         dto.setShippingCost(shippingCost);
         dto.setTotalCost(totalCost);
         dto.setProductTotalCost(productTotalCost);
+        dto.setStatus(status);
         return dto;
     }
 

@@ -19,6 +19,18 @@ public class OrderController {
 
     private final PaymentProducer paymentProducer;
     private final OrderService orderService;
+    @GetMapping
+    public ResponseEntity<?> getAllOrders(@RequestParam(name = "status") OrderStatus orderStatus,
+                                          @RequestParam(value = "pageNum") Integer pageNum,
+                                          @RequestParam(value = "pageSize") Integer pageSize){
+        return ResponseEntity.ok().body(new DataResponse(
+                HttpStatus.OK.value(),
+                Constants.SUCCESS_MESSAGE,
+                orderService.getAllOrder(pageNum,pageSize,orderStatus)
+        ));
+    }
+
+
 
     @GetMapping("/user")
     public ResponseEntity<?> getAllOrdersByUser(@RequestParam(name = "status") OrderStatus orderStatus){

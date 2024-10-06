@@ -3,6 +3,7 @@ package com.example.greenproject.service;
 import com.example.greenproject.dto.req.*;
 import com.example.greenproject.dto.res.OrderDto;
 import com.example.greenproject.dto.res.OrderDtoLazy;
+import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.exception.NotFoundException;
 import com.example.greenproject.model.*;
 import com.example.greenproject.model.enums.ItemStatus;
@@ -11,9 +12,14 @@ import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,7 +63,7 @@ public class OrderService {
     }
 
 
-
+    @Transactional
     public Order updateOrderStatus(long orderId, UpdateOrderStatusRequest updateOrderStatusRequest) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
@@ -100,7 +106,7 @@ public class OrderService {
 
             case RETURNED:
                 if (currentStatus == OrderStatus.DELIVERED) {
-                    order.setStatus(OrderStatus.RETURNED);
+                    processRefund(order);
                     break;
                 }
                 break;
@@ -192,6 +198,42 @@ public class OrderService {
     }
 
     @Transactional
+    public void processRefund(Order order) {
+
+        // Kiểm tra trạng thái đơn hàng
+        if (!order.isPaid() || !order.getStatus().equals(OrderStatus.DELIVERED)) {
+            throw new RuntimeException("Đơn hàng không đủ điều kiện để trả hàng.");
+        }
+
+        // Kiểm tra thời gian cập nhật
+        ZonedDateTime currentDateTime = ZonedDateTime.now();
+        if (order.getUpdatedAt() == null ||
+                order.getUpdatedAt().isBefore(currentDateTime.minusDays(15))) {
+            throw new RuntimeException("Đơn hàng đã quá thời gian hoàn tiền (15 ngày).");
+        }
+
+        // Hoàn tiền
+        PaymentAccount paymentAccount = order.getPaymentAccount();
+        paymentAccount.setBalance(paymentAccount.getBalance() + order.getTotalCost());
+
+        // Cập nhật trạng thái đơn hàng
+
+
+        // Cập nhật lại sản phẩm trong kho
+        for (Item item : order.getItems()) {
+            ProductItem productItem = productItemRepository.findById(item.getProductItem().getId())
+                    .orElseThrow(() -> new NotFoundException("Product not found"));
+            productItem.setQuantity(productItem.getQuantity() + item.getQuantity());
+            productItem.setSold(productItem.getSold() - item.getQuantity());
+        }
+        order.setStatus(OrderStatus.RETURNED);
+        //order.setPaid(false); // Đánh dấu là chưa thanh toán
+        orderRepository.save(order);
+
+
+    }
+
+    @Transactional
     public OrderDto getOrderById(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found with ID: " + id)).mapToOrderDto();
     }
@@ -223,5 +265,16 @@ public class OrderService {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 
         return orderRepository.findByStatus(orderStatus,sort).stream().map(Order::mapToOrderDto).toList();
+    }
+    @Transactional
+    public Object getAllOrder(Integer pageNum, Integer pageSize, OrderStatus orderStatus) {
+        Pageable pageable = PageRequest.of(pageNum-1, pageSize, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Order> orders = orderRepository.findByStatus(orderStatus,pageable);
+        return new PaginatedResponse<>(
+                orders.getContent().stream().map(Order::mapToOrderDtoLazy).toList(),
+                orders.getTotalPages(),
+                orders.getNumber()+1,
+                orders.getTotalElements()
+        );
     }
 }
