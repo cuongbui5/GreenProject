@@ -11,15 +11,16 @@ import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final ItemRepository itemRepository;
     private final CartService cartService;
     private final ProductItemRepository productItemRepository;
     private final PaymentAccountRepository paymentAccountRepository;
@@ -145,7 +146,6 @@ public class OrderService {
 
             }
 
-
             productItem.setQuantity(productItem.getQuantity() - item.getQuantity());
             productItem.setSold(productItem.getSold() + item.getQuantity());
         }
@@ -160,8 +160,12 @@ public class OrderService {
 
         order.setPaid(true);
         order.setStatus(OrderStatus.PENDING);
+        order.setPaymentAccount(paymentAccount);
         orderRepository.save(order);
-        voucherService.deleteVoucherAfterPaymentSuccess(order.getVoucher().getId(), user.getId());
+        if(order.getVoucher()!=null){
+            voucherService.deleteVoucherAfterPaymentSuccess(order.getVoucher().getId(), user.getId());
+        }
+
     }
 
     @Transactional
@@ -212,5 +216,12 @@ public class OrderService {
         order.calculateAllCosts();
 
         return orderRepository.save(order).mapToOrderDtoLazy();
+    }
+
+    @Transactional
+    public List<OrderDto> getAllOrderByStatus(OrderStatus orderStatus) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        return orderRepository.findByStatus(orderStatus,sort).stream().map(Order::mapToOrderDto).toList();
     }
 }

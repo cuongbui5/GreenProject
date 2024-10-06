@@ -3,6 +3,7 @@ package com.example.greenproject.controller;
 import com.example.greenproject.dto.req.*;
 import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
+import com.example.greenproject.model.enums.OrderStatus;
 import com.example.greenproject.rabbitmq.PaymentProducer;
 import com.example.greenproject.service.OrderService;
 import com.example.greenproject.utils.Constants;
@@ -18,6 +19,17 @@ public class OrderController {
 
     private final PaymentProducer paymentProducer;
     private final OrderService orderService;
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getAllOrdersByUser(@RequestParam(name = "status") OrderStatus orderStatus){
+        return ResponseEntity.ok().body(new DataResponse(
+                HttpStatus.OK.value(),
+                Constants.SUCCESS_MESSAGE,
+                orderService.getAllOrderByStatus(orderStatus)
+        ));
+    }
+
+
 
     @PostMapping("/set-contact")
     public ResponseEntity<?> setContactToOrder(@RequestBody UpdateContactOrderRequest updateContactOrderRequest){

@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Order {
+public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,6 +37,10 @@ public class Order {
     @JoinColumn(name = "voucher_id",referencedColumnName = "id")
     @JsonIgnore
     private Voucher voucher;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_account_id",referencedColumnName = "id")
+    @JsonIgnore
+    private PaymentAccount paymentAccount;
     private Double productTotalCost;
     private Double shippingCost;
     private Double totalCost;
@@ -55,6 +59,8 @@ public class Order {
         dto.setTotalCost(totalCost);
         dto.setDiscountAmount(discountAmount);
         dto.setStatus(status);
+        dto.setCreatedAt(getCreatedAt());
+        dto.setUpdatedAt(getUpdatedAt());
         return dto;
     }
 

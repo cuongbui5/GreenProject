@@ -5,7 +5,10 @@ import com.example.greenproject.model.Voucher;
 import com.example.greenproject.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 @Data
@@ -21,5 +24,8 @@ public class OrderDto {
     private Double totalCost;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
+
 
 }

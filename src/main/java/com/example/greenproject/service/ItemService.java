@@ -19,7 +19,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemRepository itemRepository;
-    private final OrderRepository orderRepository;
     private final CartService cartService;
     private final ProductItemRepository productItemRepository;
 
