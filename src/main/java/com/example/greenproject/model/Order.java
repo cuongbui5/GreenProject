@@ -84,7 +84,7 @@ public class Order {
             return;
         }
 
-        this.discountAmount=voucher.getValue()*productTotalCost;
+        this.discountAmount=voucher.getValue()*productTotalCost*0.01;
     }
 
     public void calculateProductTotalCost() {

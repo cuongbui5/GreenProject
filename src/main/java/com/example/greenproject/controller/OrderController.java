@@ -87,8 +87,18 @@ public class OrderController {
 
     }
 
-
     @PostMapping("/pay")
+    public ResponseEntity<?> payment(@RequestBody CreatePaymentRequest createPaymentRequest) {
+        orderService.createPayment(createPaymentRequest);
+        return ResponseEntity.ok().body(new BaseResponse(
+                HttpStatus.OK.value(),
+                Constants.SUCCESS_MESSAGE
+
+        ));
+    }
+
+
+    @PostMapping("/pay1")
     public String pay(@RequestBody CreatePaymentRequest createPaymentRequest) {
         paymentProducer.sendPaymentRequest(createPaymentRequest);
         return "Yêu cầu thanh toán đã được gửi đi.";

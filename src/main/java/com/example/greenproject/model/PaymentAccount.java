@@ -20,12 +20,12 @@ public class PaymentAccount {
     private Long id;
     private String accountNumber;
     private String fullName;
-    private String pin;
+    private String pinCode;
     private Double balance;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id",referencedColumnName = "id")
     private Bank bank;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 

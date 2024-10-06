@@ -112,7 +112,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createPayment(CreatePaymentRequest createPaymentRequest) {
+    public void createPayment(CreatePaymentRequest createPaymentRequest) {
         Order order = orderRepository.findById(createPaymentRequest.getOrderId())
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + createPaymentRequest.getOrderId()));
 
@@ -121,7 +121,7 @@ public class OrderService {
                 .orElseThrow(() -> new NotFoundException("không tim thay tai khoan thanh toan "));
 
 
-        if(!Objects.equals(paymentAccount.getPin(), createPaymentRequest.getPin())) {
+        if(!Objects.equals(paymentAccount.getPinCode(), createPaymentRequest.getPinCode())) {
             throw new IllegalStateException("Sai ma pin!");
         }
         if(order.getContact()==null){
@@ -136,7 +136,8 @@ public class OrderService {
 
         if (isCancelled) {
             order.setStatus(OrderStatus.CANCELED);
-            return orderRepository.save(order);
+            orderRepository.save(order);
+            return;
         }
 
         for (Item item : order.getItems()) {
@@ -166,7 +167,7 @@ public class OrderService {
 
         order.setPaid(true);
         order.setStatus(OrderStatus.PENDING);
-        return order;
+        orderRepository.save(order);
     }
 
     @Transactional
