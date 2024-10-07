@@ -108,8 +108,6 @@ public class ProductService {
 
 
 
-
-
     private void collectChildCategoryIds(Long categoryId, List<Long> categoryIds) {
         categoryIds.add(categoryId);
         List<Category> childCategories = categoryRepository.findByParentId(categoryId);
@@ -151,6 +149,7 @@ public class ProductService {
 
         return productRepository.save(newProduct).mapToProductDto();
     }
+
     @Transactional
     public ProductDto updateProduct(Long productId,UpdateProductRequest updateProductRequest){
 
@@ -186,5 +185,10 @@ public class ProductService {
     public Object getProductById(Long productId) {
         Product product=productRepository.findByProductId(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
         return product.mapToProductDto();
+    }
+
+    /*-----------------Thống kê số lượng sản phẩm--------------------*/
+    public long getTotalProduct(){
+        return productRepository.count();
     }
 }

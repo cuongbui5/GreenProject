@@ -277,4 +277,13 @@ public class OrderService {
                 orders.getTotalElements()
         );
     }
+
+    /*--------------Thống kê số lượng order đã hoàn thành-------------*/
+    public long countByIsPaidTrue(){
+        return orderRepository.countByIsPaidTrue();
+    }
+
+    public Double getTotalPaidOrderValue() {
+        return orderRepository.calculateTotalRevenue();
+    }
 }

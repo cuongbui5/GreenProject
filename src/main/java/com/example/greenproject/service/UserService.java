@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -72,5 +75,18 @@ public class UserService {
 
     public void updateUserPoint(User user){
         userRepository.save(user);
+    }
+
+    /*--------------Thống kê số lượng user-------------*/
+    public long getTotalUser(){
+        return userRepository.count();
+    }
+
+    public long getUsersByCurrentMonth() {
+        ZonedDateTime now = ZonedDateTime.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+
+        return userRepository.countUsersByMonth(currentYear, currentMonth);
     }
 }
