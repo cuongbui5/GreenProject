@@ -79,6 +79,7 @@ public class OrderService {
             case CANCELED:
                 if (currentStatus == OrderStatus.PENDING) {
                     order.setStatus(OrderStatus.CANCELED);
+                    processRefund(order);
                     break;
                 }
                 break;
