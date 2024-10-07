@@ -4,6 +4,8 @@ import com.example.greenproject.dto.req.CreateProductRequest;
 
 import com.example.greenproject.dto.req.UpdateProductRequest;
 import com.example.greenproject.dto.res.DataResponse;
+import com.example.greenproject.dto.res.PaginatedResponse;
+import com.example.greenproject.dto.res.ProductDtoView;
 import com.example.greenproject.service.ProductService;
 import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +60,16 @@ public class ProductController {
                         productService.getProductById(productId)));
     }
 
+    @GetMapping("/rating")
+    public ResponseEntity<?> getProductsByRating(@RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum,
+                                                 @RequestParam(value = "pageSize", defaultValue = "50") Integer pageSize,
+                                                 @RequestParam(value = "ratingPoint", defaultValue = "5") Integer ratingPoint) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new DataResponse(
+                        HttpStatus.OK.value(),
+                        Constants.SUCCESS_MESSAGE,
+                        productService.getAllProductByTotalRating(pageNum,pageSize,ratingPoint)));
+    }
 
 
     @PutMapping("/update/{id}")
@@ -94,14 +106,13 @@ public class ProductController {
     @GetMapping("/sort")
     public ResponseEntity<?> getAllSortedProduct(@RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
                                                  @RequestParam(value = "pageSize",required = false,defaultValue = "50") Integer pageSize,
-                                                 @RequestParam(value = "option",required = false,defaultValue = "+minPrice") String option,
-                                                 @RequestParam(value = "ratingPoint",required = false) Integer ratingPoint){
+                                                 @RequestParam(value = "option",required = false,defaultValue = "+minPrice") String option){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        productService.getAllSortedProductItems(pageNum,pageSize,option,ratingPoint)));
+                        productService.getAllSortedProductItems(pageNum,pageSize,option)));
     }
 
 

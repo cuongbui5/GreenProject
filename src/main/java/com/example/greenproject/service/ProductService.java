@@ -60,7 +60,7 @@ public class ProductService {
 
 
 
-    public Object getAllSortedProductItems(int pageNumber, int pageSize, String option,Integer ratingPoint) {
+    public Object getAllSortedProductItems(int pageNumber, int pageSize, String option) {
 
         Pageable pageable = switch (option) {
             case "ascMinPrice" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("minPrice").ascending());
@@ -71,12 +71,7 @@ public class ProductService {
             case "totalRating" -> PageRequest.of(pageNumber - 1, pageSize, Sort.by("totalRating").descending());
             default -> PageRequest.of(pageNumber - 1, pageSize);
         };
-        Page<ProductDtoView> productDtoViews;
-        if (ratingPoint != null) {
-            productDtoViews = productDtoViewRepository.findAllProductsByRatingPoint(ratingPoint, pageable);
-        } else {
-            productDtoViews = productDtoViewRepository.findAll(pageable);
-        }
+        Page<ProductDtoView> productDtoViews = productDtoViewRepository.findAll(pageable);
 
         return new PaginatedResponse<>(
                 productDtoViews.getContent(),
@@ -86,7 +81,7 @@ public class ProductService {
         );
     }
 
-    /*public Object getAllProductByTotalRating(Integer pageNum,Integer pageSize, Integer ratingPoint){
+    public Object getAllProductByTotalRating(Integer pageNum, Integer pageSize, Integer ratingPoint){
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
         Page<ProductDtoView> productDtoViews = productDtoViewRepository.findAllProductsByRatingPoint(ratingPoint,pageable);
 
@@ -96,9 +91,7 @@ public class ProductService {
                 productDtoViews.getNumber()+1,
                 productDtoViews.getTotalElements()
         );
-    }*/
-
-
+    }
 
 
     public PaginatedResponse<ProductDtoView> getProductsByTopSold(Integer pageNum,Integer pageSize){
