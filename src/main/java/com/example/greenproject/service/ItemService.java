@@ -21,8 +21,8 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final CartService cartService;
     private final ProductItemRepository productItemRepository;
-
-    public void createCartItem(CreateCartItemRequest createCartItemRequest) {
+    @Transactional
+    public ItemDto createCartItem(CreateCartItemRequest createCartItemRequest) {
         ProductItem productItem=productItemRepository.findById(createCartItemRequest.getProductItemId())
                 .orElseThrow(()-> new RuntimeException("not find productItem"));
 
@@ -43,7 +43,7 @@ public class ItemService {
         item.setQuantity(createCartItemRequest.getQuantity());
         item.setProductItem(productItem);
         item.calculateTotalPrice();
-        itemRepository.save(item);
+        return itemRepository.save(item).mapToItemDto();
     }
 
     public Item createItem(Long productItemId, Integer quantity) {

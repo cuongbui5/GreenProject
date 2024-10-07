@@ -170,10 +170,18 @@ public class OrderService {
         paymentAccount.setBalance(paymentAccount.getBalance()-order.getTotalCost());
 
         User user=paymentAccount.getUser();
-        int pointsToAdd = (order.getTotalCost() >= 500000) ? 5000 : (order.getTotalCost() >= 100000) ? 1000 : 0;
+        int pointsToAdd = 0;
+        if (order.getTotalCost() > 100000) {
+            pointsToAdd = 2000;
+        } else if (order.getTotalCost() > 50000) {
+            pointsToAdd = 1000;
+        }
+
         if (pointsToAdd > 0) {
             user.setPoints(user.getPoints() + pointsToAdd);
-
+            String message = String.format("Bạn đã được cộng %d điểm cho đơn hàng #%d. Tổng số điểm hiện tại: %d điểm.",
+                    pointsToAdd, order.getId(), user.getPoints());
+            sendOrderStatusUpdate(user.getId(), message); // Gửi thông báo qua WebSocket
         }
 
         order.setPaid(true);
