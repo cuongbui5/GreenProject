@@ -22,12 +22,21 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
 
-    @Query("SELECT COUNT(u) FROM User u WHERE FUNCTION('YEAR', u.createdAt) = :year AND FUNCTION('MONTH', u.createdAt) = :month")
-    Long countUsersByMonth(@Param("year") int year, @Param("month") int month);
+    @Query("SELECT COUNT(u) FROM User u WHERE FUNCTION('YEAR', u.createdAt) = :year AND " +
+            "(CASE " +
+            "WHEN FUNCTION('MONTH', u.createdAt) IN (1, 2, 3) THEN 1 " +
+            "WHEN FUNCTION('MONTH', u.createdAt) IN (4, 5, 6) THEN 2 " +
+            "WHEN FUNCTION('MONTH', u.createdAt) IN (7, 8, 9) THEN 3 " +
+            "WHEN FUNCTION('MONTH', u.createdAt) IN (10, 11, 12) THEN 4 " +
+            "END) = :quarter")
+    Long countUsersByQuarter(@Param("year") int year, @Param("quarter") int quarter);
 
     @Query("SELECT o.user " +
             "FROM Order o " +
+            "WHERE o.updatedAt BETWEEN :startDate AND :endDate " +
             "GROUP BY o.user " +
             "ORDER BY SUM(o.totalCost) DESC")
-    List<User> findTopUsersByTotalOrderValue();
+    Page<User> findByTotalOrderValue(@Param("startDate") ZonedDateTime startDate,
+                                     @Param("endDate") ZonedDateTime endDate,
+                                     Pageable pageable);
 }

@@ -24,4 +24,19 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @EntityGraph(attributePaths = {"category", "images"})
     @Query("SELECT p FROM Product p WHERE p.id = :productId")
     Optional<Product> findByProductId(Long productId);
+
+
+    @Query("SELECT p " +
+            "FROM Product p " +
+            "JOIN FETCH p.productItems pi " +
+            "WHERE FUNCTION('YEAR', pi.createdAt) = :year " +
+            "AND (CASE " +
+            "WHEN FUNCTION('MONTH', pi.createdAt) IN (1, 2, 3) THEN 1 " +
+            "WHEN FUNCTION('MONTH', pi.createdAt) IN (4, 5, 6) THEN 2 " +
+            "WHEN FUNCTION('MONTH', pi.createdAt) IN (7, 8, 9) THEN 3 " +
+            "WHEN FUNCTION('MONTH', pi.createdAt) IN (10, 11, 12) THEN 4 " +
+            "END) = :quarter " +
+            "GROUP BY p " +
+            "ORDER BY SUM(pi.sold) DESC")
+    Page<Product> findTopSellingProductByQuarter(@Param("year") int year, @Param("quarter") int quarter, Pageable pageable);
 }

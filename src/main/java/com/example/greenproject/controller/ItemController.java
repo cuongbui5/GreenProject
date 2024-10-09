@@ -19,10 +19,11 @@ public class ItemController {
     private final ItemService itemService;
     @PostMapping("/add-cart")
     public ResponseEntity<?> addItemToCart(@RequestBody CreateCartItemRequest createCartItemRequest){
-        itemService.createCartItem(createCartItemRequest);
-        return ResponseEntity.ok().body(new BaseResponse(
+
+        return ResponseEntity.ok().body(new DataResponse(
                 HttpStatus.OK.value(),
-                Constants.SUCCESS_MESSAGE
+                Constants.SUCCESS_MESSAGE,
+                itemService.createCartItem(createCartItemRequest)
 
         ));
     }

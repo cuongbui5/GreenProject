@@ -48,8 +48,6 @@ public class ProductService {
             products = productDtoViewRepository.findByNameContainingIgnoreCase(search,pageable);
         }
 
-
-
         return new PaginatedResponse<>(
                 products.getContent(),
                 products.getTotalPages(),
@@ -179,16 +177,9 @@ public class ProductService {
     }
 
 
-
-
-
     public Object getProductById(Long productId) {
         Product product=productRepository.findByProductId(productId).orElseThrow(()->new RuntimeException("Khong tim thay san pham"));
         return product.mapToProductDto();
     }
 
-    /*-----------------Thống kê số lượng sản phẩm--------------------*/
-    public long getTotalProduct(){
-        return productRepository.count();
-    }
 }
