@@ -29,5 +29,5 @@ public interface UserRepository extends JpaRepository<User,Long> {
             "FROM Order o " +
             "GROUP BY o.user " +
             "ORDER BY SUM(o.totalCost) DESC")
-    List<User> findTopUsersByTotalOrderValue();
+    Page<User> findByTotalOrderValue(Pageable pageable);
 }

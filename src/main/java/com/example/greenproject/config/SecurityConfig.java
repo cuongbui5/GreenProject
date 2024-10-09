@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> {
                             //a.requestMatchers("/admin/**").hasAuthority("ADMIN");
-                            a.requestMatchers("/api/auth/**").permitAll();
+                            a.requestMatchers("/api/auth/**","/order-status").permitAll();
                             a.anyRequest().authenticated();
                         }
                 )

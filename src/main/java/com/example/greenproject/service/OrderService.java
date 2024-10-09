@@ -16,11 +16,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Service
@@ -34,6 +37,7 @@ public class OrderService {
     private final VoucherService voucherService;
     private final ContactRepository contactRepository;
     private final VoucherRepository voucherRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public OrderDto createOrderByCart() {
@@ -62,6 +66,9 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
+    public void sendOrderStatusUpdate(Long userId, String statusMessage) {
+        messagingTemplate.convertAndSend("/topic/order-status/" + userId, statusMessage);
+    }
 
     @Transactional
     public Order updateOrderStatus(long orderId, UpdateOrderStatusRequest updateOrderStatusRequest) {
@@ -78,7 +85,9 @@ public class OrderService {
         switch (newStatus) {
             case CANCELED:
                 if (currentStatus == OrderStatus.PENDING) {
-                    order.setStatus(OrderStatus.CANCELED);
+                    System.out.println("tra");
+                    processRefund(order);
+
                     break;
                 }
                 break;
@@ -86,6 +95,7 @@ public class OrderService {
             case PROCESSING:
                 if (currentStatus == OrderStatus.PENDING) {
                     order.setStatus(OrderStatus.PROCESSING);
+                    sendOrderStatusUpdate(order.getUser().getId(), "Đang lấy hàng cho đơn hàng #"+orderId);
                     break;
                 }
                 break;
@@ -93,6 +103,7 @@ public class OrderService {
             case SHIPPED:
                 if (currentStatus == OrderStatus.PROCESSING) {
                     order.setStatus(OrderStatus.SHIPPED);
+                    sendOrderStatusUpdate(order.getUser().getId(), "Đang vận chuyển đơn hàng #"+orderId);
                     break;
                 }
                 break;
@@ -100,6 +111,7 @@ public class OrderService {
             case DELIVERED:
                 if (currentStatus == OrderStatus.SHIPPED) {
                     order.setStatus(OrderStatus.DELIVERED);
+                    sendOrderStatusUpdate(order.getUser().getId(), "Đơn hàng #"+orderId+" đã được giao thành công!");
                     break;
                 }
                 break;
@@ -158,10 +170,18 @@ public class OrderService {
         paymentAccount.setBalance(paymentAccount.getBalance()-order.getTotalCost());
 
         User user=paymentAccount.getUser();
-        int pointsToAdd = (order.getTotalCost() >= 500000) ? 5000 : (order.getTotalCost() >= 100000) ? 1000 : 0;
+        int pointsToAdd = 0;
+        if (order.getTotalCost() > 100000) {
+            pointsToAdd = 2000;
+        } else if (order.getTotalCost() > 50000) {
+            pointsToAdd = 1000;
+        }
+
         if (pointsToAdd > 0) {
             user.setPoints(user.getPoints() + pointsToAdd);
-
+            String message = String.format("Bạn đã được cộng %d điểm cho đơn hàng #%d. Tổng số điểm hiện tại: %d điểm.",
+                    pointsToAdd, order.getId(), user.getPoints());
+            sendOrderStatusUpdate(user.getId(), message); // Gửi thông báo qua WebSocket
         }
 
         order.setPaid(true);
@@ -171,6 +191,10 @@ public class OrderService {
         if(order.getVoucher()!=null){
             voucherService.deleteVoucherAfterPaymentSuccess(order.getVoucher().getId(), user.getId());
         }
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String message = String.format("Đơn hàng #%d đã được thanh toán thành công. Số tiền: %s VND đã bị trừ.",
+                order.getId(), currencyFormat.format(order.getTotalCost())); // formatCurrency là hàm bạn tự định nghĩa để định dạng tiền
+        sendOrderStatusUpdate(user.getId(), message);
 
     }
 
@@ -197,8 +221,38 @@ public class OrderService {
         return orderRepository.save(order).mapToOrderDto();
     }
 
+
+
     @Transactional
     public void processRefund(Order order) {
+
+        if(order.getStatus().equals(OrderStatus.PENDING)&&order.isPaid()){
+            System.out.println("tra");
+
+            PaymentAccount paymentAccount = order.getPaymentAccount();
+            double totalCost = paymentAccount.getBalance();
+            paymentAccount.setBalance(paymentAccount.getBalance() + order.getTotalCost());
+            for (Item item : order.getItems()) {
+                ProductItem productItem = productItemRepository.findById(item.getProductItem().getId())
+                        .orElseThrow(() -> new NotFoundException("Product not found"));
+                productItem.setQuantity(productItem.getQuantity() + item.getQuantity());
+                productItem.setSold(productItem.getSold() - item.getQuantity());
+            }
+            order.setStatus(OrderStatus.CANCELED);
+
+            //order.setPaid(false); // Đánh dấu là chưa thanh toán
+            orderRepository.save(order);
+            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+            String formattedTotalCost = currencyFormat.format(order.getTotalCost());
+            String formattedOldBalance = currencyFormat.format(totalCost);
+            String formattedNewBalance = currencyFormat.format(paymentAccount.getBalance());
+            String message = String.format(
+                    "Đơn hàng #%d đã bị hủy. Bạn đã nhận lại %s. Số dư tài khoản trước đó: %s. Số dư hiện tại: %s.",
+                    order.getId(), formattedTotalCost, formattedOldBalance, formattedNewBalance
+            );
+            sendOrderStatusUpdate(order.getUser().getId(),message);
+            return;
+        }
 
         // Kiểm tra trạng thái đơn hàng
         if (!order.isPaid() || !order.getStatus().equals(OrderStatus.DELIVERED)) {
@@ -214,6 +268,7 @@ public class OrderService {
 
         // Hoàn tiền
         PaymentAccount paymentAccount = order.getPaymentAccount();
+        double totalCost = paymentAccount.getBalance();
         paymentAccount.setBalance(paymentAccount.getBalance() + order.getTotalCost());
 
         // Cập nhật trạng thái đơn hàng
@@ -229,6 +284,15 @@ public class OrderService {
         order.setStatus(OrderStatus.RETURNED);
         //order.setPaid(false); // Đánh dấu là chưa thanh toán
         orderRepository.save(order);
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String formattedTotalCost = currencyFormat.format(order.getTotalCost());
+        String formattedOldBalance = currencyFormat.format(totalCost);
+        String formattedNewBalance = currencyFormat.format(paymentAccount.getBalance());
+        String message = String.format(
+                "Đơn hàng #%d đã bị hủy. Bạn đã nhận lại %s. Số dư tài khoản trước đó: %s. Số dư hiện tại: %s.",
+                order.getId(), formattedTotalCost, formattedOldBalance, formattedNewBalance
+        );
+        sendOrderStatusUpdate(order.getUser().getId(),message);
 
 
     }

@@ -39,6 +39,7 @@ public class AdminController {
         statistics.put("totalPaidOrderValue",totalPaidOrderValue);
         statistics.put("totalNewUser",totalNewUserThisMonth);
         statistics.put("bestSellerProducts",productService.getProductsByTopSold(1,5));
+        statistics.put("Top10UserOrderByTotalOrderValue",userService.getTopUsersByTotalOrderValue(1,10));
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new DataResponse(HttpStatus.OK.value(),

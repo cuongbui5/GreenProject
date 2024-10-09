@@ -48,8 +48,6 @@ public class ProductService {
             products = productDtoViewRepository.findByNameContainingIgnoreCase(search,pageable);
         }
 
-
-
         return new PaginatedResponse<>(
                 products.getContent(),
                 products.getTotalPages(),
