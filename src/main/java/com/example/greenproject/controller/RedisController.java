@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/redis")
 @RequiredArgsConstructor
 public class RedisController {
-    private final RedisTemplate<String, Object> redisTemplate;
+    /*private final RedisTemplate<String, Object> redisTemplate;
     @PostMapping("/test")
     public String test(@RequestBody Object object) {
         if(Boolean.TRUE.equals(redisTemplate.hasKey("test"))){
@@ -21,5 +21,5 @@ public class RedisController {
         }
         redisTemplate.opsForValue().set("test", object);
         return "ok";
-    }
+    }*/
 }
