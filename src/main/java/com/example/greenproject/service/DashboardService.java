@@ -21,7 +21,6 @@ import java.util.AbstractMap;
 public class DashboardService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    private final ProductDtoViewRepository productDtoViewRepository;
     private final OrderRepository orderRepository;
     private final VoucherRepository voucherRepository;
 
