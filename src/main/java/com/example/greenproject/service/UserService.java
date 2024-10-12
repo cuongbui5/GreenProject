@@ -2,15 +2,11 @@ package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.ChangePasswordRequest;
 import com.example.greenproject.dto.req.UpdateUserRequest;
-import com.example.greenproject.dto.res.PaginatedResponse;
 import com.example.greenproject.model.User;
 import com.example.greenproject.repository.UserRepository;
 import com.example.greenproject.security.UserInfo;
 import com.example.greenproject.utils.Utils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,6 +76,4 @@ public class UserService {
     public void updateUserPoint(User user){
         userRepository.save(user);
     }
-
-
 }

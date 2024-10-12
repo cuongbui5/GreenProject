@@ -5,6 +5,7 @@ import com.example.greenproject.model.Product;
 import com.example.greenproject.model.User;
 import com.example.greenproject.model.enums.OrderStatus;
 import com.example.greenproject.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,6 @@ import java.util.AbstractMap;
 public class DashboardService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    private final ProductDtoViewRepository productDtoViewRepository;
     private final OrderRepository orderRepository;
     private final VoucherRepository voucherRepository;
 
@@ -62,6 +62,7 @@ public class DashboardService {
         return productRepository.count();
     }
 
+    @Transactional
     public Object getTopSoldProductByQuarter(int quarter, int year,int pageNum, int pageSize){
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
         Page<Product> products = productRepository.findTopSellingProductByQuarter(year,quarter,pageable);

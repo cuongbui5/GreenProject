@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 
 public class RedisService {
-    private final RedisTemplate<String, Object> redisTemplate;
+   /* private final RedisTemplate<String, Object> redisTemplate;
     private final HashOperations<String, String, Object> hashOperations;
 
     public RedisService(RedisTemplate<String, Object> redisTemplate) {
@@ -91,5 +91,5 @@ public class RedisService {
         for (String field : fields) {
             hashOperations.delete(key, field);
         }
-    }
+    }*/
 }

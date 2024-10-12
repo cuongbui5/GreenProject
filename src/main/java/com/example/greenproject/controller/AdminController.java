@@ -106,7 +106,7 @@ public class AdminController {
         Map<String,Object> statistics = new HashMap<>();
         statistics.put("quarter",quarter);
         statistics.put("year",year);
-        statistics.put("top_sold_products",dashboardService.getTopSoldProductByQuarter(year,quarter,pageNum,pageSize));
+        statistics.put("top_sold_products",dashboardService.getTopSoldProductByQuarter(quarter,year,pageNum,pageSize));
         return ResponseEntity.status(HttpStatus.OK).body(
                 new DataResponse(HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
