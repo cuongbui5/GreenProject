@@ -41,12 +41,10 @@ public class AdminController {
 
 
     @GetMapping("/order")
-    public ResponseEntity<?> getOrderByOrderStatus(@RequestParam(value = "status") OrderStatus orderStatus,
-                                                   @RequestParam(value = "quarter",defaultValue = "0") Integer quarter,
+    public ResponseEntity<?> getOrderByOrderStatus(@RequestParam(value = "quarter",defaultValue = "0") Integer quarter,
                                                    @RequestParam(value = "year",defaultValue = "0") Integer year){
         Map<String, Object> statistics = new HashMap<>();
-        statistics.put("status",orderStatus);
-        statistics.put("orders",dashboardService.getTotalOrderByStatus(orderStatus,quarter,year));
+        statistics.put("orders",dashboardService.getOrderStatusData(quarter,year));
         return ResponseEntity.status(HttpStatus.OK).body(
                 new DataResponse(HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
@@ -114,18 +112,5 @@ public class AdminController {
         );
     }
 
-    @GetMapping("/percentage-returned-order")
-    public ResponseEntity<?> getPercentageReturnedOrder(@RequestParam(value = "quarter",defaultValue = "0") Integer quarter,
-                                                        @RequestParam(value = "year",defaultValue = "0") Integer year){
-        Map<String,Object> statistics = new HashMap<>();
-        statistics.put("quarter",quarter);
-        statistics.put("year",year);
-        statistics.put("users",dashboardService.calcPercentageReturnedOrder(quarter,year));
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new DataResponse(HttpStatus.OK.value(),
-                        Constants.SUCCESS_MESSAGE,
-                        statistics)
-        );
-    }
 
 }

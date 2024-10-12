@@ -26,7 +26,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Optional<Product> findByProductId(Long productId);
 
 
-    @Query("SELECT p " +
+    @Query("SELECT p,SUM(pi.sold)  " +
             "FROM Product p " +
             "JOIN p.productItems pi " +
             "WHERE FUNCTION('YEAR', pi.updatedAt) = :year " +
@@ -38,5 +38,5 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "END) = :quarter " +
             "GROUP BY p.id " +
             "ORDER BY SUM(pi.sold) DESC")
-    Page<Product> findTopSellingProductByQuarter(@Param("year") int year, @Param("quarter") int quarter, Pageable pageable);
+    Page<Object> findTopSellingProductByQuarter(@Param("year") int year, @Param("quarter") int quarter, Pageable pageable);
 }
