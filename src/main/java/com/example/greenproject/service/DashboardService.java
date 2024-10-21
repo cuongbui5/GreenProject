@@ -98,10 +98,21 @@ public class DashboardService {
             Map<String,Object> productDtoMap = new HashMap<>(); // total, product
 
             Object[] row = (Object[]) result;
-            ProductDto productDto = ((Product) row[0]).mapToProductDto();
-            Long totalSold = (Long) row[1];
+            Long productId = (Long) row[0];
+            String productName = (String) row[1];
+            Double minPrice = (Double) row[2];
+            Double maxPrice = (Double) row[3];
+            Long totalSold = (Long) row[4];
+            Long totalRating = (Long) row[5];
+            Long countReviews = (Long) row[6];
+
+            productDtoMap.put("id",productId);
+            productDtoMap.put("name",productName);
+            productDtoMap.put("min_price",minPrice);
+            productDtoMap.put("max_price",maxPrice);
             productDtoMap.put("total_sold",totalSold);
-            productDtoMap.put("product",productDto);
+            productDtoMap.put("total_rating",totalRating);
+            productDtoMap.put("count_reviews",countReviews);
             finalResults.add(productDtoMap);
         }
 

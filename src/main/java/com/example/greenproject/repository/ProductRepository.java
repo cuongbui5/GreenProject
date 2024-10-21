@@ -26,7 +26,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Optional<Product> findByProductId(Long productId);
 
 
-    @Query("SELECT p,SUM(pi.sold)  " +
+    @Query("SELECT p.id, p.name, MIN(pi.price), MAX(pi.price),SUM(pi.sold), SUM(pi.totalRating), COUNT(pi.reviewsCount) " +
             "FROM Product p " +
             "JOIN p.productItems pi " +
             "WHERE FUNCTION('YEAR', pi.updatedAt) = :year " +
