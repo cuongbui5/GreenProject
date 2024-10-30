@@ -1,11 +1,12 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.res.PaginatedResponse;
-import com.example.greenproject.dto.res.ProductDto;
-import com.example.greenproject.model.Product;
 import com.example.greenproject.model.User;
 import com.example.greenproject.model.enums.OrderStatus;
-import com.example.greenproject.repository.*;
+import com.example.greenproject.repository.OrderRepository;
+import com.example.greenproject.repository.ProductRepository;
+import com.example.greenproject.repository.UserRepository;
+import com.example.greenproject.repository.VoucherRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -72,7 +73,7 @@ public class DashboardService {
         ZonedDateTime startDate = dateRange.getKey();
         ZonedDateTime endDate = dateRange.getValue();
 
-        Page<User> results = userRepository.findByTotalOrderValue(startDate,endDate,pageable);
+        Page<User> results = userRepository.findByTotalOrderValue(startDate,endDate, OrderStatus.DELIVERED,pageable);
         return new PaginatedResponse<>(
                 results.getContent().stream().map(User::mapToUserDtoLazy).toList(),
                 results.getTotalPages(),
@@ -134,7 +135,7 @@ public class DashboardService {
         ZonedDateTime startDate = dateRange.getKey();
         ZonedDateTime endDate = dateRange.getValue();
 
-        Double currentRevenue = orderRepository.calculateTotalRevenue(startDate,endDate);
+        Double currentRevenue = orderRepository.calculateTotalRevenue(startDate,endDate,OrderStatus.DELIVERED);
         if (currentRevenue == null) {
             throw new RuntimeException("Không có thông tin doanh thu của quý " + quarter + " năm " + year);
         }
@@ -151,7 +152,7 @@ public class DashboardService {
         AbstractMap.SimpleEntry<ZonedDateTime, ZonedDateTime> previousDateRange = getQuarterDateRange(previousQuarter, previousYear);
         ZonedDateTime previousStartDate = previousDateRange.getKey();
         ZonedDateTime previousEndDate = previousDateRange.getValue();
-        Double previousRevenue = orderRepository.calculateTotalRevenue(previousStartDate, previousEndDate);
+        Double previousRevenue = orderRepository.calculateTotalRevenue(previousStartDate, previousEndDate,OrderStatus.DELIVERED);
 
         // Nếu không có dữ liệu của quý trước, tỷ lệ tăng trưởng là 0
         double growthPercentage = 0.0;

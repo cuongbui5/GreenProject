@@ -12,9 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -24,6 +21,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UploadFileService uploadFileService;
+
+    public User getUserByEmail(String email){
+        return userRepository
+                .findByEmail(email)
+                .orElseThrow(()-> new RuntimeException("Khong tim thay email"));
+    }
+
     public User getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
@@ -44,6 +48,7 @@ public class UserService {
     public User updateUser(UpdateUserRequest updateUserRequest) {
         User user = getUserByUserInfo();
         user.setFullName(updateUserRequest.getFullName());
+        user.setEmail("mhg1503@gmail.com");
         user.setPhoneNumber(updateUserRequest.getNumberPhone());
         return userRepository.save(user);
     }

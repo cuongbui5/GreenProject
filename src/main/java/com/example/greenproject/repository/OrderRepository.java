@@ -37,7 +37,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                        @Param("endDate") ZonedDateTime endDate);
 
     /*------------------Tinh tong doanh thu order -----------------*/
-    @Query("SELECT SUM(o.totalCost) FROM Order o WHERE (o.status != INIT) AND (o.updatedAt BETWEEN :startDate AND :endDate)")
+    @Query("SELECT SUM(o.totalCost) FROM Order o WHERE (o.status =:orderStatus) AND (o.updatedAt BETWEEN :startDate AND :endDate)")
     Double calculateTotalRevenue(@Param("startDate") ZonedDateTime startDate,
-                                 @Param("endDate") ZonedDateTime endDate);
+                                 @Param("endDate") ZonedDateTime endDate,
+                                 @Param("orderStatus") OrderStatus orderStatus);
 }

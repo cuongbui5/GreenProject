@@ -35,6 +35,9 @@ public class User extends BaseEntity {
     private Integer points=0;
     private String phoneNumber;
     private String fullName;
+
+    @OneToOne(mappedBy = "user")
+    private ResetPasswordToken resetPasswordToken;
     @Enumerated(EnumType.STRING)
     private UserType userType;
     @ManyToMany(fetch = FetchType.LAZY)

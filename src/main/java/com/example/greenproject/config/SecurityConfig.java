@@ -4,11 +4,9 @@ import com.example.greenproject.security.CustomAccessDeniedHandler;
 import com.example.greenproject.security.CustomAuthenticationEntryPoint;
 import com.example.greenproject.security.LazySecurityContextProviderFilter;
 import com.example.greenproject.security.oauth2.OAuth2LoginSuccessHandler;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,10 +14,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.web.cors.CorsConfiguration;
-
-import java.util.Collections;
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -41,7 +35,7 @@ public class SecurityConfig {
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> {
                             //a.requestMatchers("/admin/**").hasAuthority("ADMIN");
-                            a.requestMatchers("/api/auth/**","/order-status").permitAll();
+                            a.requestMatchers("/api/auth/**","/order-status","/forgotPassword/**").permitAll();
                             a.anyRequest().authenticated();
                         }
                 )

@@ -1,7 +1,7 @@
 package com.example.greenproject.repository;
 
 import com.example.greenproject.model.User;
-import com.example.greenproject.model.Voucher;
+import com.example.greenproject.model.enums.OrderStatus;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,13 +10,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
+
+    Optional<User> findByEmail(String email);
 
     @EntityGraph(attributePaths = {"roles"})
     Optional<User> findByUsername(String username);
@@ -33,10 +33,12 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Query("SELECT o.user " +
             "FROM Order o " +
-            "WHERE o.updatedAt BETWEEN :startDate AND :endDate " +
+            "WHERE (o.updatedAt BETWEEN :startDate AND :endDate) " +
+            "AND o.status =:orderStatus " +
             "GROUP BY o.user " +
             "ORDER BY SUM(o.totalCost) DESC")
     Page<User> findByTotalOrderValue(@Param("startDate") ZonedDateTime startDate,
                                      @Param("endDate") ZonedDateTime endDate,
+                                     @Param("orderStatus") OrderStatus orderStatus,
                                      Pageable pageable);
 }
