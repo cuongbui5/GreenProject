@@ -1,6 +1,7 @@
 package com.example.greenproject.repository;
 
 import com.example.greenproject.model.Product;
+import com.example.greenproject.model.enums.OrderStatus;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,17 +27,43 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Optional<Product> findByProductId(Long productId);
 
 
-    @Query("SELECT p.id, p.name, MIN(pi.price), MAX(pi.price),SUM(pi.sold), SUM(pi.totalRating), COUNT(pi.reviewsCount) " +
-            "FROM Product p " +
-            "JOIN p.productItems pi " +
-            "WHERE FUNCTION('YEAR', pi.updatedAt) = :year " +
+//    @Query("SELECT p.id, p.name, MIN(pi.price), MAX(pi.price),SUM(pi.sold), SUM(pi.totalRating), COUNT(pi.reviewsCount) " +
+//            "FROM Product p " +
+//            "JOIN p.productItems pi " +
+//            "WHERE FUNCTION('YEAR', pi.updatedAt) = :year " +
+//            "AND (CASE " +
+//            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (1, 2, 3) THEN 1 " +
+//            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (4, 5, 6) THEN 2 " +
+//            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (7, 8, 9) THEN 3 " +
+//            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (10, 11, 12) THEN 4 " +
+//            "END) = :quarter " +
+//            "GROUP BY p.id " +
+//            "ORDER BY SUM(pi.sold) DESC")
+//    Page<Object> findTopSellingProductByQuarter(@Param("year") int year, @Param("quarter") int quarter, Pageable pageable);
+
+    @Query("SELECT p.id, " +
+            "       p.name, " +
+            "       MIN(pi.price) , " +
+            "       MAX(pi.price) , " +
+            "       SUM(i.quantity) , " +
+            "       SUM(pi.totalRating) , " +
+            "       COUNT(pi.reviewsCount) " +
+            "FROM Item i " +
+            "JOIN i.productItem pi " +
+            "JOIN pi.product p " +
+            "JOIN i.order o " +
+            "WHERE FUNCTION('YEAR', o.updatedAt) = :year " +
             "AND (CASE " +
-            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (1, 2, 3) THEN 1 " +
-            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (4, 5, 6) THEN 2 " +
-            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (7, 8, 9) THEN 3 " +
-            "WHEN FUNCTION('MONTH', pi.updatedAt) IN (10, 11, 12) THEN 4 " +
-            "END) = :quarter " +
+            "        WHEN FUNCTION('MONTH', o.updatedAt) IN (1, 2, 3) THEN 1 " +
+            "        WHEN FUNCTION('MONTH', o.updatedAt) IN (4, 5, 6) THEN 2 " +
+            "        WHEN FUNCTION('MONTH', o.updatedAt) IN (7, 8, 9) THEN 3 " +
+            "        WHEN FUNCTION('MONTH', o.updatedAt) IN (10, 11, 12) THEN 4 " +
+            "     END) = :quarter " +
+            "AND o.status =:orderStatus " +
             "GROUP BY p.id " +
-            "ORDER BY SUM(pi.sold) DESC")
-    Page<Object> findTopSellingProductByQuarter(@Param("year") int year, @Param("quarter") int quarter, Pageable pageable);
+            "ORDER BY SUM(i.quantity) DESC")
+    Page<Object> findTopSellingProductByQuarter(@Param("year") int year,
+                                                @Param("quarter") int quarter,
+                                                @Param("orderStatus") OrderStatus orderStatus,
+                                                Pageable pageable);
 }

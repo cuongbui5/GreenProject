@@ -2,6 +2,7 @@ package com.example.greenproject.repository;
 
 import com.example.greenproject.model.User;
 import com.example.greenproject.model.Voucher;
+import com.example.greenproject.model.enums.OrderStatus;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,9 +35,11 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("SELECT o.user " +
             "FROM Order o " +
             "WHERE o.updatedAt BETWEEN :startDate AND :endDate " +
+            "AND o.status =:orderStatus " +
             "GROUP BY o.user " +
             "ORDER BY SUM(o.totalCost) DESC")
     Page<User> findByTotalOrderValue(@Param("startDate") ZonedDateTime startDate,
                                      @Param("endDate") ZonedDateTime endDate,
+                                     @Param("orderStatus") OrderStatus orderStatus,
                                      Pageable pageable);
 }
