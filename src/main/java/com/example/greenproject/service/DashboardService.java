@@ -73,7 +73,7 @@ public class DashboardService {
         ZonedDateTime startDate = dateRange.getKey();
         ZonedDateTime endDate = dateRange.getValue();
 
-        Page<User> results = userRepository.findByTotalOrderValue(startDate,endDate, OrderStatus.DELIVERED,pageable);
+        Page<User> results = userRepository.findByTotalOrderValue(startDate,endDate,OrderStatus.DELIVERED,pageable);
         return new PaginatedResponse<>(
                 results.getContent().stream().map(User::mapToUserDtoLazy).toList(),
                 results.getTotalPages(),
@@ -91,7 +91,7 @@ public class DashboardService {
     @Transactional
     public Object getTopSoldProductByQuarter(int quarter, int year,int pageNum, int pageSize){
         Pageable pageable = PageRequest.of(pageNum-1,pageSize);
-        Page<Object> results = productRepository.findTopSellingProductByQuarter(year,quarter,pageable);
+        Page<Object> results = productRepository.findTopSellingProductByQuarter(year,quarter,OrderStatus.DELIVERED,pageable);
 
         List<Map<String,Object>> finalResults = new ArrayList<>(); // id va ket qua cua (total, product)
 

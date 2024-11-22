@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Query("SELECT o.user " +
             "FROM Order o " +
-            "WHERE (o.updatedAt BETWEEN :startDate AND :endDate) " +
+            "WHERE o.updatedAt BETWEEN :startDate AND :endDate " +
             "AND o.status =:orderStatus " +
             "GROUP BY o.user " +
             "ORDER BY SUM(o.totalCost) DESC")

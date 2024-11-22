@@ -1,7 +1,7 @@
 package com.example.greenproject.controller;
 
 import com.example.greenproject.dto.MailBody;
-import com.example.greenproject.dto.req.ChangePasswordRequest;
+import com.example.greenproject.dto.req.ResetPasswordRequest;
 import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.model.ResetPasswordToken;
 import com.example.greenproject.model.User;
@@ -34,9 +34,7 @@ public class ResetPasswordController {
 
         Optional<ResetPasswordToken> resetPasswordTokenOptional = resetPasswordTokenRepository.findByUser(user);
 
-        if(resetPasswordTokenOptional.isPresent()){
-            resetPasswordTokenRepository.deleteById(resetPasswordTokenOptional.get().getId());
-        }
+        resetPasswordTokenOptional.ifPresent(resetPasswordToken -> resetPasswordTokenRepository.deleteById(resetPasswordToken.getId()));
 
         int otp = otpGenerate();
         MailBody mailBody = MailBody
@@ -73,13 +71,13 @@ public class ResetPasswordController {
         return ResponseEntity.status(HttpStatus.OK).body("Xac nhan Token thanh cong");
     }
 
-    @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
+    @PutMapping("/changePassword/{email}")
+    public ResponseEntity<?> changePassword(@RequestBody ResetPasswordRequest resetPasswordRequest, @PathVariable("email") String email){
         return ResponseEntity.ok().body(
                 new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        userService.changePassword(changePasswordRequest)
+                        userService.resetPassword(resetPasswordRequest,email)
                 )
         );
     }

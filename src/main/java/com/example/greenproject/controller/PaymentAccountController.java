@@ -26,7 +26,7 @@ public class PaymentAccountController {
     }
 
     @PostMapping("/link")
-    public ResponseEntity<?> linkUserToPaymentAccount( @RequestBody LinkPaymentAccount linkPaymentAccount) {
+    public ResponseEntity<?> linkUserToPaymentAccount(@RequestBody LinkPaymentAccount linkPaymentAccount) {
         return ResponseEntity.ok().body(new DataResponse(
                 HttpStatus.OK.value(),
                 Constants.SUCCESS_MESSAGE,

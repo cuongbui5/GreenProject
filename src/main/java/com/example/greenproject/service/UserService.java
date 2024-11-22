@@ -1,6 +1,7 @@
 package com.example.greenproject.service;
 
 import com.example.greenproject.dto.req.ChangePasswordRequest;
+import com.example.greenproject.dto.req.ResetPasswordRequest;
 import com.example.greenproject.dto.req.UpdateUserRequest;
 import com.example.greenproject.model.User;
 import com.example.greenproject.repository.UserRepository;
@@ -48,7 +49,6 @@ public class UserService {
     public User updateUser(UpdateUserRequest updateUserRequest) {
         User user = getUserByUserInfo();
         user.setFullName(updateUserRequest.getFullName());
-        user.setEmail("mhg1503@gmail.com");
         user.setPhoneNumber(updateUserRequest.getNumberPhone());
         return userRepository.save(user);
     }
@@ -63,8 +63,23 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         return userRepository.save(user);
+    }
 
+    public String resetPassword(ResetPasswordRequest resetPasswordRequest, String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new RuntimeException("Khong tim thay email!"));
 
+        String newPassword = resetPasswordRequest.getNewPassword();
+        String confirmPassword = resetPasswordRequest.getConfirmPassword();
+        if(!Objects.equals(newPassword,confirmPassword)){
+            throw new RuntimeException("Mat khau khong hop le, vui long nhap lai mat khau");
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+
+        return "Mat khau thay doi thanh cong";
     }
 
     public User uploadAvatar(MultipartFile file) throws IOException {
