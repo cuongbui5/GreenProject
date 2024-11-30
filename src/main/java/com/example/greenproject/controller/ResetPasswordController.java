@@ -2,11 +2,13 @@ package com.example.greenproject.controller;
 
 import com.example.greenproject.dto.MailBody;
 import com.example.greenproject.dto.req.ResetPasswordRequest;
+import com.example.greenproject.dto.res.BaseResponse;
 import com.example.greenproject.dto.res.DataResponse;
 import com.example.greenproject.model.ResetPasswordToken;
 import com.example.greenproject.model.User;
 import com.example.greenproject.repository.ResetPasswordTokenRepository;
 import com.example.greenproject.service.EmailService;
+import com.example.greenproject.service.ResetPasswordService;
 import com.example.greenproject.service.UserService;
 import com.example.greenproject.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -23,52 +25,30 @@ import java.util.Random;
 @RequiredArgsConstructor
 @RequestMapping("/forgotPassword")
 public class ResetPasswordController {
-    private final UserService userService;
-    private final EmailService emailService;
-    private final ResetPasswordTokenRepository resetPasswordTokenRepository;
+    private final ResetPasswordService resetPassword;
 
     @PostMapping("/verifyMail/{email}")
     public ResponseEntity<?> verityEmail(@PathVariable("email")String email){
-        User user = userService
-                .getUserByEmail(email);
+        String result = resetPassword.verifyEmail(email);
 
-        Optional<ResetPasswordToken> resetPasswordTokenOptional = resetPasswordTokenRepository.findByUser(user);
-
-        resetPasswordTokenOptional.ifPresent(resetPasswordToken -> resetPasswordTokenRepository.deleteById(resetPasswordToken.getId()));
-
-        int otp = otpGenerate();
-        MailBody mailBody = MailBody
-                .builder()
-                .to(email)
-                .text("Day la OTP de thay doi mat khau" + otp)
-                .subject("OTP thay doi mat khau")
-                .build();
-
-        ResetPasswordToken resetPasswordToken = ResetPasswordToken
-                .builder()
-                .otp(otp)
-                .expirationTime(new Date(System.currentTimeMillis() + 70 * 1000))
-                .user(user)
-                .build();
-
-        emailService.sendEmailMessage(mailBody);
-        resetPasswordTokenRepository.save(resetPasswordToken);
-        return ResponseEntity.status(HttpStatus.OK).body("Email send for verification");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new BaseResponse(
+                        HttpStatus.OK.value(),
+                        result
+                ));
     }
 
     @PostMapping("/verifyOtp/{otp}/{email}")
     public ResponseEntity<?> verifyOtp(@PathVariable("otp") Integer otp, @PathVariable("email") String email){
-        User user = userService
-                .getUserByEmail(email);
+        String result = resetPassword.verifyOtp(email,otp);
 
-        ResetPasswordToken resetPasswordToken = resetPasswordTokenRepository
-                .findByOtpAndUser(otp, user).orElseThrow(()-> new RuntimeException("OTP khong dung cho email"));
-
-        if(resetPasswordToken.getExpirationTime().before(Date.from(Instant.now()))){
-            resetPasswordTokenRepository.deleteById(resetPasswordToken.getId());
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Token da het han");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body("Xac nhan Token thanh cong");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new BaseResponse(
+                        HttpStatus.OK.value(),
+                        "Xac nhan OTP thanh cong"
+                ));
     }
 
     @PutMapping("/changePassword/{email}")
@@ -77,13 +57,9 @@ public class ResetPasswordController {
                 new DataResponse(
                         HttpStatus.OK.value(),
                         Constants.SUCCESS_MESSAGE,
-                        userService.resetPassword(resetPasswordRequest,email)
+                        resetPassword.resetPassword(resetPasswordRequest,email)
                 )
         );
     }
 
-
-    private Integer otpGenerate(){
-        return new Random().nextInt(100_000,999_999);
-    }
 }

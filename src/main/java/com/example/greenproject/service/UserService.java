@@ -65,23 +65,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public String resetPassword(ResetPasswordRequest resetPasswordRequest, String email){
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(()->new RuntimeException("Khong tim thay email!"));
-
-        String newPassword = resetPasswordRequest.getNewPassword();
-        String confirmPassword = resetPasswordRequest.getConfirmPassword();
-        if(!Objects.equals(newPassword,confirmPassword)){
-            throw new RuntimeException("Mat khau khong hop le, vui long nhap lai mat khau");
-        }
-
-        String encodedPassword = passwordEncoder.encode(newPassword);
-        user.setPassword(encodedPassword);
-        userRepository.save(user);
-
-        return "Mat khau thay doi thanh cong";
-    }
-
     public User uploadAvatar(MultipartFile file) throws IOException {
         String url=uploadFileService.uploadFile(file);
         User user = getUserByUserInfo();
