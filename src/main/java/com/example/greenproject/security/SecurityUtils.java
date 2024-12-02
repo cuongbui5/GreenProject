@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,6 +57,7 @@ public class SecurityUtils {
     }
 
     public static void setJwtToClient(UserInfo userInfo) throws IOException {
+
         System.out.println("setJwtToClient");
 
         String token = createToken(userInfo);
@@ -64,16 +66,30 @@ public class SecurityUtils {
         //tokenCookie.setMaxAge(10);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setPath("/");
+        //tokenCookie.setSecure(true);
+
+        /*ResponseCookie responseCookie= ResponseCookie.from("Hello","hello")
+                .sameSite("None")
+                .path("/")
+                .httpOnly(true)
+                .maxAge(SIX_HOURS)
+                .domain("jksy1lk.localto.net")
+                .build();*/
+
+
 
         Cookie userInfoCookie = new Cookie("Authority", userInfo.getAuthorities().get(0));
         userInfoCookie.setMaxAge(SIX_HOURS);
         userInfoCookie.setPath("/");
+        //userInfoCookie.setSecure(false);
+        //userInfoCookie.setDomain("jksy1lk.localto.net");
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert attributes != null;
         HttpServletResponse response= attributes.getResponse();
         assert response != null;
         response.addCookie(tokenCookie);
         response.addCookie(userInfoCookie);
+        //response.addHeader("Set-Cookie", responseCookie.toString());
 
     }
 

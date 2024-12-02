@@ -23,7 +23,7 @@ import java.util.Random;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/forgotPassword")
+@RequestMapping("api/forgotPassword")
 public class ResetPasswordController {
     private final ResetPasswordService resetPassword;
 

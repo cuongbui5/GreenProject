@@ -23,7 +23,7 @@ public class LazySecurityContextProviderFilter extends OncePerRequestFilter {
         System.out.println("Request Method: " + method);
 
 
-        if (path.contains("/api/auth")||path.contains("/api/usr-info")||path.contains("/topic")) {
+        if (path.contains("/api/auth")||path.contains("/api/usr-info")||path.contains("/topic")||path.contains("/forgotPassword")) {
             filterChain.doFilter(request, response);
             return;
         }
