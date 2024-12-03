@@ -20,7 +20,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @EntityGraph(attributePaths = {"contact", "voucher", "items.productItem.product.category","items.productItem.product.images", "items.productItem.variationOptions"})
     Optional<Order> findById(Long id);
     @EntityGraph(attributePaths = {"contact", "voucher", "items.productItem.product.category","items.productItem.product.images", "items.productItem.variationOptions"})
-    List<Order> findByStatus(OrderStatus status, Sort sort);
+    List<Order> findByStatusAndUserId(OrderStatus status,Long userId, Sort sort);
     @EntityGraph(attributePaths = {"contact", "voucher", "items.productItem.product.category","items.productItem.product.images", "items.productItem.variationOptions"})
     Page<Order> findByStatus(OrderStatus status, Pageable pageable);
 

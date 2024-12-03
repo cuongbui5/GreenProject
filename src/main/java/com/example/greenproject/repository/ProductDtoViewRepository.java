@@ -16,7 +16,7 @@ public interface ProductDtoViewRepository extends JpaRepository<ProductDtoView, 
     Page<ProductDtoView> findAll(Pageable pageable);
     Page<ProductDtoView> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    @Query(value = "SELECT * FROM product_dto_view WHERE total_rating / total_reviews = :rating",nativeQuery = true)
+    @Query(value = "SELECT * FROM product_dto_view WHERE CAST((total_rating / total_reviews) AS SIGNED) =:rating",nativeQuery = true)
     Page<ProductDtoView> findAllProductsByRatingPoint(@Param("rating") Integer rating,Pageable pageable);
 
     @Query(value = "SELECT * FROM product_dto_view psv ORDER BY psv.min_price ASC",nativeQuery = true)

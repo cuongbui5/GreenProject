@@ -10,6 +10,8 @@ import com.example.greenproject.model.enums.ItemStatus;
 import com.example.greenproject.model.enums.OrderStatus;
 import com.example.greenproject.model.enums.VoucherType;
 import com.example.greenproject.repository.*;
+import com.example.greenproject.security.UserInfo;
+import com.example.greenproject.utils.Utils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -327,8 +329,9 @@ public class OrderService {
     @Transactional
     public List<OrderDto> getAllOrderByStatus(OrderStatus orderStatus) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        UserInfo userInfo = Utils.getUserInfoFromContext();
 
-        return orderRepository.findByStatus(orderStatus,sort).stream().map(Order::mapToOrderDto).toList();
+        return orderRepository.findByStatusAndUserId(orderStatus,userInfo.getId(),sort).stream().map(Order::mapToOrderDto).toList();
     }
     @Transactional
     public Object getAllOrder(Integer pageNum, Integer pageSize, OrderStatus orderStatus) {
