@@ -72,6 +72,7 @@ public class Order extends BaseEntity {
         dto.setTotalCost(totalCost);
         dto.setProductTotalCost(productTotalCost);
         dto.setStatus(status);
+        dto.setUsername(user.getUsername());
         return dto;
     }
 

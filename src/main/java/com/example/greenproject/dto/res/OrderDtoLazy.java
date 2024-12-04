@@ -11,4 +11,5 @@ public class OrderDtoLazy {
     private Double totalCost;
     private Double discountAmount;
     private OrderStatus status;
+    private String username;
 }
