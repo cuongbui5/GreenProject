@@ -11,6 +11,8 @@ import com.example.greenproject.service.EmailService;
 import com.example.greenproject.service.ResetPasswordService;
 import com.example.greenproject.service.UserService;
 import com.example.greenproject.utils.Constants;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,7 @@ public class ResetPasswordController {
     private final ResetPasswordService resetPassword;
 
     @PostMapping("/verifyMail/{email}")
-    public ResponseEntity<?> verityEmail(@PathVariable("email")String email){
+    public ResponseEntity<?> verityEmail(@Email(message = "khong dung dinh dang email") @PathVariable("email")String email){
         String result = resetPassword.verifyEmail(email);
 
         return ResponseEntity
@@ -40,7 +42,8 @@ public class ResetPasswordController {
     }
 
     @PostMapping("/verifyOtp/{otp}/{email}")
-    public ResponseEntity<?> verifyOtp(@PathVariable("otp") Integer otp, @PathVariable("email") String email){
+    public ResponseEntity<?> verifyOtp(@PathVariable("otp") Integer otp,
+                                       @Email(message = "khong dung dinh dang email") @PathVariable("email") String email){
         String result = resetPassword.verifyOtp(email,otp);
 
         return ResponseEntity
@@ -52,7 +55,8 @@ public class ResetPasswordController {
     }
 
     @PutMapping("/changePassword/{email}")
-    public ResponseEntity<?> changePassword(@RequestBody ResetPasswordRequest resetPasswordRequest, @PathVariable("email") String email){
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest,
+                                            @Email(message = "khong dung dinh dang email") @PathVariable("email") String email){
         return ResponseEntity.ok().body(
                 new DataResponse(
                         HttpStatus.OK.value(),
